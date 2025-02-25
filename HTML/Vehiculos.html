@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrasofft - Vehículos</title>
+    <link rel="stylesheet" href="..//CSS/vehiculos.css">
+</head>
+<body>
+    <header>
+        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft">
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">manual de usuario</a></li> 
+                <li><a href="#">Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    
+    <div class="container">
+         <aside class="sidebar">
+            <button onclick="mostrarSubseccion('crear-vehiculo')">Crear Vehículo</button>
+            <button onclick="mostrarSubseccion('consultar-vehiculo')">Consultar Vehículo</button>
+            <button onclick="mostrarSubseccion('eliminar-vehiculo')">Eliminar Vehículo</button>
+        </aside>
+
+        <main class="main-content">
+            <div id="crear-vehiculo" class="subsection">
+                 <h2>Crear Nuevo Vehículo</h2>
+                    <form id="form-crear-vehiculo">
+                        <label for="placa">Placa:</label>
+                        <input type="text" id="placa" name="placa" required>
+
+                        <label for="modelo">Modelo:</label>
+                        <input type="text" id="modelo" name="modelo" required>
+
+                        <label for="tipo-de-carga">Tipo de carga:</label>
+                        <select id="tipo-de-carga" name="tipo-de-carga" required>
+                            <option value="elegir-opcion">----Elegir Opción----</option>
+                            <option value="pasajeros">Pasajeros</option>
+                            <option value="paqueteria">Paqueteria</option>
+                            <option value="mixta">Mixta</option>
+                        </select>
+
+                        <label for="capacidad-puestos">Capacidad Puestos:</label>
+                        <input type="text" id="capacidad-puestos" name="capacidad-puestos" required>
+
+                        <label for="capacidad-KG">Capacidad Kilo Gramos:</label>
+                        <input type="text" id="capacidad-KG" name="capacidad-KG" required>
+
+                        <label for="tipo-vehiculo">Tipo de vehiculo:</label>
+                        <select id="tipo-vehiculo" name="tipo-vehiculo" required>
+                            <option value="elegir-opcion">----Elegir Opción----</option>
+                            <option value="transporte_masivo_pasajeros">Transporte publico de pasajeros</option>
+                            <option value="paqueteria">Paqueteria</option>
+                            <option value="mixta">Mixta</option>
+                        </select>
+
+                        <label for="foto-soat">Foto del SOAT:</label>
+                        <input type="file" id="foto-soat" name="foto-soat" accept="image/*" required>
+
+                        <label for="vencimiento-soat">Fecha de vencimiento del SOAT:</label>
+                        <input type="date" id="vencimiento-soat" name="vencimiento-soat" required>
+
+                        <label for="foto-tecnomecanica">Foto de la Tecnomecánica:</label>
+                        <input type="file" id="foto-tecnomecanica" name="foto-tecnomecanica" accept="image/*" required>
+
+                        <label for="vencimiento-tecnomecanica">Fecha de vencimiento de la Tecnomecánica:</label>
+                        <input type="date" id="vencimiento-tecnomecanica" name="vencimiento-tecnomecanica" required>
+
+                        <button type="submit">Crear Vehículo</button>
+                    </form>
+                </div>
+
+                <!-- Consultar Vehículo -->
+            <div id="consultar-vehiculo" class="subsection" style="display:none;">
+                 <h2>Consultar Vehículos</h2>
+                    <form id="form-consulta-vehiculo">
+                        <label for="placa-consulta">Número de Placa:</label>
+                        <input type="text" id="placa-consulta" name="placa-consulta" required>
+                        <button type="button" onclick="buscarVehiculo()" style="background-color: green; color: white;">Consultar</button>
+                    </form>
+                    <div id="resultado-vehiculo" style="display:none;">
+                        <!-- Aquí se mostrarán la información del vehículo -->
+                    </div>
+            </div>
+                
+                <!-- Modal para mostrar información del vehículo -->
+            <div id="modal-vehiculo" class="modal" style="display:none;">
+                <div class="modal-content">
+                        <span class="close" onclick="cerrarModal()">&times;</span>
+                        <h3>Información del Vehículo</h3>
+                        <div id="detalle-vehiculo"></div>
+                    </div>
+            </div>
+                
+
+                <!-- Eliminar Vehículo -->
+            <div id="eliminar-vehiculo" class="subsection" style="display:none;">
+                <h3>Eliminar Vehículo</h3>
+                    <form id="form-eliminar-vehiculo">
+                        <label for="placa-eliminar">Número de Placa:</label>
+                        <input type="text" id="placa-eliminar" name="placa-eliminar" required>
+                        <button type="button" onclick="buscarVehiculoEliminar()" style="background-color: green; color: white;">Buscar Vehículo</button>
+                    </form>
+                    <div id="resultado-eliminar" style="display:none;">
+                        <!-- Aquí se mostrará la información del vehículo a eliminar -->
+                        <button type="button" onclick="confirmarEliminacion()" style="background-color: red; color: white;">Eliminar Vehículo</button>
+                    </div>
+            </div>
+                
+                <!-- Modal para confirmar eliminación con contraseña -->
+            <div id="modal-eliminar" class="modal" style="display:none;">
+                <div class="modal-content">
+                        <span class="close" onclick="cerrarModalEliminar()">&times;</span>
+                        <h3>Confirmar Eliminación</h3>
+                        <p>Para eliminar el vehículo, por favor ingrese su contraseña:</p>
+                        <input type="password" id="password-eliminar" name="password-eliminar" required>
+                        <button type="button" onclick="eliminarVehiculo()">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+
+    <script src="..//JS/vehiculos.js"></script>
+</body>
+</html>

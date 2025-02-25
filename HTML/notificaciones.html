@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrasofft - Notificaciones</title>
+    <link rel="stylesheet" href="..//CSS/notificaciones.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">Manual de usuario</a></li>
+                <li><a href="#">Cerrar sesión</a></li>
+            </ul>
+            <button id="btn-notificaciones" onclick="toggleNotificaciones()">🔔</button>
+        </nav>
+    </header>
+
+    <div id="notificaciones-panel" class="notificaciones-panel">
+        <h3>Notificaciones Recientes</h3>
+        <div class="notificacion">
+            <h3>SOAT próximo a vencer</h3>
+            <p>Placa: XYZ123 - Fecha de vencimiento: 2023-11-25</p>
+        </div>
+        <div class="notificacion">
+            <h3>Vehículo registrado exitosamente</h3>
+            <p>Placa: ABC456</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <main class="main-content">
+            <h2>Notificaciones</h2>
+            <div id="notificaciones">
+                <!-- Aquí se mostrarán las notificaciones como en el panel -->
+                <div class="notificacion alerta">
+                    <h3>SOAT próximo a vencer</h3>
+                    <p>Placa: XYZ123 - Fecha de vencimiento: 2023-11-25</p>
+                </div>
+                <div class="notificacion">
+                    <h3>Vehículo registrado exitosamente</h3>
+                    <p>Placa: ABC456</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="..//JS/notificaciones.js"></script>
+</body>
+</html>

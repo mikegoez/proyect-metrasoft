@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrasofft - Panel de Control</title>
+    <link rel="stylesheet" href="..//css/main.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <header>
+        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft">
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>   
+                <li><a href="#">Manual de usuario</a></li>
+                <li><a href="#">Cerrar sesión</a></li>
+            </ul>
+            <!-- Boton de notificaciones -->
+            <button id="btn-notificaciones" onclick="toggleNotificaciones()">🔔</button>
+        </nav>
+    </header>
+
+    <!-- Panel de motificaciones -->
+    <div id="notificaciones-panel" class="notificaciones-panel">
+        <h3>Notificaciones Recientes</h3>
+        <div class="notificacion">
+            <h3>SOAT próximo a vencer</h3>
+            <p>Placa: XYZ123 - Fecha de vencimiento: 2023-11-25</p>
+        </div>
+        <div class="notificacion">
+            <h3>Vehículo registrado exitosamente</h3>
+            <p>Placa: ABC456</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <!-- Botones de la barra lateral -->
+            <button onclick="window.location.href='vehiculos.html'">Vehículos</button>
+            <button onclick="window.location.href='conductores.html'">Conductores</button>
+            <button onclick="window.location.href='despachos.html'">Despachos</button>
+            <button onclick="window.location.href='actualizacion.html'">Actualizar Información</button>
+            <button onclick="window.location.href='notificaciones.html'">Notificaciones</button>
+        </aside>
+
+        <main class="main-content">
+            <div id="welcome" class="section">
+                <h1>Bienvenido a Metrasoft</h1>
+                <p>Por favor selecciona la acción que necesitas consultar o crear.</p>
+            </div>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h3>Total Vehículos registrados</h3>
+                    <p id="vehiculos-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Conductores registrados</h3>
+                    <p id="conductores-count">0</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="..//js/main.js"></script>
+</body>
+</html>

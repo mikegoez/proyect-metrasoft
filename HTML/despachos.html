@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrasofft - Despachos</title>
+    <link rel="stylesheet" href="..//CSS/despachos.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">manual de usuario</a></li>
+                <li><a href="#">Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <button onclick="mostrarSeccion('crear-despacho')">Crear Despacho</button>
+            <button onclick="mostrarSeccion('consultar-despacho')">Consultar Despacho</button>
+            <button onclick="mostrarSeccion('eliminar-despacho')">Eliminar Despacho</button>
+        </aside>
+
+        <main class="main-content">
+            <div id="crear-despacho" class="section">
+                <h2>Crear Nuevo Despacho</h2>
+                <form id="form-crear-despacho">
+                    <label for="codigo-despacho">Código del Despacho:</label>
+                    <input type="text" id="codigo-despacho" name="codigo-despacho" required>
+
+                    <label for="vehiculo">Placa del Vehículo:</label>
+                    <input type="text" id="vehiculo" name="vehiculo" required>
+
+                    <label for="conductor">Nombre del Conductor:</label>
+                    <input type="text" id="conductor" name="conductor" required>
+
+                    <label for="tipo-carga">Tipo de Carga:</label>
+                    <select id="tipo-carga" name="tipo-carga" required>
+                        <option value="masivo-pasajeros">Masivo Pasajeros</option>
+                        <option value="paqueteria">Paquetería</option>
+                        <option value="mixta">Mixta</option>
+                    </select>
+
+                    <label for="destino">Destino:</label>
+                    <input type="text" id="destino" name="destino" required>
+
+                    <label for="capacidad">Capacidad:</label>
+                    <input type="text" id="capacidad" name="capacidad" required>
+
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" required>
+
+                    <label for="hora">Hora de salida:</label>
+                    <input type="time" id="hora" name="hora" required>
+
+                    <button type="submit">Crear Despacho</button>
+                </form>
+            </div>
+
+            <!-- Consultar Despacho -->
+            <div id="consultar-despacho" class="section" style="display:none;">
+                <h2>Consultar Despacho</h2>
+                <form id="form-consulta-despacho">
+                    <label for="codigo-consulta">Código del Despacho:</label>
+                    <input type="text" id="codigo-consulta" name="codigo-consulta" required>
+                    <button type="button" onclick="buscarDespacho()" style="background-color: green; color: white;">Consultar</button>
+                </form>
+                <div id="resultado-despacho" style="display:none;">
+                    <!-- Aquí se mostrará la información del despacho -->
+                </div>
+            </div>
+
+            <!-- Eliminar Despacho -->
+            <div id="eliminar-despacho" class="section" style="display:none;">
+                <h2>Eliminar Despacho</h2>
+                <form id="form-eliminar-despacho">
+                    <label for="codigo-eliminar">Código del Despacho:</label>
+                    <input type="text" id="codigo-eliminar" name="codigo-eliminar" required>
+                    <button type="button" onclick="buscarDespachoEliminar()" style="background-color: green; color: white;">Buscar Despacho</button>
+                </form>
+                <div id="resultado-eliminar" style="display:none;">
+                    <!-- Aquí se mostrará la información del despacho a eliminar -->
+                    <button type="button" onclick="confirmarEliminacion()" style="background-color: red; color: white;">Eliminar Despacho</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="..//JS/despachos.js"></script>
+</body>
+</html>
