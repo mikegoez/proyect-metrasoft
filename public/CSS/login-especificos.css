@@ -1,0 +1,21 @@
+/* Estilos para los enlaces adicionales */
+.additional-options {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.additional-options p {
+    margin: 0.5rem 0;
+}
+
+.forgot-password,
+.register-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.forgot-password:hover,
+.register-link:hover {
+    text-decoration: underline;
+}

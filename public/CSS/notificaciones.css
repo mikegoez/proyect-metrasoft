@@ -1,3 +1,4 @@
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -15,7 +16,7 @@ header {
 }
 
 header .logo {
-    height: 70px;
+    height: 50px;
 }
 
 header nav ul {
@@ -35,15 +36,19 @@ header nav ul li a {
 }
 
 #btn-notificaciones {
-    background-color: #102aef;
+    background-color: #fcfdff;
     border: none;
-    padding: 5px;
+    padding: 7px;
     cursor: pointer;
-    font-size: 5px;
-    border-radius: 3px;
+    font-size: rem;
+    border-radius: 10px;
     position: absolute;
-    right: 340px; 
-    top: 30px; 
+    right: 350px;
+    top: 20px;
+    color: white;
+}
+#btn-notificaciones:hover {
+    background-color: #ddd;
 }
 
 .container {
@@ -56,10 +61,11 @@ header nav ul li a {
     padding: 20px;
 }
 
+/* Panel de notificaciones */
 .notificaciones-panel {
     position: fixed;
     right: 20px;
-    top: 60px;
+    top: 80px;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -70,25 +76,90 @@ header nav ul li a {
     padding: 15px;
 }
 
+.notificaciones-panel h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+#lista-notificaciones {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Notificaciones */
 .notificacion {
-    background-color: #e9f5e9;
-    border-left: 5px solid green;
-    padding: 15px;
-    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    border-left: 4px solid #007bff;
+    padding: 10px;
+    margin-bottom: 10px;
     border-radius: 4px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.notificacion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .notificacion.alerta {
+    border-left-color: red;
     background-color: #f9e6e6;
-    border-left: 5px solid red;
 }
 
 .notificacion h3 {
     margin: 0;
     color: #333;
+    font-size: 1rem;
 }
 
 .notificacion p {
     margin: 5px 0 0;
     color: #555;
+    font-size: 0.9rem;
 }
+
+.btn-eliminar {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: transparent;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.btn-eliminar:hover {
+    color: #333;
+}
+
+/* Botón para cerrar el panel de notificaciones */
+#btn-cerrar-notificaciones {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center;
+}
+
+#btn-cerrar-notificaciones:hover {
+    background-color: #0056b3;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .notificaciones-panel {
+        width: 90%;
+        right: 10px;
+        top: 70px;
+    }
+}
+

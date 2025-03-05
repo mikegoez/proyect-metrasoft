@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Inicio de Sesión - Metrasofft</title>
-    <link rel="stylesheet" href="..//CSS/login.css">
+    <link rel="stylesheet" href="..//CSS/login.css"> <!-- Estilos comunes -->
+    <link rel="stylesheet" href="..//CSS/login-especificos.css"> <!-- Estilos específicos -->
 </head>
 <body>
     <header>
@@ -19,10 +20,10 @@
 
     <main>
         <div class="login">
-            <img src="../assets/metrasofftlogo.png" alt="Logo Metrasofft">
+            <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
             <h2>Iniciar Sesión</h2>
 
-            <!-- selector de tipo de usuario -->
+            <!-- Selector de tipo de usuario -->
             <div class="user-type">
                 <input type="radio" id="user" name="userType" value="user" checked>
                 <label for="user">Usuario</label>
@@ -30,6 +31,7 @@
                 <label for="admin">Administrador</label>
             </div>
 
+            <!-- Formulario de inicio de sesión -->
             <form action="login.php" method="POST">
                 <label for="username">Usuario:</label>
                 <input type="text" id="username" name="username" required>
@@ -40,11 +42,13 @@
                 <label for="showPassword">Mostrar contraseña</label>
 
                 <button type="submit">Iniciar Sesión</button>
-                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
             </form>
-            
-            <!-- boton de registro -->
-            <a href="register.html" class="register-link">Registrarse</a>
+
+            <!-- Enlaces para otras funcionalidades -->
+            <div class="additional-options">
+                <a href="forgot-password.html" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                <p>¿No tienes una cuenta? <a href="register.html" class="register-link">Regístrate aquí</a></p>
+            </div>
         </div>
     </main>
 

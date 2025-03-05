@@ -4,87 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Conductores</title>
-    <link rel="stylesheet" href="..//CSS/conductores.css">
+    <link rel="stylesheet" href="../CSS/conductores.css"> <!-- Ruta corregida -->
 </head>
 <body>
     <header>
-        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft">
+        <img src="../assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="#">manual de usuario</a></li> 
+                <li><a href="#">Manual de usuario</a></li>
                 <li><a href="#">Cerrar sesión</a></li>
             </ul>
         </nav>
     </header>
 
     <div class="container">
+        <!-- Barra lateral -->
         <aside class="sidebar">
             <button onclick="mostrarSubseccion('crear-conductor')">Crear Conductor</button>
             <button onclick="mostrarSubseccion('consultar-conductor')">Consultar Conductor</button>
             <button onclick="mostrarSubseccion('eliminar-conductor')">Eliminar Conductor</button>
         </aside>
 
+        <!-- Contenido principal -->
         <main class="main-content">
-            <!-- Crear Conductor -->
-            <div id="crear-conductor" class="subsection">
+            <!-- Sección: Crear Conductor -->
+            <section id="crear-conductor" class="subsection">
                 <h1>Crear Nuevo Conductor</h1>
-                    <form id="form-crear-conductor">
-                        <label for="tipo-de-documento">Tipo de Documento:</label>
-                        <select id="tipo-de-documento" name="tipo-de-documento" required>
-                            <option value="elegir-opcion">----Elegir Opción----</option>
-                            <option value="cedula-de-ciudadania">CC</option>
-                            <option value="cedula-de-extranjeria">Cedula De Extranjeria</option>
-                            <option value="pasaporte">Pasaporte</option>
-                        </select>
-
-                        <label for="numero-de-documento">Numero de Documento:</label>
-                        <input type="text"  id="numero-de-documento" name="numero-de-documento" required>
-
-                        <label for="nombres-y-apellidos-conductor">Nombres y Apellidos:</label>
-                        <input type="text" id="nombres-y-apellidos-conductor" name="nombres-y-apellidos-conductor" required>
-
-                        <label for="numero-de-telefono">Numero de telefono:</label>
-                        <input type="number" id="numero-de-telefono" name="numero-de-telefono" required>
-
-                        <label for="direccion">Dirección:</label>
-                        <input type="text" id="direccion" name="direccion" required>
-
-                        <label for="foto-documento-de-identidad">Foto documento de Identidad:</label>
-                        <input type="file" id="foto-documento-de-identidad" name="foto-documento-de-identidad" accept="image/*" required>
-
-                        <label for="foto-licencia">Foto licencia de conducir:</label>
-                        <input type="file" id="foto-licencia" name="foto-licencia" accept="image/*" required>
-
-                        <label for="vencimiento-licencia">Fecha de vencimiento de Licencia:</label>
-                        <input type="date" id="vencimiento-licencia" name="vencimiento-licencia" required>
-
-                        <label for="foto-hoja-de-vida">Adjuntar Hoja de vida:</label>
-                        <input type="file" id="foto-hoja-de-vida" name="foto-hoja-de-vida" accept="image/*" required>
-
-
-                        <button type="submit">Crear Conductor</button>
-                    </form>
-                </div>
-            <!-- Consultar Conductor -->
-            <div id="consultar-conductor" class="subsection" style="display:none;">
-                <h2>Consultar Conductores</h2>
-                <form id="form-consulta-conductor">
+                <form id="form-crear-conductor">
+                    <label for="tipo-de-documento">Tipo de Documento:</label>
                     <select id="tipo-de-documento" name="tipo-de-documento" required>
-                        <option value="elegir-opcion">----Elegir Opción----</option>
+                        <option value="">----Elegir Opción----</option>
                         <option value="cedula-de-ciudadania">CC</option>
-                        <option value="cedula-de-extranjeria">Cedula De Extranjeria</option>
+                        <option value="cedula-de-extranjeria">Cédula de Extranjería</option>
                         <option value="pasaporte">Pasaporte</option>
                     </select>
-                    <label for="documento-consulta">Número de Doumento:</label>
+
+                    <label for="numero-de-documento">Número de Documento:</label>
+                    <input type="text" id="numero-de-documento" name="numero-de-documento" required>
+
+                    <label for="nombres-y-apellidos-conductor">Nombres y Apellidos:</label>
+                    <input type="text" id="nombres-y-apellidos-conductor" name="nombres-y-apellidos-conductor" required>
+
+                    <label for="numero-de-telefono">Número de Teléfono:</label>
+                    <input type="number" id="numero-de-telefono" name="numero-de-telefono" required>
+
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" required>
+
+                    <label for="foto-documento-de-identidad">Foto Documento de Identidad:</label>
+                    <input type="file" id="foto-documento-de-identidad" name="foto-documento-de-identidad" accept="image/*" required>
+
+                    <label for="foto-licencia">Foto Licencia de Conducir:</label>
+                    <input type="file" id="foto-licencia" name="foto-licencia" accept="image/*" required>
+
+                    <label for="vencimiento-licencia">Fecha de Vencimiento de Licencia:</label>
+                    <input type="date" id="vencimiento-licencia" name="vencimiento-licencia" required>
+
+                    <label for="foto-hoja-de-vida">Adjuntar Hoja de Vida:</label>
+                    <input type="file" id="foto-hoja-de-vida" name="foto-hoja-de-vida" accept="image/*" required>
+
+                    <button type="submit">Crear Conductor</button>
+                </form>
+            </section>
+
+            <!-- Sección: Consultar Conductor -->
+            <section id="consultar-conductor" class="subsection" style="display:none;">
+                <h2>Consultar Conductores</h2>
+                <form id="form-consulta-conductor">
+                    <label for="tipo-de-documento-consulta">Tipo de Documento:</label>
+                    <select id="tipo-de-documento-consulta" name="tipo-de-documento-consulta" required>
+                        <option value="">----Elegir Opción----</option>
+                        <option value="cedula-de-ciudadania">CC</option>
+                        <option value="cedula-de-extranjeria">Cédula de Extranjería</option>
+                        <option value="pasaporte">Pasaporte</option>
+                    </select>
+
+                    <label for="documento-consulta">Número de Documento:</label>
                     <input type="text" id="documento-consulta" name="documento-consulta" required>
-                    <button type="button" onclick="buscarConductor()" style="background-color: green; color: white;">Consultar</button>
+
+                    <button type="button" onclick="buscarConductor()">Consultar</button>
                 </form>
                 <div id="resultado-conductor" style="display:none;">
-                    <!-- Aquí se va a mostrar la información del conductor -->
+                    <!-- Aquí se mostrará la información del conductor -->
                 </div>
-            </div>
-            
+            </section>
+
             <!-- Modal para mostrar información del conductor -->
             <div id="modal-conductor" class="modal" style="display:none;">
                 <div class="modal-content">
@@ -94,19 +99,34 @@
                 </div>
             </div>
 
-            <!-- Eliminar Conductor -->
-            <div id="eliminar-conductor" class="subsection" style="display:none;">
-                <h3>Eliminar Conductor</h3>
+            <!-- Sección: Eliminar Conductor -->
+            <section id="eliminar-conductor" class="subsection" style="display:none;">
+                <h2>Eliminar Conductor</h2>
                 <form id="form-eliminar-conductor">
                     <label for="conductor-eliminar">Número de Documento:</label>
                     <input type="text" id="conductor-eliminar" name="conductor-eliminar" required>
+
                     <button type="button" onclick="buscarConductorEliminar()">Buscar Conductor</button>
                 </form>
-                <div id="resultado-eliminar-conductor" style="display:none;"></div>
+                <div id="resultado-eliminar-conductor" style="display:none;">
+                    <!-- Aquí se mostrará la información del conductor a eliminar -->
+                    <button type="button" onclick="confirmarEliminacion()">Eliminar Conductor</button>
+                </div>
+            </section>
+
+            <!-- Modal para confirmar eliminación con contraseña -->
+            <div id="modal-eliminar" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" onclick="cerrarModalEliminar()">&times;</span>
+                    <h3>Confirmar Eliminación</h3>
+                    <p>Para eliminar el conductor, por favor ingrese su contraseña:</p>
+                    <input type="password" id="password-eliminar" name="password-eliminar" required>
+                    <button type="button" onclick="eliminarConductor()">Confirmar</button>
+                </div>
             </div>
         </main>
     </div>
 
-    <script src="..//js/conductores.js"></script>
+    <script src="../js/conductores.js"></script> <!-- Ruta corregida -->
 </body>
 </html>

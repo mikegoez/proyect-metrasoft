@@ -1,3 +1,4 @@
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -37,26 +38,27 @@ header nav ul li a {
 /* Container */
 .container {
     display: flex;
-    height:100vh;
+    height: 100vh;
 }
 
 .sidebar {
     background-color: #333;
     padding: 20px;
     width: 200px;
-    box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
 }
-
+/*btn new registro, consultar y eliminar*/
 .sidebar button {
     display: block;
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 10px;
     background-color: #444;
     color: white;
     border: none;
     cursor: pointer;
     text-align: left;
+    border-radius: 4px;
 }
 
 .sidebar button:hover {
@@ -112,7 +114,7 @@ button[type="button"] {
     color: white;
 }
 
-/* Custom Styles */
+/* Estilos personalizados */
 button.adjuntar {
     background-color: #007bff;
     color: white;
@@ -130,7 +132,7 @@ button.adjuntar:hover {
     border-radius: 5px;
 }
 
-/* Accessibility */
+/* Accesibilidad */
 button:focus, input:focus, select:focus {
     outline: 2px solid #007bff;
 }
@@ -155,6 +157,7 @@ button:focus, input:focus, select:focus {
 .notificacion.error {
     background-color: red;
 }
+
 /* Estilos para el modal */
 .modal {
     display: none;
@@ -165,7 +168,6 @@ button:focus, input:focus, select:focus {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0.4);
     padding-top: 60px;
 }
@@ -176,7 +178,9 @@ button:focus, input:focus, select:focus {
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    max-width: 500px;
     border-radius: 10px;
+    text-align: center;
 }
 
 .close {
@@ -184,6 +188,7 @@ button:focus, input:focus, select:focus {
     float: right;
     font-size: 28px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .close:hover,

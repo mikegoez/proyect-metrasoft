@@ -4,32 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Notificaciones</title>
-    <link rel="stylesheet" href="..//CSS/notificaciones.css">
+    <link rel="stylesheet" href="../CSS/notificaciones.css"> <!-- Ruta corregida -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
-        <img src="..//assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
+        <img src="../assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="#">Manual de usuario</a></li>
                 <li><a href="#">Cerrar sesión</a></li>
             </ul>
-            <button id="btn-notificaciones" onclick="toggleNotificaciones()">🔔</button>
+            <button id="btn-notificaciones" aria-label="Notificaciones" onclick="toggleNotificaciones()">🔔</button>
         </nav>
     </header>
 
+    <!-- Panel de notificaciones -->
     <div id="notificaciones-panel" class="notificaciones-panel">
         <h3>Notificaciones Recientes</h3>
-        <div class="notificacion">
-            <h3>SOAT próximo a vencer</h3>
-            <p>Placa: XYZ123 - Fecha de vencimiento: 2023-11-25</p>
+        <div id="lista-notificaciones">
+            <!-- Las notificaciones se cargarán dinámicamente aquí -->
         </div>
-        <div class="notificacion">
-            <h3>Vehículo registrado exitosamente</h3>
-            <p>Placa: ABC456</p>
-        </div>
+        <button id="btn-cerrar-notificaciones" onclick="toggleNotificaciones()">Cerrar</button>
     </div>
 
     <div class="container">
@@ -40,15 +37,17 @@
                 <div class="notificacion alerta">
                     <h3>SOAT próximo a vencer</h3>
                     <p>Placa: XYZ123 - Fecha de vencimiento: 2023-11-25</p>
+                    <button class="btn-eliminar" onclick="eliminarNotificacion(this)">×</button>
                 </div>
                 <div class="notificacion">
                     <h3>Vehículo registrado exitosamente</h3>
                     <p>Placa: ABC456</p>
+                    <button class="btn-eliminar" onclick="eliminarNotificacion(this)">×</button>
                 </div>
             </div>
         </main>
     </div>
 
-    <script src="..//JS/notificaciones.js"></script>
+    <script src="../JS/notificaciones.js"></script> <!-- Ruta corregida -->
 </body>
 </html>
