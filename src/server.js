@@ -1,38 +1,21 @@
 const express = require('express');
-const mysql = require('mysql2');
-
+const userRoutes = require('./routes/userRoutes'); // Rutas de usuarios
+const vehiculosRoutes = require('./routes/vehiculosRoutes'); // Rutas de vehículos
+const conductoresRoutes = require('./routes/conductoresRoutes'); // Rutas de conductores
+const despachosRoutes = require('./routes/despachosRoutes'); // Rutas de despachos
+const actualizacionesRoutes = require('./routes/actualizacionesRoutes'); // Rutas de actualizaciones
 const app = express();
-const port = 3000;
 
-// Configuración de la conexión a MySQL
-const connection = mysql.createConnection({
-  host: 'localhost',      // Dirección del servidor de MySQL
-  user: 'root',           // Usuario de MySQL
-  password: 'mike88', // Contraseña de MySQL
-  database: 'metrasoft'   // Nombre de la base de datos
-});
+app.use(express.json()); // Para parsear el cuerpo de las solicitudes JSON
 
-// Conectar a la base de datos
-connection.connect((err) => {
-  if (err) {
-    console.error('Error conectando a la base de datos:', err);
-    return;
-  }
-  console.log('Conectado a la base de datos MySQL');
-});
-
-// Middleware para parsear JSON
-app.use(express.json());
-
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('¡Backend de MetraSoft funcionando!');
-});
+// Usar las rutas
+app.use('/usuarios', userRoutes);
+app.use('/vehiculos', vehiculosRoutes);
+app.use('/conductores', conductoresRoutes);
+app.use('/despachos', despachosRoutes);
+app.use('/actualizaciones', actualizacionesRoutes);
 
 // Iniciar el servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+app.listen(3000, () => {
+    console.log('Servidor corriendo en http://localhost:3000');
 });
-
-const userRoutes = require('./routes/userRoutes');
-app.use('/usuarios', userRoutes);

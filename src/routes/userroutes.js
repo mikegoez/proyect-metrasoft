@@ -1,19 +1,63 @@
 const express = require('express');
+const db = require('../models/DB');
 const router = express.Router();
-const connection = require('../models/db'); // Corregir la ruta
+const bcrypt = require('bcrypt');
 
-// Ruta para registrar un nuevo usuario
-router.post('/registrar', (req, res) => {
-    const { nombre, email, contrasedia } = req.body;
+// Crear un usuario
+router.post('/', (req, res) => {
+    const { correo_electronico, contraseña, nombre } = req.body;
+    const contraseña_hash = bcrypt.hashSync(contraseña, 10);
 
-    const query = 'INSERT INTO usuarios (nombre, email, contrasedia) VALUES (?, ?, ?)';
-    connection.query(query, [nombre, email, contrasedia], (err, results) => {
+    db.query(`
+        INSERT INTO usuarios (correo_electronico, contraseña_hash, nombre)
+        VALUES (?, ?, ?)
+    `, [correo_electronico, contraseña_hash, nombre], (err, resultados) => {
         if (err) {
-            console.error('Error insertando datos:', err);
-            res.status(500).send('Error al registrar el usuario'); // Cambiar 360 a 500
-            return;
+            return res.status(500).json({ error: 'Error al crear el usuario' });
         }
-        res.status(200).send('Usuario registrado con éxito'); // Cambiar 360 a 200
+        res.json({ mensaje: 'Usuario creado', id: resultados.insertId });
+    });
+});
+
+// Obtener todos los usuarios
+router.get('/', (req, res) => {
+    db.query('SELECT * FROM usuarios', (err, resultados) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al obtener los usuarios' });
+        }
+        res.json(resultados);
+    });
+});
+
+// Actualizar un usuario
+router.put('/:id', (req, res) => {
+    const { nombre } = req.body;
+    const { id } = req.params;
+
+    db.query(`
+        UPDATE usuarios
+        SET nombre = ?
+        WHERE id_usuario = ?
+    `, [nombre, id], (err, resultados) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al actualizar el usuario' });
+        }
+        res.json({ mensaje: 'Usuario actualizado' });
+    });
+});
+
+// Eliminar un usuario
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+
+    db.query(`
+        DELETE FROM usuarios
+        WHERE id_usuario = ?
+    `, [id], (err, resultados) => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al eliminar el usuario' });
+        }
+        res.json({ mensaje: 'Usuario eliminado' });
     });
 });
 
