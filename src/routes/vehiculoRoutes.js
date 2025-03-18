@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const vehiculoController = require('../controllers/vehiculoController');
+const VehiculoController = require('../controllers/vehiculoController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Crear un vehículo
-router.post('/', authMiddleware, vehiculoController.crearVehiculo);
+router.post('/', authMiddleware, VehiculoController.crearVehiculo);
 
 // Obtener todos los vehículos
-router.get('/', authMiddleware, vehiculoController.obtenerVehiculos);
+router.get('/', authMiddleware, VehiculoController.obtenerVehiculos);
 
 // Obtener un vehículo por ID
-router.get('/:id', authMiddleware, vehiculoController.obtenerVehiculoPorId);
+router.get('/:id', authMiddleware, VehiculoController.obtenerVehiculoPorId);
 
 // Actualizar un vehículo
-router.put('/:id', authMiddleware, vehiculoController.actualizarVehiculo);
+router.put('/:id', authMiddleware, VehiculoController.actualizarVehiculo);
 
 // Eliminar un vehículo
-router.delete('/:id', authMiddleware, vehiculoController.eliminarVehiculo);
+router.delete('/:id', authMiddleware, VehiculoController.eliminarVehiculo);
 
 module.exports = router;

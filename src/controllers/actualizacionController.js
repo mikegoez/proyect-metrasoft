@@ -1,4 +1,4 @@
-const Actualizacion = require('../models/Actualizacion');
+const Actualizacion = require('../models/actualizacion');
 
 // Crear una actualización
 exports.crearActualizacion = async (req, res) => {

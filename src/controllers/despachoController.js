@@ -1,4 +1,4 @@
-const Despacho = require('../models/Despacho');
+const Despacho = require('../models/despacho');
 
 // Crear un despacho
 exports.crearDespacho = async (req, res) => {

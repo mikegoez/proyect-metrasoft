@@ -1,4 +1,4 @@
-const Conductor = require('../models/Conductor');
+const Conductor = require('../models/conductor');
 
 // Crear un conductor
 exports.crearConductor = async (req, res) => {
