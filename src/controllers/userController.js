@@ -12,6 +12,12 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'Correo electrónico y contraseña son obligatorios' });
         }
 
+        // Verificar si el usuario ya existe
+        const existingUser = await User.findByEmail(correo_electronico);
+        if (existingUser) {
+            return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
+        }
+
         // Encriptar la contraseña
         const contraseña_hash = await bcrypt.hash(contraseña, 10);
 
@@ -43,13 +49,13 @@ exports.login = async (req, res) => {
         }
 
         // Verificar contraseña
-        const isMatch = await User.comparePassword(contraseña, user.contraseña_hash);
+        const isMatch = await bcrypt.compare(contraseña, user.contraseña_hash);
         if (!isMatch) {
             return res.status(400).json({ message: 'Credenciales incorrectas' });
         }
 
         // Generar token JWT
-        const token = jwt.sign({ id: user.id_usuario }, 'tu_clave_secreta', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id_usuario }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Respuesta exitosa
         res.status(200).json({ message: 'Login exitoso', token });
@@ -61,7 +67,10 @@ exports.login = async (req, res) => {
 // Obtener perfil del usuario
 exports.getProfile = async (req, res) => {
     try {
-        const user = await User.findByEmail(req.user.correo_electronico);
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener el perfil', error: error.message });
