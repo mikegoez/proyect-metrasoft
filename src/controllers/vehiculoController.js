@@ -11,7 +11,16 @@ exports.crearVehiculo = async (req, res) => {
         }
 
         // Crear un nuevo vehículo
-        const vehiculoId = await Vehiculo.create(placa, marca, modelo, ano, capacidad, tipo_carga, fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica);
+        const vehiculoId = await Vehiculo.create({
+            placa,
+            marca,
+            modelo,
+            ano,
+            capacidad,
+            tipo_carga,
+            fecha_vencimiento_soat,
+            fecha_vencimiento_tecnomecanica
+        });
 
         // Respuesta exitosa
         res.status(201).json({ message: 'Vehículo creado exitosamente', vehiculoId });

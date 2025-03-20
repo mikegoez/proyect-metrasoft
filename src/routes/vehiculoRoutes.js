@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const VehiculoController = require('../controllers/vehiculoController');
+const vehiculoController = require('../controllers/vehiculoController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Crear un vehículo

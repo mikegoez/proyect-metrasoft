@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
+require('dotenv').config(); // Cargar variables de entorno
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'metrasoft',
+  host: process.env.DB_HOST || 'localhost', // Usar variable de entorno o valor por defecto
+  user: process.env.DB_USER || 'root',      // Usar variable de entorno o valor por defecto
+  password: process.env.DB_PASSWORD || 'root',  // Usar variable de entorno o valor por defecto
+  database: process.env.DB_NAME || 'metrasoft', // Usar variable de entorno o valor por defecto
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -126,7 +127,5 @@ const initializeDatabase = async () => {
   }
 };
 
-module.exports = {
-  pool: pool.promise(),
-  initializeDatabase
-};
+module.exports = pool,
+  initializeDatabase;

@@ -2,7 +2,7 @@ require('dotenv').config(); // Cargar variables de entorno
 const express = require('express');
 const db = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
-const VehiculoRoutes = require('./routes/vehiculoRoutes');
+const vehiculoRoutes = require('./routes/vehiculoRoutes');
 const conductorRoutes = require('./routes/conductorRoutes');
 const despachoRoutes = require('./routes/despachoRoutes');
 const notificacionRoutes = require('./routes/notificacionRoutes');
@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Usar las rutas
 app.use('/api/users', userRoutes);
-app.use('/api/Vehiculos', VehiculoRoutes);
+app.use('/api/vehiculos', vehiculoRoutes);
 app.use('/api/conductores', conductorRoutes);
 app.use('/api/despachos', despachoRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
