@@ -127,5 +127,8 @@ const initializeDatabase = async () => {
   }
 };
 
-module.exports = pool,
-  initializeDatabase;
+// Exportar pool y initializeDatabase
+module.exports = {
+  pool,
+  initializeDatabase
+};

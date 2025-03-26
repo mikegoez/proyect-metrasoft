@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 exports.register = async (req, res) => {
     try {
         const { correo_electronico, contraseña } = req.body;
+        console.log('Datos recibidos:', { correo_electronico, contraseña });
 
         // Validación básica
         if (!correo_electronico || !contraseña) {
@@ -14,19 +15,24 @@ exports.register = async (req, res) => {
 
         // Verificar si el usuario ya existe
         const existingUser = await User.findByEmail(correo_electronico);
+        console.log('Usuario existente:', existingUser);
+
         if (existingUser) {
             return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
         }
 
         // Encriptar la contraseña
         const contraseña_hash = await bcrypt.hash(contraseña, 10);
+        console.log('Contraseña encriptada:', contraseña_hash);
 
         // Crear un nuevo usuario
         const userId = await User.create(correo_electronico, contraseña_hash);
+        console.log('Usuario creado con ID:', userId);
 
         // Respuesta exitosa
         res.status(201).json({ message: 'Usuario registrado exitosamente', userId });
     } catch (error) {
+        console.error('Error en el registro:', error);
         res.status(500).json({ message: 'Error al registrar el usuario', error: error.message });
     }
 };
