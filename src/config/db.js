@@ -76,7 +76,7 @@ const initializeDatabase = async () => {
         codigo_despacho VARCHAR(20) NOT NULL UNIQUE,
         vehiculo_id BIGINT NOT NULL,
         conductor_id BIGINT NOT NULL,
-        tipo_carga ENUM('masivo_pasajeros', 'paqueteria', 'mixta') NOT NULL,
+        tipo_carga ENUM('pasajeros', 'paqueteria', 'mixta') NOT NULL,
         destino VARCHAR(100) NOT NULL,
         capacidad INT NOT NULL,
         fecha DATE NOT NULL,
