@@ -32,18 +32,18 @@
             </div>
 
             <!-- Formulario de inicio de sesión -->
-            <form action="login.php" method="POST">
+            <form id="loginForm">
                 <label for="username">Usuario:</label>
                 <input type="text" id="username" name="username" required>
-
+            
                 <label for="password">Contraseña:</label>
                 <input type="password" id="password" name="password" required>
                 <input type="checkbox" id="showPassword">
                 <label for="showPassword">Mostrar contraseña</label>
-
+            
                 <button type="submit">Iniciar Sesión</button>
             </form>
-
+          
             <!-- Enlaces para otras funcionalidades -->
             <div class="additional-options">
                 <a href="forgot-password.html" class="forgot-password">¿Olvidaste tu contraseña?</a>
@@ -55,18 +55,6 @@
     <footer>
         <p>&copy; 2024 Metrasoft. Todos los derechos reservados.</p>
     </footer>
-
-    <script>
-        // Script para mostrar/ocultar contraseña
-        const showPassword = document.getElementById('showPassword');
-        const passwordField = document.getElementById('password');
-        showPassword.addEventListener('change', function() {
-            if (showPassword.checked) {
-                passwordField.type = 'text';
-            } else {
-                passwordField.type = 'password';
-            }
-        });
-    </script>
+<script src="../JS/auth.js"></script>
 </body>
 </html>

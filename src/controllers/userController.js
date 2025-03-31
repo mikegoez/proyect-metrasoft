@@ -2,83 +2,143 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Registrar un usuario
+// Registro de usuario
 exports.register = async (req, res) => {
     try {
         const { correo_electronico, contraseña } = req.body;
-        console.log('Datos recibidos:', { correo_electronico, contraseña });
+        console.log('Registrando usuario:', correo_electronico);
 
-        // Validación básica
         if (!correo_electronico || !contraseña) {
-            return res.status(400).json({ message: 'Correo electrónico y contraseña son obligatorios' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'Correo electrónico y contraseña son obligatorios' 
+            });
         }
 
         // Verificar si el usuario ya existe
         const existingUser = await User.findByEmail(correo_electronico);
-        console.log('Usuario existente:', existingUser);
-
         if (existingUser) {
-            return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'El correo electrónico ya está registrado' 
+            });
         }
 
-        // Encriptar la contraseña
+        // Encriptar contraseña
         const contraseña_hash = await bcrypt.hash(contraseña, 10);
-        console.log('Contraseña encriptada:', contraseña_hash);
+        console.log('Hash generado:', contraseña_hash.substring(0, 20) + '...');
 
-        // Crear un nuevo usuario
+        // Crear usuario
         const userId = await User.create(correo_electronico, contraseña_hash);
-        console.log('Usuario creado con ID:', userId);
+        
+        res.status(201).json({ 
+            success: true,
+            message: 'Usuario registrado exitosamente',
+            userId 
+        });
 
-        // Respuesta exitosa
-        res.status(201).json({ message: 'Usuario registrado exitosamente', userId });
     } catch (error) {
-        console.error('Error en el registro:', error);
-        res.status(500).json({ message: 'Error al registrar el usuario', error: error.message });
+        console.error('Error en registro:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error al registrar el usuario',
+            error: error.message 
+        });
     }
 };
 
-// Iniciar sesión
+// Inicio de sesión
 exports.login = async (req, res) => {
     try {
         const { correo_electronico, contraseña } = req.body;
+        console.log('Intento de login para:', correo_electronico);
 
-        // Validación
         if (!correo_electronico || !contraseña) {
-            return res.status(400).json({ message: 'Correo electrónico y contraseña son obligatorios' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'Correo electrónico y contraseña son obligatorios' 
+            });
         }
 
-        // Buscar usuario en la base de datos
+        // Buscar usuario
         const user = await User.findByEmail(correo_electronico);
-
         if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
+            console.log('Usuario no encontrado');
+            return res.status(404).json({ 
+                success: false,
+                message: 'Usuario no encontrado' 
+            });
         }
 
-        // Verificar contraseña
+        console.log('Comparando contraseña...');
         const isMatch = await bcrypt.compare(contraseña, user.contraseña_hash);
+        console.log('Resultado comparación:', isMatch);
+
         if (!isMatch) {
-            return res.status(400).json({ message: 'Credenciales incorrectas' });
+            return res.status(401).json({ 
+                success: false,
+                message: 'Credenciales incorrectas' 
+            });
         }
 
         // Generar token JWT
-        const token = jwt.sign({ id: user.id_usuario }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(
+            { 
+                id: user.id_usuario,
+                email: user.correo_electronico,
+                rol: user.rol 
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' }
+        );
 
-        // Respuesta exitosa
-        res.status(200).json({ message: 'Login exitoso', token });
+        res.status(200).json({ 
+            success: true,
+            message: 'Login exitoso',
+            token,
+            user: {
+                id: user.id_usuario,
+                email: user.correo_electronico,
+                rol: user.rol
+            }
+        });
+
     } catch (error) {
-        res.status(500).json({ message: 'Error al iniciar sesión', error: error.message });
+        console.error('Error en login:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error al iniciar sesión',
+            error: error.message 
+        });
     }
 };
 
-// Obtener perfil del usuario
+// Obtener perfil
 exports.getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
+            return res.status(404).json({ 
+                success: false,
+                message: 'Usuario no encontrado' 
+            });
         }
-        res.status(200).json(user);
+
+        res.status(200).json({ 
+            success: true,
+            user: {
+                id: user.id_usuario,
+                email: user.correo_electronico,
+                rol: user.rol
+            }
+        });
+
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el perfil', error: error.message });
+        console.error('Error obteniendo perfil:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error al obtener el perfil',
+            error: error.message 
+        });
     }
 };

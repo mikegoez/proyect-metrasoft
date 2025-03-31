@@ -1,5 +1,6 @@
 require('dotenv').config(); // Cargar variables de entorno
 const express = require('express');
+const path = require('path');
 const db = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const vehiculoRoutes = require('./routes/vehiculoRoutes');
@@ -11,6 +12,7 @@ const app = express();
 
 // Middleware para parsear JSON
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Usar las rutas
 app.use('/api/users', userRoutes);
