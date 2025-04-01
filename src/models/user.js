@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../config/db'); // Asegúrate de que la ruta sea correcta
 const bcrypt = require('bcrypt');
 
 class User {
@@ -6,9 +6,10 @@ class User {
     static async create(correo_electronico, contraseña_hash, rol = 'usuario') {
         try {
             console.log('Creando usuario con:', { correo_electronico, contraseña_hash, rol });
-            const sql = 'INSERT INTO usuarios (correo_electronico, authentication_string, rol) VALUES (?, ?, ?)';
+            const sql = 'INSERT INTO usuarios (correo_electronico, contraseña_hash, rol) VALUES (?, ?, ?)';
+            console.log('SQL:', sql);
             const [result] = await db.pool.promise().execute(sql, [correo_electronico, contraseña_hash, rol]);
-            console.log('Usuario creado con ID:', result.insertId);
+            console.log('Resultado de la inserción:', result);
             return result.insertId;
         } catch (error) {
             console.error('Error en User.create:', error);
@@ -16,12 +17,11 @@ class User {
         }
     }
 
-    // Buscar usuario por email
+    // Buscar un usuario por correo electrónico
     static async findByEmail(correo_electronico) {
         try {
-            const sql = 'SELECT id_usuario, correo_electronico, authentication_string AS contraseña_hash, rol FROM usuarios WHERE correo_electronico = ?';
+            const sql = 'SELECT * FROM usuarios WHERE correo_electronico = ?';
             const [rows] = await db.pool.promise().execute(sql, [correo_electronico]);
-            console.log('Usuario encontrado:', rows[0] ? 'Sí' : 'No');
             return rows[0];
         } catch (error) {
             console.error('Error en User.findByEmail:', error);
@@ -29,10 +29,10 @@ class User {
         }
     }
 
-    // Buscar usuario por ID
+    // Buscar un usuario por ID
     static async findById(id_usuario) {
         try {
-            const sql = 'SELECT id_usuario, correo_electronico, authentication_string AS contraseña_hash, rol FROM usuarios WHERE id_usuario = ?';
+            const sql = 'SELECT * FROM usuarios WHERE id_usuario = ?';
             const [rows] = await db.pool.promise().execute(sql, [id_usuario]);
             return rows[0];
         } catch (error) {
@@ -41,17 +41,12 @@ class User {
         }
     }
 
-    // Comparar contraseñas (opcional, ahora se hace directamente en el controlador)
+    // Comparar contraseñas
     static async comparePassword(contraseña, contraseña_hash) {
-        try {
-            return await bcrypt.compare(contraseña, contraseña_hash);
-        } catch (error) {
-            console.error('Error en comparación:', error);
-            throw error;
-        }
+        return await bcrypt.compare(contraseña, contraseña_hash);
     }
 
-    // Actualizar token de recuperación
+    // Actualizar token de restablecimiento de contraseña
     static async updateResetToken(id_usuario, token_reset, token_expira) {
         try {
             const sql = 'UPDATE usuarios SET token_reset = ?, token_expira = ? WHERE id_usuario = ?';
