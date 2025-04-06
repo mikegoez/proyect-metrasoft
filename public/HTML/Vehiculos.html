@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Vehículos</title>
-    <link rel="stylesheet" href="../CSS/vehiculos.css"> <!-- Ruta CSS -->
+    <link rel="stylesheet" href="../CSS/vehiculos.css">
 </head>
 <body>
     <header>
@@ -19,58 +19,77 @@
     </header>
 
     <div class="container">
-        <!-- Barra lateral -->
         <aside class="sidebar">
             <button onclick="mostrarSubseccion('crear-vehiculo')">Crear Vehículo</button>
             <button onclick="mostrarSubseccion('consultar-vehiculo')">Consultar Vehículo</button>
             <button onclick="mostrarSubseccion('eliminar-vehiculo')">Eliminar Vehículo</button>
         </aside>
 
-        <!-- Contenido principal -->
         <main class="main-content">
             <!-- Sección: Crear Vehículo -->
             <section id="crear-vehiculo" class="subsection">
                 <h2>Crear Nuevo Vehículo</h2>
                 <form id="form-crear-vehiculo">
-                    <label for="placa">Placa:</label>
-                    <input type="text" id="placa" name="placa" required>
+                    <div class="form-group">
+                        <label for="placa">Placa:</label>
+                        <input type="text" id="placa" name="placa" pattern="[A-Za-z]{3}\d{3}" 
+                               title="Formato ABC123" required>
+                    </div>
 
-                    <label for="modelo">Modelo:</label>
-                    <input type="text" id="modelo" name="modelo" required>
+                    <div class="form-group">
+                        <label for="marca">Marca:</label>
+                        <input type="text" id="marca" name="marca" required>
+                    </div>
 
-                    <label for="tipo-de-carga">Tipo de carga:</label>
-                    <select id="tipo-de-carga" name="tipo-de-carga" required>
-                        <option value="">----Elegir Opción----</option>
-                        <option value="pasajeros">Pasajeros</option>
-                        <option value="paqueteria">Paqueteria</option>
-                        <option value="mixta">Mixta</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="modelo">Modelo:</label>
+                        <input type="text" id="modelo" name="modelo" required>
+                    </div>
 
-                    <label for="capacidad-puestos">Capacidad Puestos:</label>
-                    <input type="number" id="capacidad-puestos" name="capacidad-puestos" required>
+                    <div class="form-group">
+                        <label for="ano">Año:</label>
+                        <input type="number" id="ano" name="ano" min="1900" required>
+                    </div>
 
-                    <label for="capacidad-KG">Capacidad Kilo Gramos:</label>
-                    <input type="number" id="capacidad-KG" name="capacidad-KG" required>
+                    <div class="form-group">
+                        <label for="tipo-de-carga">Tipo de carga:</label>
+                        <select id="tipo-de-carga" name="tipo-de-carga" required>
+                            <option value="">----Elegir Opción----</option>
+                            <option value="pasajeros">Pasajeros</option>
+                            <option value="paqueteria">Paquetería</option>
+                            <option value="mixta">Mixta</option>
+                        </select>
+                    </div>
 
-                    <label for="tipo-vehiculo">Tipo de vehículo:</label>
-                    <select id="tipo-vehiculo" name="tipo-vehiculo" required>
-                        <option value="">----Elegir Opción----</option>
-                        <option value="transporte_masivo_pasajeros">Transporte público de pasajeros</option>
-                        <option value="paqueteria">Paqueteria</option>
-                        <option value="mixta">Mixta</option>
-                    </select>
+                    <div class="form-group">
+                        <label for="capacidad-puestos">Capacidad Puestos:</label>
+                        <input type="number" id="capacidad-puestos" name="capacidad-puestos" min="0" value="0" required>
+                    </div>
 
-                    <label for="foto-soat">Foto del SOAT:</label>
-                    <input type="file" id="foto-soat" name="foto-soat" accept="image/*" required>
+                    <div class="form-group">
+                        <label for="capacidad-KG">Capacidad Kilo Gramos:</label>
+                        <input type="number" id="capacidad-KG" name="capacidad-KG" min="0" value="0" required>
+                    </div>
 
-                    <label for="vencimiento-soat">Fecha de vencimiento del SOAT:</label>
-                    <input type="date" id="vencimiento-soat" name="vencimiento-soat" required>
+                    <div class="form-group">
+                        <label for="foto-soat">Foto del SOAT:</label>
+                        <input type="file" id="foto-soat" name="foto-soat" accept="image/*" required>
+                    </div>
 
-                    <label for="foto-tecnomecanica">Foto de la Tecnomecánica:</label>
-                    <input type="file" id="foto-tecnomecanica" name="foto-tecnomecanica" accept="image/*" required>
+                    <div class="form-group">
+                        <label for="vencimiento-soat">Vencimiento SOAT:</label>
+                        <input type="date" id="vencimiento-soat" name="vencimiento-soat" required>
+                    </div>
 
-                    <label for="vencimiento-tecnomecanica">Fecha de vencimiento de la Tecnomecánica:</label>
-                    <input type="date" id="vencimiento-tecnomecanica" name="vencimiento-tecnomecanica" required>
+                    <div class="form-group">
+                        <label for="foto-tecnomecanica">Foto Tecnomecánica:</label>
+                        <input type="file" id="foto-tecnomecanica" name="foto-tecnomecanica" accept="image/*" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vencimiento-tecnomecanica">Vencimiento Tecnomecánica:</label>
+                        <input type="date" id="vencimiento-tecnomecanica" name="vencimiento-tecnomecanica" required>
+                    </div>
 
                     <button type="submit">Crear Vehículo</button>
                 </form>
@@ -80,51 +99,86 @@
             <section id="consultar-vehiculo" class="subsection" style="display:none;">
                 <h2>Consultar Vehículos</h2>
                 <form id="form-consulta-vehiculo">
-                    <label for="placa-consulta">Número de Placa:</label>
-                    <input type="text" id="placa-consulta" name="placa-consulta" required>
-                    <button type="button" onclick="buscarVehiculo()">Consultar</button>
+                    <div class="form-group">
+                        <label for="placa-consulta">Número de Placa:</label>
+                        <input type="text" id="placa-consulta" name="placa-consulta" 
+                               pattern="[A-Za-z]{3}\d{3}" title="Formato ABC123" required>
+                        <button type="button" onclick="buscarVehiculo()">Consultar/Editar</button>
+                    </div>
                 </form>
-                <div id="resultado-vehiculo" style="display:none;">
-                    <!-- Aquí se mostrará la información del vehículo -->
-                </div>
+                <div id="resultado-consulta" class="resultado-consulta" style="display:none;"></div>
             </section>
-
-            <!-- Modal para mostrar información del vehículo -->
-            <div id="modal-vehiculo" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span class="close" onclick="cerrarModal()">&times;</span>
-                    <h3>Información del Vehículo</h3>
-                    <div id="detalle-vehiculo"></div>
-                </div>
-            </div>
 
             <!-- Sección: Eliminar Vehículo -->
             <section id="eliminar-vehiculo" class="subsection" style="display:none;">
                 <h2>Eliminar Vehículo</h2>
                 <form id="form-eliminar-vehiculo">
-                    <label for="placa-eliminar">Número de Placa:</label>
-                    <input type="text" id="placa-eliminar" name="placa-eliminar" required>
-                    <button type="button" onclick="buscarVehiculoEliminar()">Buscar Vehículo</button>
+                    <div class="form-group">
+                        <label for="placa-eliminar">Número de Placa:</label>
+                        <input type="text" id="placa-eliminar" name="placa-eliminar" 
+                               pattern="[A-Za-z]{3}\d{3}" title="Formato ABC123" required>
+                        <button type="button" onclick="buscarVehiculoEliminar()">Buscar Vehículo</button>
+                    </div>
                 </form>
                 <div id="resultado-eliminar" style="display:none;">
-                    <!-- Aquí se mostrará la información del vehículo a eliminar -->
                     <button type="button" onclick="confirmarEliminacion()">Eliminar Vehículo</button>
                 </div>
             </section>
-
-            <!-- Modal para confirmar eliminación con contraseña -->
-            <div id="modal-eliminar" class="modal" style="display:none;">
-                <div class="modal-content">
-                    <span class="close" onclick="cerrarModalEliminar()">&times;</span>
-                    <h3>Confirmar Eliminación</h3>
-                    <p>Para eliminar el vehículo, por favor ingrese su contraseña:</p>
-                    <input type="password" id="password-eliminar" name="password-eliminar" required>
-                    <button type="button" onclick="eliminarVehiculo()">Confirmar</button>
-                </div>
-            </div>
         </main>
     </div>
 
-    <script src="../JS/vehiculos.js"></script> <!-- Ruta corregida -->
+    <!-- Modal para mostrar información del vehículo -->
+    <div id="modal-vehiculo" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <h3>Información del Vehículo</h3>
+            <div id="detalle-vehiculo"></div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación con contraseña -->
+    <div id="modal-eliminar" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModalEliminar()">&times;</span>
+            <h3>Confirmar Eliminación</h3>
+            <p>Para eliminar el vehículo, por favor ingrese su contraseña:</p>
+            <input type="password" id="password-eliminar" name="password-eliminar" required>
+            <button type="button" onclick="eliminarVehiculo()">Confirmar</button>
+        </div>
+    </div>
+
+    <div id="modal-edicion" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="cerrarModalEdicion()">&times;</span>
+          <h2>Actualizar Documentación del Vehículo</h2>
+          <form id="form-editar-vehiculo" enctype="multipart/form-data">
+            <input type="hidden" id="placa-editar" name="placa">
+            
+            <!-- formulario de actualizacion -->
+            <div class="form-group">
+              <label for="nuevo-soat">Nuevo SOAT:</label>
+              <input type="file" id="nuevo-soat" name="foto-soat" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+              <label for="vencimiento-soat-editar">Vencimiento SOAT:</label>
+              <input type="date" id="vencimiento-soat-editar" name="vencimiento-soat" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="nueva-tecnomecanica">Nueva Tecnomecánica:</label>
+              <input type="file" id="nueva-tecnomecanica" name="foto-tecnomecanica" accept="image/*">
+            </div>
+            
+            <div class="form-group">
+              <label for="vencimiento-tecnomecanica-editar">Vencimiento Tecnomecánica:</label>
+              <input type="date" id="vencimiento-tecnomecanica-editar" name="vencimiento-tecnomecanica" required>
+            </div>
+            
+            <button type="submit">Guardar Cambios</button>
+          </form>
+        </div>
+      </div>
+
 </body>
 </html>

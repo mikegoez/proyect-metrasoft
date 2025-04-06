@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrasofft - Panel de Control</title>
+    <link rel="stylesheet" href="../css/main.css"> <!-- Ruta css -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- URL corregida -->
+</head>
+<body>
+
+    <!-- Encabezado -->
+    <header>
+        <img src="../assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#">Manual de usuario</a></li>
+                <li><a href="#">Cerrar sesión</a></li>
+            </ul>
+            <!-- Botón de notificaciones con accesibilidad -->
+            <button id="btn-notificaciones" aria-label="Notificaciones" onclick="toggleNotificaciones()">🔔</button>
+        </nav>
+    </header>
+
+    <!-- Panel de notificaciones -->
+    <aside id="notificaciones-panel" class="notificaciones-panel">
+        <h3>Notificaciones Recientes</h3>
+        <div id="lista-notificaciones">
+            <!-- Mensaje por defecto cuando no hay notificaciones -->
+            <p class="sin-notificaciones">No tienes notificaciones nuevas.</p>
+        </div>
+    </aside>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+            <a href="vehiculos.html" class="sidebar-button">Vehículos</a>
+            <a href="conductores.html" class="sidebar-button">Conductores</a>
+            <a href="despachos.html" class="sidebar-button">Despachos</a>
+            <a href="actualizacion.html" class="sidebar-button">Actualizar Información</a>
+            <a href="notificaciones.html" class="sidebar-button">Notificaciones</a>
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            <section id="welcome" class="section">
+                <h1>Bienvenido a Metrasoft</h1>
+                <p>Por favor selecciona la acción que necesitas consultar o crear.</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
