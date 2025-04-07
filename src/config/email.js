@@ -1,20 +1,23 @@
-const nodemailer = require("nodemailer");
+const sgMail = require('@sendgrid/mail');
+require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail", // Ejemplo para Gmail
-  auth: {
-    user: "tucorreo@gmail.com", // Tu correo
-    pass: "tucontraseña", // Tu contraseña de aplicación (no la personal)
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.enviarCorreoRecuperacion = async (email, token) => {
   const enlace = `http://localhost:3000/HTML/reset-password.html?token=${token}`;
-  
-  await transporter.sendMail({
-    from: '"Metrasoft" <soporte@metrasoft.com>',
+
+  const msg = {
     to: email,
-    subject: "Restablece tu contraseña",
+    from: process.env.SMTP_FROM,
+    subject: 'Restablece tu contraseña',
     html: `Haz clic <a href="${enlace}">aquí</a> para restablecer tu contraseña.`,
-  });
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log('Correo enviado con éxito');
+  } catch (error) {
+    console.error('Error enviando correo:', error);
+    throw error;
+  }
 };

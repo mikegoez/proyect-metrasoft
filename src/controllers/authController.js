@@ -41,17 +41,23 @@ exports.login = async (req, res) => {
 exports.solicitarReset = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log("Correo recibido:", email);
+
     const usuario = await Usuario.buscarPorEmail(email);
-    
-    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+    if (!usuario) {
+      console.log("Usuario no encontrado");
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
 
     const token = crypto.randomBytes(20).toString("hex");
     await Usuario.guardarTokenReset(email, token);
-    
+    console.log("Token generado:", token);
+
     await enviarCorreoRecuperacion(email, token);
     res.json({ success: true });
     
   } catch (error) {
+    console.error("Error en solicitar reset:", error);
     res.status(500).json({ error: "Error al procesar la solicitud" });
   }
 };

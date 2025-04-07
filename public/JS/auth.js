@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data.token) {
           localStorage.setItem("token", data.token);
-          window.location.href = "/HTML/index.html";
+          window.location.href = "/HTML/public/index.html";
         } else {
           alert(data.error || "Credenciales incorrectas");
         }
