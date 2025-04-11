@@ -34,7 +34,7 @@
     width: 100%;
   }
   
-  /* Sidebar (como te gustó) */
+  /* Sidebar*/
   .mtr-sidebar {
     width: var(--mtr-sidebar-width);
     background-color: #333 !important;

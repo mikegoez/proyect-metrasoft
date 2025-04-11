@@ -1,0 +1,4 @@
+/* Notificaciones */
+.alert .bi { margin-right: 0.5rem; }
+.alert[data-estado="pendiente"] { border-left: 4px solid #dc3545; }
+.alert h5 { font-size: 1.1rem; }
