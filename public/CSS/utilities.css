@@ -1,0 +1,15 @@
+/* Bordes personalizados */
+.mtr-border-primary {
+    border: 2px solid var(--mtr-primary) !important;
+  }
+  
+  /* Sombras */
+  .mtr-shadow-lg {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+  }
+  
+  /* Espaciados adicionales */
+  .mtr-py-6 {
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+  }

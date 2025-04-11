@@ -1,5 +1,2 @@
-# Excluir variables de entorno
 .env
-
-# Excluir dependencias de Node
 node_modules/

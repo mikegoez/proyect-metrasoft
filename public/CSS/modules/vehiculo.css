@@ -1,0 +1,13 @@
+/* Formulario de vehículos */
+.mtr-form-vehiculo input,
+.mtr-form-vehiculo select {
+  border: 2px solid var(--mtr-primary) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+}
+
+/* Modal personalizado */
+.mtr-modal-vehiculo .modal-content {
+  border: 2px solid var(--mtr-secondary) !important;
+  border-radius: 15px !important;
+}

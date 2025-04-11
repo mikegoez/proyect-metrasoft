@@ -1,0 +1,18 @@
+/* Variables CSS personalizadas */
+:root {
+    /* Colores principales */
+    --mtr-primary: #353635;      /* Verde corporativo */
+    --mtr-secondary: #2f2f30;    /* Azul oscuro */
+    --mtr-accent: #43a047;       /* Verde claro */
+  
+    /* Tamaños */
+    --mtr-navbar-height: 80px;
+    --mtr-logo-height: 60px;
+    --mtr-sidebar-width: 250px;
+  }
+  
+  /* Reset básico (complementa Bootstrap) */
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e8e3e3 !important;
+  }

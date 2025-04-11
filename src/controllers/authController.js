@@ -31,7 +31,11 @@ exports.login = async (req, res) => {
     const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
     if (!contraseñaValida) return res.status(401).json({ error: "Contraseña incorrecta" });
 
-    const token = jwt.sign({ id: usuario.id_usuario }, "clave_secreta_metrasoft", { expiresIn: "1h" });
+    const token = jwt.sign(
+      { id: usuario.id_usuario }, 
+      process.env.JWT_SECRET, // Usar variable de entorno
+      { expiresIn: "1h" }
+    );
     res.json({ token });
   } catch (error) {
     res.status(500).json({ error: "Error en el servidor" });

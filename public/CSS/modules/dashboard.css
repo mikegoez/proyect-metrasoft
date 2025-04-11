@@ -1,0 +1,22 @@
+/* Tarjetas del dashboard */
+.mtr-stat-card {
+    background-color: rgb(255, 251, 251);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+  }
+  
+  .mtr-stat-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Botón de notificaciones */
+  #mtr-btn-notificaciones {
+    position: fixed;
+    right: 30px;
+    top: 20px;
+    z-index: 1000;
+    background-color: var(--mtr-accent) !important;
+    border: none;
+    padding: 12px;
+  }

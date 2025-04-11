@@ -1,0 +1,56 @@
+/* Navbar Personalizado */
+.mtr-navbar {
+    height: var(--mtr-navbar-height);
+    background-color: var(--mtr-primary) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .mtr-navbar .navbar-brand img {
+    height: var(--mtr-logo-height);
+    width: auto;
+    transition: transform 0.3s;
+  }
+  
+  .mtr-navbar .nav-link {
+    color: white !important;
+    font-size: 1.1rem;
+    margin-left: 25px;
+    position: relative;
+  }
+  
+  /* Efecto hover para enlaces */
+  .mtr-navbar .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: white;
+    transition: width 0.3s;
+  }
+  
+  .mtr-navbar .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  /* Sidebar (como te gustó) */
+  .mtr-sidebar {
+    width: var(--mtr-sidebar-width);
+    background-color: #333 !important;
+    padding: 20px;
+  }
+  
+  .mtr-sidebar .list-group-item {
+    background-color: #444 !important;
+    color: white !important;
+    border: none !important;
+    margin-bottom: 10px;
+    border-radius: 8px !important;
+    transition: all 0.3s !important;
+  }
+  
+  .mtr-sidebar .list-group-item:hover {
+    background-color: #555 !important;
+    transform: translateX(5px);
+  }

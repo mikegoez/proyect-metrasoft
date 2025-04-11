@@ -1,0 +1,12 @@
+/* Tabla de conductores */
+.mtr-tabla-conductores th {
+    background-color: var(--mtr-primary) !important;
+    color: white !important;
+  }
+  
+  /* Subida de archivos */
+  .mtr-file-upload {
+    border: 2px dashed var(--mtr-accent) !important;
+    padding: 20px;
+    text-align: center;
+  }

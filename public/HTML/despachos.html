@@ -4,94 +4,190 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Despachos</title>
-    <link rel="stylesheet" href="../CSS/despachos.css"> <!-- Ruta corregida -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/modules/conductores.css">
 </head>
-<body>
-    <header>
-        <img src="../assets/metrasofftlogo.png" alt="Logo Metrasofft" class="logo">
-        <nav>
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="#">Manual de usuario</a></li>
-                <li><a href="#">Cerrar sesión</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="container">
-        <!-- Barra lateral -->
-        <aside class="sidebar">
-            <button onclick="mostrarSeccion('crear-despacho')">Crear Despacho</button>
-            <button onclick="mostrarSeccion('consultar-despacho')">Consultar Despacho</button>
-            <button onclick="mostrarSeccion('eliminar-despacho')">Eliminar Despacho</button>
-        </aside>
-
-        <!-- Contenido principal -->
-        <main class="main-content">
-            <!-- Sección: Crear Despacho -->
-            <section id="crear-despacho" class="section active">
-                <h2>Crear Nuevo Despacho</h2>
-                <form id="form-crear-despacho">
-                    <label for="codigo-despacho">Código del Despacho:</label>
-                    <input type="text" id="codigo-despacho" name="codigo-despacho" required>
-
-                    <label for="vehiculo">Placa del Vehículo:</label>
-                    <input type="text" id="vehiculo" name="vehiculo" required>
-
-                    <label for="conductor">Nombre del Conductor:</label>
-                    <input type="text" id="conductor" name="conductor" required>
-
-                    <label for="tipo-carga">Tipo de Carga:</label>
-                    <select id="tipo-carga" name="tipo-carga" required>
-                        <option value="masivo-pasajeros">Masivo Pasajeros</option>
-                        <option value="paqueteria">Paquetería</option>
-                        <option value="mixta">Mixta</option>
-                    </select>
-
-                    <label for="destino">Destino:</label>
-                    <input type="text" id="destino" name="destino" required>
-
-                    <label for="capacidad">Capacidad:</label>
-                    <input type="text" id="capacidad" name="capacidad" required>
-
-                    <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" name="fecha" required>
-
-                    <label for="hora">Hora de salida:</label>
-                    <input type="time" id="hora" name="hora" required>
-
-                    <button type="submit">Crear Despacho</button>
-                </form>
-            </section>
-
-            <!-- Sección: Consultar Despacho -->
-            <section id="consultar-despacho" class="section">
-                <h2>Consultar Despacho</h2>
-                <form id="form-consulta-despacho">
-                    <label for="codigo-consulta">Código del Despacho:</label>
-                    <input type="text" id="codigo-consulta" name="codigo-consulta" required>
-                    <button type="button" onclick="buscarDespacho()">Consultar</button>
-                </form>
-                <div id="resultado-despacho" style="display:none;">
-                    <!-- Aquí se mostrará la información del despacho -->
+<body class="bg-light">
+<!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mtr-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="../assets/metrasofftlogo.png" alt="Logo" class="mtr-navbar-logo">
+                Metrasofft
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Manual</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout"><i class="bi bi-box-arrow-right"></i> Salir</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+<!-- Contenedor Principal -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+<!-- Sidebar -->
+            <div class="col-lg-3 mb-3 mtr-sidebar">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="list-group">
+                            <button class="list-group-item list-group-item-action active" onclick="mostrarSeccion('crear-despacho')">
+                                <i class="bi bi-file-earmark-plus"></i> Crear Despacho
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="mostrarSeccion('consultar-despacho')">
+                                <i class="bi bi-search"></i> Consultar
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="mostrarSeccion('eliminar-despacho')">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Sección: Eliminar Despacho -->
-            <section id="eliminar-despacho" class="section">
-                <h2>Eliminar Despacho</h2>
-                <form id="form-eliminar-despacho">
-                    <label for="codigo-eliminar">Código del Despacho:</label>
-                    <input type="text" id="codigo-eliminar" name="codigo-eliminar" required>
-                    <button type="button" onclick="buscarDespachoEliminar()">Buscar Despacho</button>
-                </form>
-                <div id="resultado-eliminar" style="display:none;">
-                    <!-- Aquí se mostrará la información del despacho a eliminar -->
-                    <button type="button" onclick="confirmarEliminacion()">Eliminar Despacho</button>
-                </div>
-            </section>
-        </main>
+<!-- Contenido Principal -->
+            <div class="col-lg-9">
+<!-- Sección: Crear Despacho -->
+                <section id="crear-despacho" class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-4"><i class="bi bi-truck"></i> Crear Nuevo Despacho</h2>
+                        
+                        <!-- Campos ocultos (para el backend) -->
+                        <input type="hidden" id="tipo-carga" name="tipo_carga">
+                        <input type="hidden" id="capacidad-kg" name="capacidad_kg">
+                        <input type="hidden" id="capacidad-puestos" name="capacidad_puestos">
+
+                        <!-- Formulario -->
+                        <form id="form-crear-despacho" class="row g-3">
+                            <!-- Código del Despacho -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-upc-scan"></i> Código</label>
+                                <input type="text" class="form-control bg-light" id="codigo-despacho" readonly placeholder="se genera automaticamente">
+                            </div>
+
+                            <!-- Vehículo -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-truck"></i> Vehículo</label>
+                                <select class="form-select" id="vehiculo" required>
+                                    <option value="">Cargando vehículos...</option>
+                                </select>
+                            </div>
+
+                            <!-- Conductor -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-person-badge"></i> Conductor</label>
+                                <select class="form-select" id="conductor" required>
+                                    <option value="">Cargando conductores...</option>
+                                </select>
+                            </div>
+
+                            <!-- Datos del Vehículo (Auto llenados) -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-box-seam"></i> Tipo de Carga</label>
+                                <input type="text" class="form-control bg-light" id="tipo-carga-display" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-speedometer2"></i> Capacidad KG</label>
+                                <input type="number" class="form-control bg-light" id="capacidad-kg-display" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-people"></i> Capacidad Puestos</label>
+                                <input type="number" class="form-control bg-light" id="capacidad-puestos-display" readonly>
+                            </div>
+
+                            <!-- Destino -->
+                            <div class="col-12">
+                                <label class="form-label"><i class="bi bi-geo-alt"></i> Destino</label>
+                                <input type="text" class="form-control" id="destino" placeholder="Ej: Bogotá" required>
+                            </div>
+
+                            <!-- Fecha y Hora -->
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-calendar"></i> Fecha</label>
+                                <input type="date" class="form-control" id="fecha" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label"><i class="bi bi-clock"></i> Hora</label>
+                                <input type="time" class="form-control" id="hora" required>
+                            </div>
+
+<!-- Botón de Envío -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-save"></i> Crear Despacho
+                                </button>
+                            </div>
+                        </form>
+
+<!-- Spinner de Carga -->
+                        <div id="loading" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="text-muted mt-2">Procesando...</p>
+                        </div>
+                    </div>
+                </section>
+
+<!-- Sección: Consultar Despacho -->
+                <section id="consultar-despacho" class="card shadow-sm mb-4" style="display:none;">
+                    <div class="card-body">
+                        <h2 class="mb-4"><i class="bi bi-search"></i> Consultar Despacho</h2>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="codigo-consulta" placeholder="Código del despacho">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary w-100" onclick="buscarDespacho()">
+                                    <i class="bi bi-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resultado-despacho" class="mt-4" style="display:none;"></div>
+                    </div>
+                </section>
+
+<!-- Sección: Eliminar Despacho -->
+                <section id="eliminar-despacho" class="card shadow-sm" style="display:none;">
+                    <div class="card-body">
+                        <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Despacho</h2>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="codigo-eliminar" placeholder="Código del despacho">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-danger w-100" onclick="confirmarEliminacion()">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resultado-eliminar" class="mt-4" style="display:none;"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
     </div>
+
+<!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="/JS/despachos.js"></script>
 </body>
 </html>
