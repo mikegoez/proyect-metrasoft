@@ -1,5 +1,13 @@
 const pool = require("../config/db");
 
+const crearNotificacion = async (tipo, mensaje, entidad_id, entidad_tipo) => {
+  await pool.query(
+      `INSERT INTO notificaciones 
+      (tipo, mensaje, entidad_id, entidad_tipo)
+      VALUES (?, ?, ?, ?)`,
+      [tipo, mensaje, entidad_id.toString(), entidad_tipo]
+  );
+};
 // Crear vehículo
 exports.crearVehiculo = async (req, res) => {
   try {
@@ -9,11 +17,18 @@ exports.crearVehiculo = async (req, res) => {
       return res.status(400).json({ error: "El SOAT está vencido" });
     }
 
-    await pool.query(
+    const [result] = await pool.query(
       `INSERT INTO vehiculos 
       (placa, marca, modelo, ano, tipo_carga, capacidad_puestos, capacidad_kg, fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [placa, marca, modelo, ano, tipo_carga, capacidad_puestos, capacidad_kg, fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica]
+    );
+
+    await crearNotificacion(
+      'creacion',
+      `Vehículo ${placa} registrado`,
+      result.insertId, // ID del nuevo vehículo
+      'vehiculo'
     );
 
     res.status(201).json({ success: true });
@@ -24,6 +39,8 @@ exports.crearVehiculo = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 // obtenerVehículos
 exports.obtenerVehiculos = async (req, res) => {
   try {
@@ -68,12 +85,17 @@ exports.obtenerVehiculo = async (req, res) => {
 // Actualizar vehículo
 exports.actualizarVehiculo = async (req, res) => {
   try {
+ 
     const { placa } = req.params;
     const { fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica } = req.body;
 
     if (new Date(fecha_vencimiento_soat) < new Date()) {
       return res.status(400).json({ error: "SOAT vencido" });
     }
+    const [vehiculoExistente] = await pool.query(
+      "SELECT id_vehiculo FROM vehiculos WHERE placa = ?",
+      [placa]
+  );
 
     await pool.query(
       `UPDATE vehiculos 
@@ -83,17 +105,36 @@ exports.actualizarVehiculo = async (req, res) => {
       [fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica, placa]
     );
 
+    await crearNotificacion(
+      'actualizacion',
+      `Vehículo ${placa} actualizado`,
+      vehiculoExistente[0].id_vehiculo,
+      'vehiculo'
+    );
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+
 // Eliminar vehículo
 exports.eliminarVehiculo = async (req, res) => {
   try {
     const { placa } = req.params;
+
+    const [vehiculo] = await pool.query("SELECT id_vehiculo FROM vehiculos WHERE placa = ?", [placa]);
+    
+    await crearNotificacion(
+      'eliminacion',
+      `Vehículo ${placa} eliminado`,
+      vehiculo[0].id_vehiculo,
+      'vehiculo'
+    );
+
     await pool.query("DELETE FROM vehiculos WHERE placa = ?", [placa]);
+    
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

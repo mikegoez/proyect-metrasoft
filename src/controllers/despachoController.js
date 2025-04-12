@@ -1,9 +1,19 @@
 const pool = require("../config/db");
 const { generarCodigoConsecutivo } = require("../utils/generadores");
 
+const crearNotificacion = async (tipo, mensaje, entidad_id, entidad_tipo) => {
+    await pool.query(
+        `INSERT INTO notificaciones 
+        (tipo, mensaje, entidad_id, entidad_tipo)
+        VALUES (?, ?, ?, ?)`,
+        [tipo, mensaje, entidad_id.toString(), entidad_tipo]
+    );
+};
+
 // Crear despacho con consecutivo
 exports.crearDespacho = async (req, res) => {
     try {
+        console.log("[DEBUG] Datos recibidos al crear despacho:", req.body);
         // Validar existencia de vehículo y conductor
         const [vehiculo] = await pool.query(
             "SELECT id_vehiculo FROM vehiculos WHERE id_vehiculo = ?", 
@@ -39,16 +49,27 @@ exports.crearDespacho = async (req, res) => {
             WHERE d.codigo_despacho = ?
         `, [codigo_despacho]);
 
+        console.log("[DEBUG] Despacho insertado:", despachoCompleto[0]);
+
+        await crearNotificacion(
+            'creacion',
+            `Despacho ${codigo_despacho} creado`,
+            despachoCompleto[0].id_despacho,
+            'despacho'
+        );
+
         // Enviar respuesta única con todos los datos
         res.status(201).json(despachoCompleto[0]);
 
     } catch (error) {
+        console.error("[ERROR] Error al crear despacho:", error.message);
         if (error.code === "ER_DUP_ENTRY") {
             return res.status(400).json({ error: "Código de despacho ya existe" });
         }
         res.status(500).json({ error: error.message });
     }
 };
+
 
 
 // Consultar despacho
@@ -71,9 +92,28 @@ exports.obtenerDespacho = async (req, res) => {
 exports.eliminarDespacho = async (req, res) => {
     try {
         const { codigo } = req.params;
+        const [despacho] = await pool.query(
+            "SELECT id_despacho FROM despachos WHERE codigo_despacho = ?",
+            [codigo]
+        );
+        if (!despacho.length) {
+            return res.status(404).json({ error: "Despacho no encontrado" });
+        }
+        const idDespacho = despacho[0].id_despacho;
+
+        await crearNotificacion(
+            'eliminacion',
+            `Despacho ${codigo} eliminado`,
+            idDespacho,
+            'despacho'
+        );
+
+        
         await pool.query("DELETE FROM despachos WHERE codigo_despacho = ?", [codigo]);
+        
         res.json({ success: true });
     } catch (error) {
+        console.error("[ERROR] Al eliminar despacho:", error.message);
         res.status(500).json({ error: error.message });
     }
 };

@@ -2,3 +2,24 @@
 .alert .bi { margin-right: 0.5rem; }
 .alert[data-estado="pendiente"] { border-left: 4px solid #dc3545; }
 .alert h5 { font-size: 1.1rem; }
+
+.alert-unread {
+    border-left: 4px solid #dc3545;
+    animation: pulse-unread 1.5s infinite;
+}
+
+@keyframes pulse-unread {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+.alert .btn-group-vertical .btn {
+    padding: 0.25rem 0.5rem;
+    margin: 2px 0;
+}
+
+.alert .badge {
+    font-size: 0.85em;
+    padding: 0.35em 0.65em;
+}

@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json();
         
         if (data.token) {
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("jwt", data.token);
           sessionStorage.setItem("userEmail", correo);
           window.location.href = "../HTML/index.html";
         } else {
