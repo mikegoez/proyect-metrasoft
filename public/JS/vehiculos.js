@@ -1,12 +1,16 @@
-//MOSTRAR SECCIONES
+//mostar secciones
 function mostrarSeccion(seccion) {
+    // Oculta todas las secciones de la página
     document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    // Muestra solo la sección solicitada
     document.getElementById(seccion).style.display = 'block';
 }
 
-//CREAR VEHÍCULO
+//crear vehiculo
+// Escucha el evento submit del formulario de creación
 document.getElementById('form-crear').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Previene el comportamiento por defecto del formulario
+    //recopilacion de datos del formulario 
     const formData = {
         placa: e.target.placa.value,
         marca: e.target.marca.value,
@@ -20,6 +24,7 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
     };
 
     try {
+        //enviar datos al backend mediamndte POST
         const response = await fetch('/api/vehiculos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -28,25 +33,28 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             alert("¡Vehículo creado!");
-            e.target.reset();
+            e.target.reset();  // limpia el formulario
         } else {
+            // lee el error del servidor
             const error = await response.json();
             alert(`Error: ${error.error}`);
         }
-    } catch (error) {
+    } catch (error) { // captura errores de red
         alert("Error de conexión");
     }
 });
 
-//CONSULTAR VEHÍCULO 
+//consultar vehiculo
 async function consultarVehiculo() {
+    // obtiene y limpia la placa ingresada
     const placa = document.getElementById('placa-consultar').value.trim();
-    if (!placa) return alert("Ingresa una placa");
+    if (!placa) return alert("Ingresa una placa"); // validación básica
 
     try {
+        //obtener datos del vehiculo por placa
         const response = await fetch(`/api/vehiculos/${placa}`);
         if (!response.ok) throw new Error("Vehículo no encontrado");
-        
+        //procesa y muestra los resultados
         const vehiculo = await response.json();
         const resultado = document.getElementById('resultado-consultar');
         resultado.innerHTML = `
@@ -57,21 +65,23 @@ async function consultarVehiculo() {
                 <p>Tecnomecánica: ${vehiculo.fecha_vencimiento_tecnomecanica}</p>
             </div>
         `;
-        resultado.style.display = 'block';
+        resultado.style.display = 'block'; // Muestra el contenedor de resultados
     } catch (error) {
-        alert(error.message);
+        alert(error.message); // Muestra el error al usuario
     }
 }
 
-//ACTUALIZAR VEHÍCULO
+//actualizar vehiculo
 async function buscarParaActualizar() {
+    // Obtiene y valida la placa
     const placa = document.getElementById('placa-actualizar').value.trim();
     if (!placa) return alert("Ingresa una placa");
 
     try {
+        //para bucar vehiculo para actualizar
         const response = await fetch(`/api/vehiculos/${placa}`);
         if (!response.ok) throw new Error("Vehículo no encontrado");
-        
+        // para mostar formulario de actualizacion con los datos actuales
         const vehiculo = await response.json();
         mostrarFormularioActualizacion(vehiculo);
     } catch (error) {
@@ -80,6 +90,7 @@ async function buscarParaActualizar() {
 }
 
 function mostrarFormularioActualizacion(vehiculo) {
+    // genera el formulario de actualización con los valores actuales
     const contenedor = document.getElementById('formulario-actualizacion');
     contenedor.innerHTML = `
         <form onsubmit="actualizarVehiculo(event)">
@@ -102,16 +113,18 @@ function mostrarFormularioActualizacion(vehiculo) {
             </div>
         </form>
     `;
-    contenedor.style.display = 'block';
+    contenedor.style.display = 'block'; //muestra el formulario
 }
 
 async function actualizarVehiculo(event) {
-    event.preventDefault();
+    event.preventDefault(); // Previene el envío tradicional del formulario
+    // Obtiene los valores actualizados
     const placa = document.getElementById('placa-actualizar').value;
     const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
     const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
 
     try {
+        //envia actualizacion al servidor
         const response = await fetch(`/api/vehiculos/${placa}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -124,27 +137,31 @@ async function actualizarVehiculo(event) {
         if (response.ok) {
             alert("¡Vehículo actualizado!");
             document.getElementById('formulario-actualizacion').style.display = 'none';
+            //oculta formulario
         }
     } catch (error) {
         alert("Error al actualizar");
     }
 }
 
-// ELIMINAR VEHÍCULO 
+// eliminar vehiculo
 async function eliminarVehiculo() {
+    // Obtiene y valida la placa
     const placa = document.getElementById('placa-eliminar').value.trim();
     if (!placa) return alert("Ingresa una placa");
-    
+
+    // Confirmación de seguridad
     if (!confirm(`¿Eliminar vehículo ${placa} permanentemente?`)) return;
 
     try {
+        // Envía la solicitud de eliminación
         const response = await fetch(`/api/vehiculos/${placa}`, { 
             method: 'DELETE' 
         });
 
         if (response.ok) {
             alert("Vehículo eliminado");
-            document.getElementById('placa-eliminar').value = '';
+            document.getElementById('placa-eliminar').value = ''; //limpia campo
         }
     } catch (error) {
         alert("Error al eliminar");

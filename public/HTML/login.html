@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Metrasofft</title>
-    <link rel="stylesheet" href="../CSS/login.css">
-    <link rel="stylesheet" href="../CSS/login-especificos.css">
-  </head>
-
+<html lang="es"> <!-- Especificación del idioma principal de la página -->
+<head>
+  <meta charset="UTF-8"> <!-- Codificación de caracteres Unicode -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configuración responsive -->
+  <title>Login - Metrasofft</title>
+<!---estilos-->
+  <link rel="stylesheet" href="../CSS/login.css">
+  <link rel="stylesheet" href="../CSS/login-especificos.css">
+</head>
   <body>
     <header>
       <nav>
@@ -18,37 +18,42 @@
         </ul>
       </nav>
     </header>
-
+<!--- contenido principal -->
     <main>
       <div class="login">
         <img src="../assets/metrasofftlogo.png" alt="Logo" class="logo">
         <h2>Iniciar Sesión</h2>
-
+<!---fomulario login -->
+        
         <form id="loginForm">
           <label for="email">Correo electrónico:</label>
           <input type="email" id="email" name="email" required>
-
+          
           <label for="password">Contraseña:</label>
           <input type="password" id="password" name="password" required>
-
+          
           <div class="show-password">
             <input type="checkbox" id="showPassword">
             <label for="showPassword">Mostrar contraseña</label>
           </div>
-
+          
           <button type="submit">Ingresar</button>
         </form>
-
+<!--- enlaces a las las interfacesz de reset password y registro de nuevo usuario-->      
         <div class="links">
           <a href="../HTML/reset-password.html">¿Olvidaste tu contraseña?</a>
           <p>¿No tienes cuenta? <a href="../HTML/register.html">Regístrate aquí</a></p>
+          </div>
         </div>
       </div>
     </main>
-
     <footer>
       <p>&copy; 2024 Metrasoft. Todos los derechos reservados.</p>
     </footer>
     <script src="/JS/auth.js"></script>
   </body>
 </html>
+
+
+
+

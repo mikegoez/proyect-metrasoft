@@ -1,11 +1,14 @@
+// cargar notificaciones al ingresar al modulo
 document.addEventListener('DOMContentLoaded', cargarNotificaciones);
 
 async function cargarNotificaciones() {
     const container = document.getElementById('notificaciones-container');
     const tipo = document.getElementById('filtro-tipo').value;
+    // construir url segun filtro 
     const url = tipo ? `/api/notificaciones?tipo=${tipo}` : '/api/notificaciones';
 
     try {
+         // obtener token de autenticación
         const token = localStorage.getItem('jwt');
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -13,7 +16,7 @@ async function cargarNotificaciones() {
 
         if (!response.ok) throw new Error('Error al cargar');
         const notificaciones = await response.json();
-
+        // generar HTML dinámico para notificaciones
         container.innerHTML = notificaciones.map(notif => `
             <div class="alert alert-${getAlertType(notif.tipo)} ${notif.estado === 'pendiente' ? 'alert-unread' : ''}">
                 <div class="d-flex justify-content-between align-items-start">
@@ -46,7 +49,7 @@ async function cargarNotificaciones() {
                     </div>
                 </div>
             </div>
-        `).join('');
+        `).join('');  // Convierte el array en un string HTML
 
     } catch (error) {
         container.innerHTML = `
@@ -57,7 +60,7 @@ async function cargarNotificaciones() {
     }
 }
 
-// Funciones auxiliares
+// Determina el tipo de alerta según el tipo de notificación
 function getAlertType(tipo) {
     const types = {
         vencimiento: 'warning',
@@ -65,9 +68,9 @@ function getAlertType(tipo) {
         eliminacion: 'danger',
         actualizacion: 'info'
     };
-    return types[tipo] || 'primary';
+    return types[tipo] || 'primary';  // Default a 'primary' si no coincide
 }
-
+// Función global para marcar notificación como leída
 window.marcarLeida = async (id) => {
     try {
         const token = localStorage.getItem('jwt');
@@ -75,12 +78,12 @@ window.marcarLeida = async (id) => {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        cargarNotificaciones();
+        cargarNotificaciones(); //recarga la lista
     } catch (error) {
         alert('Error al marcar como leída');
     }
 };
-
+// Función global para eliminar notificación
 window.eliminarNotificacion = async (id) => {
     if (!confirm('¿Eliminar esta notificación permanentemente?')) return;
     

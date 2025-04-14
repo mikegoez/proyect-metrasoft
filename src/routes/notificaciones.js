@@ -3,10 +3,13 @@ const router = express.Router();
 const db = require('../config/db');
 const autenticarUsuario = require('../middlewares/auth');
 
-// Todas las rutas usan tu middleware
+
+// Todas las rutas requieren autenticación JWT
 router.get('/', autenticarUsuario, async (req, res) => {
   try {
-      const tipo = req.query.tipo; // Nuevo filtro
+      // Obtener filtro de tipo desde query params
+      const tipo = req.query.tipo; 
+      // Construir query dinámica con JOIN a usuarios
       let query = `
           SELECT 
               n.id_notificacion AS id,
@@ -21,7 +24,7 @@ router.get('/', autenticarUsuario, async (req, res) => {
           ${tipo ? 'WHERE n.tipo = ?' : ''}
           ORDER BY n.fecha DESC
       `;
-
+      // Ejecutar consulta con parámetros seguros
       const [notificaciones] = await db.query(query, tipo ? [tipo] : []);
       res.json(notificaciones);
   } catch (error) {
@@ -35,9 +38,9 @@ router.put('/:id/leer', autenticarUsuario, async (req, res) => {
             UPDATE notificaciones 
             SET estado = 'leido' 
             WHERE id_notificacion = ?
-        `, [req.params.id]);
+        `, [req.params.id]); // Usar parámetro para prevenir inyecciones SQL
 
-        res.sendStatus(204);
+        res.sendStatus(204); // Respuesta exitosa sin contenido
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Error al actualizar' });

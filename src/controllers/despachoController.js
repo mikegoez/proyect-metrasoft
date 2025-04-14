@@ -1,16 +1,17 @@
 const pool = require("../config/db");
-const { generarCodigoConsecutivo } = require("../utils/generadores");
+const { generarCodigoConsecutivo } = require("../utils/generadores"); // Utilidad para generación de códigos
 
+// Función auxiliar para registrar notificaciones en el sistema
 const crearNotificacion = async (tipo, mensaje, entidad_id, entidad_tipo) => {
     await pool.query(
         `INSERT INTO notificaciones 
         (tipo, mensaje, entidad_id, entidad_tipo)
         VALUES (?, ?, ?, ?)`,
-        [tipo, mensaje, entidad_id.toString(), entidad_tipo]
+        [tipo, mensaje, entidad_id.toString(), entidad_tipo] // Conversión a string para compatibilidad
     );
 };
 
-// Crear despacho con consecutivo
+// Controlador para creación de nuevos despachos
 exports.crearDespacho = async (req, res) => {
     try {
         console.log("[DEBUG] Datos recibidos al crear despacho:", req.body);
@@ -24,11 +25,11 @@ exports.crearDespacho = async (req, res) => {
             "SELECT id_conductor FROM conductores WHERE id_conductor = ?", 
             [req.body.conductor_id]
         );
-        
+        // Verificar que ambos recursos existan
         if (!vehiculo.length || !conductor.length) {
             return res.status(400).json({ error: "Vehículo o conductor no válido" });
         }
-        
+         // Generación de código único consecutivo
         const codigo_despacho = await generarCodigoConsecutivo();
         const { vehiculo_id, conductor_id, tipo_carga, destino, capacidad_kg, capacidad_puestos, fecha, hora } = req.body;
 
@@ -50,7 +51,7 @@ exports.crearDespacho = async (req, res) => {
         `, [codigo_despacho]);
 
         console.log("[DEBUG] Despacho insertado:", despachoCompleto[0]);
-
+        // Registro de notificación de creación
         await crearNotificacion(
             'creacion',
             `Despacho ${codigo_despacho} creado`,
@@ -71,8 +72,7 @@ exports.crearDespacho = async (req, res) => {
 };
 
 
-
-// Consultar despacho
+// Controlador para obtener detalles de un despacho
 exports.obtenerDespacho = async (req, res) => {
     try {
         const { codigo } = req.params;
@@ -82,16 +82,16 @@ exports.obtenerDespacho = async (req, res) => {
         );
         
         if (!despacho.length) return res.status(404).json({ error: "Despacho no encontrado" });
-        res.json(despacho[0]);
+        res.json(despacho[0]); // Devolver primer resultado
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
-// Eliminar despacho
+// Controlador para eliminar despacho
 exports.eliminarDespacho = async (req, res) => {
     try {
         const { codigo } = req.params;
+         // Obtener ID para la notificación antes de eliminar
         const [despacho] = await pool.query(
             "SELECT id_despacho FROM despachos WHERE codigo_despacho = ?",
             [codigo]
@@ -100,7 +100,7 @@ exports.eliminarDespacho = async (req, res) => {
             return res.status(404).json({ error: "Despacho no encontrado" });
         }
         const idDespacho = despacho[0].id_despacho;
-
+         // Registrar notificación de eliminación
         await crearNotificacion(
             'eliminacion',
             `Despacho ${codigo} eliminado`,
@@ -108,7 +108,7 @@ exports.eliminarDespacho = async (req, res) => {
             'despacho'
         );
 
-        
+          // Ejecutar eliminación
         await pool.query("DELETE FROM despachos WHERE codigo_despacho = ?", [codigo]);
         
         res.json({ success: true });

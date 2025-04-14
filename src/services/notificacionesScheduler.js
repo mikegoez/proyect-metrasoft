@@ -1,9 +1,9 @@
 const cron = require('node-cron');
 const db = require('../config/db');
-
+// Verificar documentos próximos a vencer
 const checkDocuments = async () => {
     try {
-        // 1. Verificar SOAT y Tecnomecánica
+        // Verificar SOAT y Tecnomecánica
         const [vehiculos] = await db.query(`
             SELECT 
                 placa,
@@ -13,9 +13,9 @@ const checkDocuments = async () => {
             WHERE 
                 fecha_vencimiento_soat BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
                 OR fecha_vencimiento_tecnomecanica BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-        `);
+        `); // Solo documentos que vencerán en los próximos 30 días
 
-        // Cambiar forEach por for...of para manejar correctamente await
+        // Procesar cada vehículo con for...of para soportar await
         for (const v of vehiculos) {
             if (v.dias_soat <= 30) {
                 await db.query(`
@@ -42,7 +42,6 @@ const checkDocuments = async () => {
             WHERE fecha_vencimiento_licencia BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
         `);
 
-        // Cambiar forEach por for...of
         for (const c of conductores) {
             await db.query(`
                 INSERT INTO notificaciones 
@@ -57,15 +56,16 @@ const checkDocuments = async () => {
     }
 };
 
-// Añadir función wrapper para manejar errores
+// Función wrapper para manejo de errores
 const iniciarScheduler = () => {
+    // Programar ejecución diaria a las 8:00 AM
     cron.schedule('0 8 * * *', async () => {
         await checkDocuments();
     });
 };
-
+// Evitar ejecución en entorno de pruebas
 if (process.env.NODE_ENV !== 'test') {
     iniciarScheduler();
 }
 
-module.exports = checkDocuments;
+module.exports = checkDocuments; // Para testing

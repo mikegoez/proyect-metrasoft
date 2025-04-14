@@ -1,25 +1,27 @@
+// Carga datos iniciales al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Cargar vehículos
+        // cargar lista de vehículos disponibles
         const vehiculosResponse = await fetch('/api/vehiculos');
         if (!vehiculosResponse.ok) throw new Error("Error cargando vehículos");
         const vehiculos = await vehiculosResponse.json();
-        
+        //llenar dropdown de vehiculos 
         const vehiculoSelect = document.getElementById('vehiculo');
         vehiculoSelect.innerHTML = vehiculos.map(v => 
             `<option value="${v.id_vehiculo}">${v.placa}</option>`
         ).join('');
 
-        // Evento cambio vehículo
+        //manejar cambio de vehiculo seleccionado
         vehiculoSelect.addEventListener('change', async (e) => {
             const vehiculoId = e.target.value;
             if (!vehiculoId) return;
 
             try {
+                //obtener detalles del vehiculo
                 const response = await fetch(`/api/vehiculos/by-id/${vehiculoId}`);
                 if (!response.ok) throw new Error("Vehículo no encontrado");
                 const vehiculo = await response.json();
-                
+                //actualizar campos relacionados 
                 document.getElementById('tipo-carga-display').value = vehiculo.tipo_carga;
                 document.getElementById('tipo-carga').value = vehiculo.tipo_carga;
                 document.getElementById('capacidad-kg-display').value = vehiculo.capacidad_kg;
@@ -33,11 +35,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Cargar conductores
+        // cargar lkista de conductores
         const conductoresResponse = await fetch('/api/conductores');
         if (!conductoresResponse.ok) throw new Error("Error cargando conductores");
         const conductores = await conductoresResponse.json();
-        
+        //llenar dropdown de conductores
         const conductorSelect = document.getElementById('conductor');
         conductorSelect.innerHTML = conductores.map(c => 
             `<option value="${c.id_conductor}">${c.nombres} ${c.apellidos}</option>`
@@ -114,8 +116,8 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
     const loading = document.getElementById('loading');
     
     try {
-        loading.style.display = 'block';
-        
+        loading.style.display = 'block';  // Muestra spinner de carga
+        // Recopila datos del formulario
         const formData = {
             vehiculo_id: document.getElementById('vehiculo').value,
             conductor_id: document.getElementById('conductor').value,
@@ -131,7 +133,7 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
         if (!formData.vehiculo_id || !formData.conductor_id || !formData.destino) {
             throw new Error("Todos los campos son requeridos");
         }
-
+        //envia datos al servidor 
         const response = await fetch('/api/despachos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -142,7 +144,7 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
             const errorData = await response.json();
             throw new Error(errorData.error || "Error del servidor");
         }
-
+        // Procesa la respuesta exitosa
         const despachoCreado = await response.json();
         
         // Actualizar campo de código
@@ -195,10 +197,11 @@ async function buscarDespacho() {
 async function confirmarEliminacion() {
     const codigo = document.getElementById('codigo-eliminar').value.trim();
     if (!codigo) return alert("Ingrese un código de despacho");
-    
+    //confirmacion de seguridad
     if (!confirm(`¿Eliminar el despacho ${codigo} permanentemente?`)) return;
 
     try {
+        // envia la solicitud de eliminacion
         const response = await fetch(`/api/despachos/${codigo}`, { 
             method: 'DELETE' 
         });
