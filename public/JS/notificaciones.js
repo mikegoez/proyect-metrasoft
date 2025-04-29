@@ -39,7 +39,7 @@ async function cargarNotificaciones() {
                             <button class="btn btn-sm btn-outline-success" 
                                     onclick="marcarLeida(${notif.id})"
                                     title="Marcar como leída">
-                                <i class="bi bi-check2"></i>
+                                <i class="bi bi-check2-all"></i>
                             </button>` : ''}
                         <button class="btn btn-sm btn-outline-danger" 
                                 onclick="eliminarNotificacion(${notif.id})"
