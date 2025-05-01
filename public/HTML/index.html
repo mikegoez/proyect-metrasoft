@@ -32,7 +32,9 @@
                         <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Manual</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="logout"><i class="bi bi-box-arrow-right"></i> Salir</a>
+                        <button class="nav-link btn btn-link" id="logout" style="cursor: pointer;">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar sesion
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -90,6 +92,28 @@
             </div>
         </div>
     </div>
+<!-- Modal de confirmación de cierre de sesion -->
+    <div class="modal fade" id="logoutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-question-circle"></i> Confirmar</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas cerrar la sesión?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmLogout">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar sesion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -101,7 +125,7 @@
         // redirige al login si no hay correo almacenado
             if (!userEmail) window.location.href = '/HTML/login.html';
         // muestra el correo del usuario en la interfaz
-            document.getElementById('user-email').textContent = userEmail;
+        document.getElementById('user-email').textContent = userEmail;
         // obtiene datos de vehículos y conductores de forma paralela   
             const vehiculosRes = await fetch('/api/vehiculos/contar');
             const conductoresRes = await fetch('/api/conductores/contar');
@@ -113,8 +137,23 @@
             const vehiculosData = await vehiculosRes.json();
             const conductoresData = await conductoresRes.json();
         // actualiza los contadores en la interfaz
-            document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
-            document.getElementById('contador-conductores').textContent = conductoresData.total;
+        document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
+        document.getElementById('contador-conductores').textContent = conductoresData.total;
+            
+        document.getElementById('logout').addEventListener('click', () => {
+        // Mostrar modal 
+            const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+            logoutModal.show();
+        });
+
+        // Confirmar cierre de sesión
+        document.getElementById('confirmLogout').addEventListener('click', () => {
+        // Eliminar credenciales
+            localStorage.removeItem('jwt');
+            sessionStorage.removeItem('userEmail');
+        // Redirigir al login
+            window.location.href = '/HTML/login.html';
+        });
         
         } catch (error) {
         // manejo basico de errores sean logins y notificaciones al usuario
@@ -122,6 +161,7 @@
         // para mostrar mensaje al usuario en los contadores
             alert("No se pudieron cargar los contadores. Intenta recargar la página.");
         }
+
     });
     </script>
 </body>
