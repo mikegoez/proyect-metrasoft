@@ -11,11 +11,14 @@ const conductoresRoutes = require('./routes/conductoresRoutes');
 const despachosRoutes = require('./routes/despachosRoutes');
 const notificacionesRouter = require('./routes/notificaciones');
 //configuracion de corsc para desarrollo 
-app.use(cors({
-  origin: 'http://localhost:3000', // dominio permitido
-  credentials: true, // permitir enviar cookies
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'] //cabeceras permitidas
-}));
+
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de tu frontend en producción
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true // Si usas cookies o tokens
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json()); //parsear bodies JSON
 app.use(cookieParser()); //middleware para cookies
@@ -43,5 +46,5 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/HTML/login.html"));
 });
 //iniciar servidor 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Servidor en el puerto ${PORT}`));

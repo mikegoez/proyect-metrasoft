@@ -1,24 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // REGISTRO DE USUARIOS 
+  const API_URL = "https://metrasoft-backend.onrender.com"; //URL actualizada
+
+  // ================== REGISTRO ==================
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      //obtener valores del formulario 
       const correo = document.getElementById("correo_electronico").value;
       const contraseña = document.getElementById("contraseña").value;
       const confirmarContraseña = document.getElementById("confirmar_contraseña").value;
       const rol = document.getElementById("rol").value;
 
-      // validar contraseñas coincidan
       if (contraseña !== confirmarContraseña) {
         alert("Las contraseñas no coinciden");
         return;
       }
 
       try {
-        //eviar solicitudes de registro al backend 
-        const response = await fetch("http://localhost:3000/api/auth/registro", {
+        const response = await fetch(`${API_URL}/api/auth/registro`, { // URL dinámica
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -27,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rol: rol 
           }),
         });
-        // manejar respuestas del servidor
+        
         if (response.ok) {
           window.location.href = "/HTML/login.html";
         } else {
@@ -40,18 +39,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  //inicui de sesion 
+  // ================== LOGIN ==================
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      // obtener credenciales
       const correo = document.getElementById("email").value;
       const contraseña = document.getElementById("password").value;
 
       try {
-        //para autenticar usuario
-        const response = await fetch("http://localhost:3000/api/auth/login", {
+        const response = await fetch(`${API_URL}/api/auth/login`, { // URL dinámica
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -61,11 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const data = await response.json();
-        //para almacenar token y datois de sesion 
+        
         if (data.token) {
-          localStorage.setItem("jwt", data.token);
-          sessionStorage.setItem("userEmail", correo);
-          window.location.href = "../HTML/index.html";
+          localStorage.setItem("token", data.token);
+          window.location.href = "/HTML/index.html";
         } else {
           alert(data.error || "Credenciales incorrectas");
         }
@@ -75,19 +71,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // recuperacion de contraseña
+  // ========== RECUPERACIÓN DE CONTRASEÑA ==========
   const requestResetForm = document.getElementById("requestResetForm");
   const resetPasswordForm = document.getElementById("resetPasswordForm");
 
-  // solicitar enlace de recuperación
+  // Solicitar enlace de recuperación
   if (requestResetForm) {
     requestResetForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
 
       try {
-        //enviar solicitud de reset
-        const response = await fetch("http://localhost:3000/api/auth/solicitar-reset", {
+        const response = await fetch(`${API_URL}/api/auth/solicitar-reset`, { // URL dinámica
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -109,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resetPasswordForm) {
     resetPasswordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      //validar nueva contraseña
       const newPassword = document.getElementById("newPassword").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
       const token = document.getElementById("token").value;
@@ -120,8 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        //enviar nueva contraseña al backend
-        const response = await fetch("http://localhost:3000/api/auth/restablecer-contraseña", {
+        const response = await fetch(`${API_URL}/api/auth/restablecer-contraseña`, { // URL dinámica
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -143,11 +136,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // MOSTRAR/OCULTAR CONTRASEÑA
+  // ========== MOSTRAR/OCULTAR CONTRASEÑA ==========
   const showPasswordCheckbox = document.getElementById("showPassword");
   if (showPasswordCheckbox) {
     showPasswordCheckbox.addEventListener("change", (e) => {
-      //cambiar tipo de input segun checkbox
       const passwordInput = document.getElementById("password");
       passwordInput.type = e.target.checked ? "text" : "password";
     });
