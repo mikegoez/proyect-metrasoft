@@ -28,7 +28,9 @@ const autenticarUsuario = require('./middlewares/auth');
 app.use('/api/notificaciones', autenticarUsuario);
 
 // srvir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, "../public")));
+if (process.env.NODE_ENV !== "production") {
+  app.use(express.static(path.join(__dirname, "../public")));
+}
 
 
 // configuracion rutas API
@@ -42,9 +44,11 @@ app.use('/api/notificaciones', notificacionesRouter);
 require('./services/notificacionesScheduler');
 
 // ruta catch all para spa
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/HTML/login.html"));
-});
+if (process.env.NODE_ENV === "development") {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/HTML/login.html"));
+  });
+}
 //iniciar servidor 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor en el puerto ${PORT}`));
