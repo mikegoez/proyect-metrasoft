@@ -54,7 +54,7 @@ app.use(express.static(publicPath));
 const authMiddleware = require('./middlewares/auth');
 
 // 1. Ruta raíz redirige a login
-app.get('/', redirigirSiAutenticado, (req, res) => {
+app.get('/', authMiddleware.redirigirSiAutenticado, (req, res) => {
   res.redirect('/HTML/login.html');
 });
 
@@ -66,13 +66,13 @@ const rutasPublicas = [
 ];
 
 rutasPublicas.forEach(ruta => {
-  app.get(ruta, redirigirSiAutenticado, (req, res) => {
+  app.get(ruta, authMiddleware.redirigirSiAutenticado, (req, res) => {
     res.sendFile(path.join(publicPath, ruta));
   });
 });
 
 // 3. Rutas protegidas (todas las demás HTML)
-app.get('/HTML/*', autenticarUsuario, (req, res) => {
+app.get('/HTML/*', authMiddleware.autenticarUsuario, (req, res) => {
   const requestedFile = req.path.replace('/HTML/', '');
   const allowedFiles = [
     'index.html',
@@ -97,9 +97,9 @@ const despachosRoutes = require('./routes/despachosRoutes');
 const notificacionesRoutes = require('./routes/notificacionesRoutes');
 
 app.use("/api/auth", authRoutes);
-app.use('/api/vehiculos', autenticarUsuario, vehiculosRoutes);
-app.use('/api/conductores', autenticarUsuario, conductoresRoutes);
-app.use('/api/despachos', autenticarUsuario, despachosRoutes);
+app.use('/api/vehiculos', authMiddleware.autenticarUsuario, vehiculosRoutes);
+app.use('/api/conductores', authMiddleware.autenticarUsuario, conductoresRoutes);
+app.use('/api/despachos', authMiddleware.autenticarUsuario, despachosRoutes);
 app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesRoutes);
 
 // Manejo de errores
