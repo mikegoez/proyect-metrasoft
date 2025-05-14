@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const autenticarUsuario = require('../middlewares/auth');
+const authMiddleware = require('../middlewares/auth');
 
 
 // Todas las rutas requieren autenticación JWT
-router.get('/', autenticarUsuario, async (req, res) => {
+router.get('/', authMiddleware.autenticarUsuario, async (req, res) => {
   try {
       // Obtener filtro de tipo desde query params
       const tipo = req.query.tipo; 
@@ -32,7 +32,7 @@ router.get('/', autenticarUsuario, async (req, res) => {
   }
 });
 // Marcar como leída
-router.put('/:id/leer', autenticarUsuario, async (req, res) => {
+router.put('/:id/leer', authMiddleware.autenticarUsuario, async (req, res) => {
     try {
         await db.query(`
             UPDATE notificaciones 
@@ -48,7 +48,7 @@ router.put('/:id/leer', autenticarUsuario, async (req, res) => {
 });
 
 // Eliminar notificación
-router.delete('/:id', autenticarUsuario, async (req, res) => {
+router.delete('/:id', authMiddleware.autenticarUsuario, async (req, res) => {
     try {
         await db.query(`
             DELETE FROM notificaciones 

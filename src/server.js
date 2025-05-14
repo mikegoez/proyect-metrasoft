@@ -51,7 +51,7 @@ app.use((req, res, next) => {
 app.use(express.static(publicPath));
 
 // Middleware de autenticación
-const { autenticarUsuario, redirigirSiAutenticado } = require('./middlewares/auth');
+const authMiddleware = require('./middlewares/auth');
 
 // 1. Ruta raíz redirige a login
 app.get('/', redirigirSiAutenticado, (req, res) => {
@@ -100,7 +100,7 @@ app.use("/api/auth", authRoutes);
 app.use('/api/vehiculos', autenticarUsuario, vehiculosRoutes);
 app.use('/api/conductores', autenticarUsuario, conductoresRoutes);
 app.use('/api/despachos', autenticarUsuario, despachosRoutes);
-app.use('/api/notificaciones', autenticarUsuario, notificacionesRoutes);
+app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {

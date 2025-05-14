@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-// Middleware para rutas protegidas
-exports.autenticarUsuario = (req, res, next) => {
+const autenticarUsuario = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
@@ -18,8 +17,7 @@ exports.autenticarUsuario = (req, res, next) => {
   }
 };
 
-// Middleware para redirigir usuarios ya autenticados
-exports.redirigirSiAutenticado = (req, res, next) => {
+const redirigirSiAutenticado = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (token) {
@@ -33,4 +31,9 @@ exports.redirigirSiAutenticado = (req, res, next) => {
   } else {
     next();
   }
+};
+
+module.exports = {
+  autenticarUsuario,
+  redirigirSiAutenticado
 };
