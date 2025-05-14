@@ -9,11 +9,9 @@ const rateLimit = require("express-rate-limit");
 // Inicialización
 const app = express();
 
-// Configuración de rutas
-const projectRoot = path.join(__dirname, '..');
-const publicPath = path.join(projectRoot, 'public');
-const routesPath = path.join(projectRoot, 'src', 'routes');
-const middlewaresPath = path.join(projectRoot, 'src', 'middlewares');
+// Configuración de rutas absolutas
+const publicPath = path.join(__dirname, '../public');
+const htmlPath = path.join(publicPath, 'HTML');
 
 // Middlewares
 app.use(helmet());
@@ -53,55 +51,56 @@ app.use((req, res, next) => {
 app.use(express.static(publicPath));
 
 // Middleware de autenticación
-const autenticarUsuario = require(path.join(middlewaresPath, 'auth'));
+const { autenticarUsuario, redirigirSiAutenticado } = require('./middlewares/auth');
 
-// 1. Redirección raíz a login - NUEVO
-app.get('/', (req, res) => {
-  res.redirect('/login.html');
+// 1. Ruta raíz redirige a login
+app.get('/', redirigirSiAutenticado, (req, res) => {
+  res.redirect('/HTML/login.html');
 });
 
-// 2. Configuración de rutas SPA - MODIFICADO
-const spaPaths = [
-  '/login',
-  '/register',
-  '/reset-password'
+// 2. Rutas públicas (login, registro, recuperación)
+const rutasPublicas = [
+  '/HTML/login.html',
+  '/HTML/register.html',
+  '/HTML/reset-password.html'
 ];
 
-spaPaths.forEach(route => {
-  app.get(route, (req, res) => {
-    res.sendFile(path.join(publicPath, 'HTML', 'index.html'));
+rutasPublicas.forEach(ruta => {
+  app.get(ruta, redirigirSiAutenticado, (req, res) => {
+    res.sendFile(path.join(publicPath, ruta));
   });
 });
 
-// 3. Ruta para index (protegida) - NUEVO
-app.get('/index', autenticarUsuario, (req, res) => {
-  res.sendFile(path.join(publicPath, 'HTML', 'index.html'));
+// 3. Rutas protegidas (todas las demás HTML)
+app.get('/HTML/*', autenticarUsuario, (req, res) => {
+  const requestedFile = req.path.replace('/HTML/', '');
+  const allowedFiles = [
+    'index.html',
+    'conductores.html',
+    'vehiculos.html',
+    'despachos.html',
+    'notificaciones.html'
+  ];
+  
+  if (allowedFiles.includes(requestedFile)) {
+    res.sendFile(path.join(htmlPath, requestedFile));
+  } else {
+    res.status(404).sendFile(path.join(htmlPath, '404.html'));
+  }
 });
 
-// Carga de rutas API
-const loadRoute = (routeName) => {
-  try {
-    return require(path.join(routesPath, routeName));
-  } catch (err) {
-    console.warn(`⚠️ Ruta ${routeName} no encontrada`);
-    return null;
-  }
-};
+// 4. Rutas API
+const authRoutes = require('./routes/authRoutes');
+const vehiculosRoutes = require('./routes/vehiculosRoutes');
+const conductoresRoutes = require('./routes/conductoresRoutes');
+const despachosRoutes = require('./routes/despachosRoutes');
+const notificacionesRoutes = require('./routes/notificacionesRoutes');
 
-// Rutas API
-const routes = {
-  authRoutes: loadRoute('authRoutes'),
-  vehiculosRoutes: loadRoute('vehiculosRoutes'),
-  conductoresRoutes: loadRoute('conductoresRoutes'),
-  despachosRoutes: loadRoute('despachosRoutes'),
-  notificacionesRoutes: loadRoute('notificacionesRoutes')
-};
-
-if (routes.authRoutes) app.use("/api/auth", routes.authRoutes);
-if (routes.vehiculosRoutes) app.use('/api/vehiculos', autenticarUsuario, routes.vehiculosRoutes);
-if (routes.conductoresRoutes) app.use('/api/conductores', autenticarUsuario, routes.conductoresRoutes);
-if (routes.despachosRoutes) app.use('/api/despachos', autenticarUsuario, routes.despachosRoutes);
-if (routes.notificacionesRoutes) app.use('/api/notificaciones', autenticarUsuario, routes.notificacionesRoutes);
+app.use("/api/auth", authRoutes);
+app.use('/api/vehiculos', autenticarUsuario, vehiculosRoutes);
+app.use('/api/conductores', autenticarUsuario, conductoresRoutes);
+app.use('/api/despachos', autenticarUsuario, despachosRoutes);
+app.use('/api/notificaciones', autenticarUsuario, notificacionesRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
@@ -121,7 +120,8 @@ app.listen(PORT, () => {
   ====================================
   Entorno: ${process.env.NODE_ENV || 'development'}
   Puerto: ${PORT}
-  Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/login
+  Ruta pública: ${publicPath}
+  Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/HTML/login.html
   ====================================
   `);
 });

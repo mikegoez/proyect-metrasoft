@@ -1,26 +1,36 @@
 const jwt = require('jsonwebtoken');
 
-const autenticarUsuario = (req, res, next) => {
-  // Obtener token de 2 posibles lugares
-  const token = req.header("Authorization")?.replace("Bearer ", "") || req.cookies.jwt;
-  console.log("🔑 Token recibido:", token);
+// Middleware para rutas protegidas
+exports.autenticarUsuario = (req, res, next) => {
+  const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
-    console.log("Error: Token no encontrado");
-    return res.status(401).json({ 
-      error: "Acceso denegado. No se proporcionó token de autenticación." 
-    });
+    return res.redirect('/HTML/login.html');
   }
 
   try {
-    const decodificado = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(" Token decodificado:", decodificado);
-    req.usuario = decodificado;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.usuario = decoded;
     next();
-  } catch (error) {
-    console.error('Error de autenticación:', error.message);
-    res.status(401).json({ error: "Token inválido" });
+  } catch (err) {
+    res.clearCookie('jwt');
+    return res.redirect('/HTML/login.html');
   }
 };
 
-module.exports = autenticarUsuario;
+// Middleware para redirigir usuarios ya autenticados
+exports.redirigirSiAutenticado = (req, res, next) => {
+  const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
+  
+  if (token) {
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+      return res.redirect('/HTML/index.html');
+    } catch (err) {
+      res.clearCookie('jwt');
+      next();
+    }
+  } else {
+    next();
+  }
+};
