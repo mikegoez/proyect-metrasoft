@@ -1,53 +1,76 @@
 const express = require("express");
 const app = express();
-require('dotenv').config(); //carga avriables de entorno
-const cors = require("cors"); //manejar cors
-const path = require("path"); // manejo de rutras de archivo
-const cookieParser = require('cookie-parser'); // para manejar cookies
+require('dotenv').config();
+const cors = require("cors");
+const path = require("path");
+const cookieParser = require('cookie-parser');
 
-//importar rutas modulos
+// ======================
+// 1. Configuración Base
+// ======================
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  credentials: true
+}));
+
+// ======================
+// 2. Base de Datos
+// ======================
+const pool = require('./config/db');
+app.use((req, res, next) => {
+  req.db = pool; // Inyecta la conexión para que los controladores la usen
+  next();
+});
+
+// ======================
+// 3. Archivos Estáticos
+// ======================
+app.use(express.static(path.join(__dirname, "../public")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/HTML/login.html"));
+});
+
+// ======================
+// 4. Rutas → Controladores
+// ======================
+// Importamos las rutas (que ya apuntan a tus controladores)
+const authRoutes = require('./routes/authRoutes');
 const vehiculosRoutes = require('./routes/vehiculosRoutes');
 const conductoresRoutes = require('./routes/conductoresRoutes');
 const despachosRoutes = require('./routes/despachosRoutes');
-const notificacionesRouter = require('./routes/notificaciones');
-//configuracion de corsc para desarrollo 
+const notificacionesRoutes = require('./routes/notificaciones');
 
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de tu frontend en producción
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true // Si usas cookies o tokens
-};
-
-app.use(cors(corsOptions));
-
-app.use(express.json()); //parsear bodies JSON
-app.use(cookieParser()); //middleware para cookies
-
-// middelwares de autentificacion para notificaciones
+// Middleware de autenticación (ajusta la ruta según tu archivo)
 const autenticarUsuario = require('./middlewares/auth');
-app.use('/api/notificaciones', autenticarUsuario);
 
-// srvir archivos estáticos del frontend
-if (process.env.NODE_ENV !== "production") {
-  app.use(express.static(path.join(__dirname, "../public")));
-}
-
-// configuracion rutas API
-app.use("/api/auth", require("./routes/authRoutes"));
+// Montamos las rutas exactamente como las tienes
+app.use("/api/auth", authRoutes);
 app.use('/api/vehiculos', vehiculosRoutes);
 app.use('/api/conductores', conductoresRoutes);
 app.use('/api/despachos', despachosRoutes);
-app.use('/api/notificaciones', notificacionesRouter);
+app.use('/api/notificaciones', autenticarUsuario, notificacionesRoutes);
 
-//programador de tareas para notificaciones
+// ======================
+// 5. Tareas Programadas
+// ======================
 require('./services/notificacionesScheduler');
 
-// ruta catch all para spa
-if (process.env.NODE_ENV === "development") {
+// ======================
+// 6. Manejo de Producción (Para Railway)
+// ======================
+if (process.env.NODE_ENV === "production") {
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../public/HTML/login.html"));
+    res.redirect("/");
   });
 }
-//iniciar servidor 
+
+// ======================
+// 7. Inicio del Servidor
+// ======================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor en el puerto ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor conectado a ${process.env.DB_HOST}`);
+  console.log(`📡 Escuchando en puerto ${PORT}`);
+});

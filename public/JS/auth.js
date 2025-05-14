@@ -1,5 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = "https://metrasoft-backend.onrender.com"; //URL actualizada
+  const API_URL = process.env.NODE_ENV === "production" 
+  ? window.location.origin 
+  : "http://localhost:3000";
+
+  console.log("Conectando a API en:", API_URL); // Para depuración
+
+  const safeRedirect = (path) => {
+    if (process.env.NODE_ENV === "production") {
+      window.location.href = path.startsWith("/") ? path.slice(1) : path;
+    } else {
+      window.location.href = path;
+    }
+  };
 
   // ================== REGISTRO ==================
   const registerForm = document.getElementById("registerForm");
@@ -28,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         
         if (response.ok) {
-          window.location.href = "/HTML/login.html";
+          window.location.href = "HTML/login.html";
         } else {
           const errorData = await response.json();
           alert(errorData.error || "Error en el registro");
@@ -61,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data.token) {
           localStorage.setItem("token", data.token);
-          window.location.href = "/HTML/index.html";
+          window.location.href = "HTML/index.html";
         } else {
           alert(data.error || "Credenciales incorrectas");
         }
@@ -125,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.ok) {
           alert("Contraseña actualizada correctamente");
-          window.location.href = "/HTML/login.html";
+          window.location.href = "HTML/login.html";
         } else {
           const errorData = await response.json();
           alert(errorData.error);
