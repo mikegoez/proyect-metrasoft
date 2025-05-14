@@ -57,7 +57,7 @@ const autenticarUsuario = require(path.join(middlewaresPath, 'auth'));
 
 // 1. Redirección raíz a login - NUEVO
 app.get('/', (req, res) => {
-  res.redirect('/login');
+  res.redirect('/login.html');
 });
 
 // 2. Configuración de rutas SPA - MODIFICADO
