@@ -31,22 +31,29 @@ exports.registro = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { correo_electronico, contraseña } = req.body;
-    //buscar usuarios por correo
     const usuario = await Usuario.buscarPorEmail(correo_electronico);
+    
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
-    //validar contraseña
+    
     const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
     if (!contraseñaValida) return res.status(401).json({ error: "Contraseña incorrecta" });
-    //generar token JWT valido por dos horas
+    
     const token = jwt.sign(
-      { id: usuario.id_usuario,
-        email:usuario.correo_electronico,
-        rol: usuario.rol
-      }, 
-      process.env.JWT_SECRET, // 
+      { id: usuario.id_usuario, email: usuario.correo_electronico, rol: usuario.rol }, 
+      process.env.JWT_SECRET,
       { expiresIn: "2h" }
     );
-    res.json({ token });
+
+    // Configurar la cookie HTTP-only y segura
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: 2 * 60 * 60 * 1000 // 2 horas
+    });
+
+    res.json({ success: true, token }); // Envía el token también en la respuesta
+
   } catch (error) {
     res.status(500).json({ error: "Error en el servidor" });
   }
