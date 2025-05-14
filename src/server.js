@@ -13,7 +13,7 @@ const notificacionesRouter = require('./routes/notificaciones');
 //configuracion de corsc para desarrollo 
 
 const corsOptions = {
-  origin: 'https://metrasoft-frontend.onrender.com' || "http://localhost:3000", // URL de tu frontend en producción
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de tu frontend en producción
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true // Si usas cookies o tokens
 };
