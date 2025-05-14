@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = "https://metrasoft-backend.onrender.com"; //URL actualizada
+  const API_URL = "https://proyect-metrasoft.onrender.com"; //URL actualizada
 
   // ================== REGISTRO ==================
   const registerForm = document.getElementById("registerForm");
