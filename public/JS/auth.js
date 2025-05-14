@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = process.env.NODE_ENV === "production" 
-  ? window.location.origin 
-  : "http://localhost:3000";
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : window.location.origin;
 
   console.log("Conectando a API en:", API_URL); // Para depuración
 
