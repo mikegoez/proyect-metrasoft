@@ -9,12 +9,13 @@ const rateLimit = require("express-rate-limit");
 // 1. Inicialización
 const app = express();
 
-// 2. Configuración de rutas absolutas (usando el __dirname original de Node.js)
+// 2. Configuración de rutas absolutas
 const projectRoot = path.join(__dirname, '..'); // Retrocede un nivel desde src/
 const publicPath = path.join(projectRoot, 'public');
 const routesPath = path.join(projectRoot, 'src', 'routes');
+const middlewaresPath = path.join(projectRoot, 'src', 'middlewares');
 
-// 3. Middlewares
+// 3. Middlewares básicos
 app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -53,7 +54,10 @@ app.use((req, res, next) => {
 // 6. Archivos estáticos
 app.use(express.static(publicPath));
 
-// 7. Carga segura de rutas
+// 7. Importación del middleware de autenticación (AÑADIDO)
+const autenticarUsuario = require(path.join(middlewaresPath, 'auth'));
+
+// 8. Carga segura de rutas
 const loadRoute = (routeName) => {
   try {
     const routePath = path.join(routesPath, routeName);
@@ -65,7 +69,7 @@ const loadRoute = (routeName) => {
   }
 };
 
-// 8. Registro dinámico de rutas
+// 9. Registro dinámico de rutas
 const routeDefinitions = [
   { name: 'authRoutes', path: '/api/auth', protected: false },
   { name: 'vehiculosRoutes', path: '/api/vehiculos', protected: true },
@@ -83,7 +87,7 @@ routeDefinitions.forEach(route => {
   }
 });
 
-// 9. Manejo de SPA
+// 10. Manejo de SPA
 const spaPaths = ['/', '/login', '/register', '/reset-password', '/index'];
 spaPaths.forEach(route => {
   app.get(route, (req, res) => {
@@ -91,7 +95,7 @@ spaPaths.forEach(route => {
   });
 });
 
-// 10. Manejo de errores
+// 11. Manejo de errores
 app.use((err, req, res, next) => {
   console.error("🔥 Error:", err.stack);
   res.status(500).json({ 
@@ -100,7 +104,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 11. Inicio del servidor
+// 12. Inicio del servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`
@@ -109,9 +113,7 @@ app.listen(PORT, () => {
   ====================================
   Entorno: ${process.env.NODE_ENV || 'development'}
   Puerto: ${PORT}
-  Directorio actual: ${__dirname}
-  Ruta pública: ${publicPath}
-  Ruta de rutas: ${routesPath}
+  Ruta de middlewares: ${middlewaresPath}
   ====================================
   `);
 });
