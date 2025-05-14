@@ -13,7 +13,7 @@ const notificacionesRouter = require('./routes/notificaciones');
 //configuracion de corsc para desarrollo 
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de tu frontend en producción
+  origin: 'https://metrasoft-frontend.onrender.com' || "http://localhost:3000", // URL de tu frontend en producción
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true // Si usas cookies o tokens
 };
@@ -31,7 +31,6 @@ app.use('/api/notificaciones', autenticarUsuario);
 if (process.env.NODE_ENV !== "production") {
   app.use(express.static(path.join(__dirname, "../public")));
 }
-
 
 // configuracion rutas API
 app.use("/api/auth", require("./routes/authRoutes"));
