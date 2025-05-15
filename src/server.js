@@ -1,3 +1,4 @@
+server.js
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
@@ -8,59 +9,29 @@ const rateLimit = require("express-rate-limit");
 
 // Inicialización
 const app = express();
-app.set('trust proxy', 1); 
 
-// ==============================================
-// CONFIGURACIÓN DE RUTAS (VERSIÓN CORREGIDA)
-// ==============================================
-const publicPath = path.resolve(__dirname, 'public');
+// Configuración de rutas absolutas
+const publicPath = path.join(__dirname, '../public');
 const htmlPath = path.join(publicPath, 'HTML');
 
-// Verificación de rutas (para diagnóstico)
-console.log('=== Rutas configuradas ===');
-console.log('Directorio actual:', __dirname);
-console.log('Ruta pública:', publicPath);
-console.log('Ruta HTML:', htmlPath);
-console.log('==========================');
-
-// ==============================================
-// MIDDLEWARES BÁSICOS
-// ==============================================
+// Middlewares
+app.use(helmet());
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  credentials: true,
-  exposedHeaders: ['Authorization']
+  credentials: true
 }));
-
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-      imgSrc: ["'self'", "data:"],
-      fontSrc: ["'self'", "https://cdn.jsdelivr.net"]
-    }
-  }
-}));
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// ==============================================
-// RATE LIMITING
-// ==============================================
+// Rate limiting
 app.use("/api/", rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  message: "Demasiadas solicitudes desde esta IP",
-  trustProxy: true
+  message: "Demasiadas solicitudes desde esta IP"
 }));
 
-// ==============================================
-// CONEXIÓN A BASE DE DATOS
-// ==============================================
+// Conexión a MySQL
 const pool = require("./config/db");
 pool.getConnection()
   .then(conn => {
@@ -77,50 +48,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// ==============================================
-// ARCHIVOS ESTÁTICOS (CONFIGURACIÓN CORREGIDA)
-// ==============================================
-const staticOptions = {
-  maxAge: '1y',
-  etag: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.css')) {
-      res.set('Content-Type', 'text/css');
-    }
-    if (path.endsWith('.js')) {
-      res.set('Content-Type', 'application/javascript');
-    }
-  },
-  fallthrough: false,
-  index: false
-};
+// Archivos estáticos
+app.use(express.static(publicPath));
 
-app.use(express.static(publicPath, staticOptions));
-
-// Manejo de errores para archivos estáticos
-app.use((req, res, next) => {
-  if (req.accepts('html')) {
-    res.status(404).sendFile(path.join(htmlPath, '404.html'));
-  } else {
-    next();
-  }
-});
-
-// ==============================================
-// MIDDLEWARE DE AUTENTICACIÓN
-// ==============================================
+// Middleware de autenticación
 const authMiddleware = require('./middlewares/auth');
 
-// ==============================================
-// RUTAS DE LA APLICACIÓN
-// ==============================================
-
-// 1. Redirección raíz
-app.get('/', authMiddleware.redirigirSiAutenticado, (req, res) => {
+// 1. Ruta raíz redirige a login
+app.get('/', redirigirSiAutenticado, (req, res) => {
   res.redirect('/HTML/login.html');
 });
 
-// 2. Rutas públicas
+// 2. Rutas públicas (login, registro, recuperación)
 const rutasPublicas = [
   '/HTML/login.html',
   '/HTML/register.html',
@@ -128,29 +67,24 @@ const rutasPublicas = [
 ];
 
 rutasPublicas.forEach(ruta => {
-  app.get(ruta, authMiddleware.redirigirSiAutenticado, (req, res) => {
-    const filePath = path.join(htmlPath, ruta.split('/HTML/')[1]);
-    console.log(`Intentando servir archivo: ${filePath}`); // Para diagnóstico
-    res.sendFile(filePath);
+  app.get(ruta, redirigirSiAutenticado, (req, res) => {
+    res.sendFile(path.join(publicPath, ruta));
   });
 });
 
-// 3. Rutas protegidas
-const archivosPermitidos = [
-  'index.html',
-  'conductores.html',
-  'vehiculos.html',
-  'despachos.html',
-  'notificaciones.html'
-];
-
-app.get('/HTML/*', authMiddleware.autenticarUsuario, (req, res) => {
-  const archivoSolicitado = req.path.split('/HTML/')[1];
+// 3. Rutas protegidas (todas las demás HTML)
+app.get('/HTML/*', autenticarUsuario, (req, res) => {
+  const requestedFile = req.path.replace('/HTML/', '');
+  const allowedFiles = [
+    'index.html',
+    'conductores.html',
+    'vehiculos.html',
+    'despachos.html',
+    'notificaciones.html'
+  ];
   
-  if (archivosPermitidos.includes(archivoSolicitado)) {
-    const rutaCompleta = path.join(htmlPath, archivoSolicitado);
-    console.log(`Sirviendo archivo protegido: ${rutaCompleta}`); // Para diagnóstico
-    res.sendFile(rutaCompleta);
+  if (allowedFiles.includes(requestedFile)) {
+    res.sendFile(path.join(htmlPath, requestedFile));
   } else {
     res.status(404).sendFile(path.join(htmlPath, '404.html'));
   }
@@ -169,9 +103,7 @@ app.use('/api/conductores', authMiddleware.autenticarUsuario, conductoresRoutes)
 app.use('/api/despachos', authMiddleware.autenticarUsuario, despachosRoutes);
 app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesRoutes);
 
-// ==============================================
-// MANEJO DE ERRORES GLOBAL
-// ==============================================
+// Manejo de errores
 app.use((err, req, res, next) => {
   console.error("🔥 Error:", err.stack);
   res.status(500).json({ 
@@ -180,9 +112,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ==============================================
-// INICIO DEL SERVIDOR
-// ==============================================
+// Inicio del servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`

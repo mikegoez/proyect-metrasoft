@@ -73,14 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data.token) {
           localStorage.setItem("token", data.token);
-          
-          const redirectPath = window.location.hostname === 'localhost' 
-          ? 'HTML/index.html' 
-          : '/HTML/index.html';
-          
-          window.location.href = redirectPath;
-        } 
-        else {
+          window.location.href = "HTML/index.html";
+        } else {
           alert(data.error || "Credenciales incorrectas");
         }
       } catch (error) {
