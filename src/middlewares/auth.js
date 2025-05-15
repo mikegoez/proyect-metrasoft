@@ -5,16 +5,22 @@ const autenticarUsuario = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
-    return res.redirect('/HTML/login.html'); // o res.status(401).json({ error: "No autorizado" });
+    if (req.accepts('html')) {
+      return res.redirect('/HTML/login.html');
+    }
+    return res.status(401).json({ error: "No autorizado" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuario = decoded; // Guarda los datos del usuario en el request
-    next(); // Continúa con la siguiente función
+    req.usuario = decoded;
+    next();
   } catch (err) {
     res.clearCookie('jwt');
-    return res.redirect('/HTML/login.html');
+    if (req.accepts('html')) {
+      return res.redirect('/HTML/login.html');
+    }
+    res.status(401).json({ error: "Token inválido" });
   }
 };
 

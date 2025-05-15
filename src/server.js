@@ -6,6 +6,7 @@ const path = require("path");
 const cookieParser = require('cookie-parser');
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const authMiddleware = require('./middlewares/auth');
 
 // Inicialización
 const app = express();
@@ -28,7 +29,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/", rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  message: "Demasiadas solicitudes desde esta IP"
+  message: "Demasiadas solicitudes desde esta IP",
+  trustProxy: true
 }));
 
 // Conexión a MySQL
@@ -52,7 +54,7 @@ app.use((req, res, next) => {
 app.use(express.static(publicPath));
 
 // Middleware de autenticación
-const authMiddleware = require('./middlewares/auth');
+
 
 // 1. Ruta raíz redirige a login
 app.get('/', redirigirSiAutenticado, (req, res) => {
