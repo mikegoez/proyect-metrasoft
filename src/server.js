@@ -18,7 +18,7 @@ app.set('trust proxy', 1);
 const publicPath = path.resolve(__dirname, '../public');
 app.use(express.static(publicPath, {
   setHeaders: (res, filePath) => {
-    if (filePathath.endsWith('.css')) {
+    if (filePath.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
     }
   }
@@ -31,7 +31,9 @@ const htmlPath = path.join(publicPath, 'HTML');
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
-  exposedHeaders: ['Authorization']
+  exposedHeaders: ['Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(helmet());
 app.use(express.json());
