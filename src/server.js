@@ -19,7 +19,7 @@ const publicPath = path.resolve(__dirname, '../public');
 app.use(express.static(publicPath, {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
+      res.setHeader('Content-Type', 'text/CSS');
     }
   }
 }));
