@@ -4,22 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Panel</title>
-    <base href="/">
-<!-- bootstrap -->
-    <link rel="stylesheet" href="assets/icons/bootstrap-icons.css">
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-<!-- estilos personalizados -->
-    <link rel="stylesheet" href="CSS/global.css">
-    <link rel="stylesheet" href="CSS/components.css">
-    <link rel="stylesheet" href="CSS/modules/dashboard.css">
-    <link rel="stylesheet" href="CSS/utilities.css">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="/assets/icons/bootstrap-icons.css">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <!-- estilos personalizados -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/modules/dashboard.css">
+    <link rel="stylesheet" href="/css/utilities.css">
 </head>
 <body class="bg-light">
-<!-- barra de navegacion -->
+    <!-- barra de navegacion -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mtr-navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">
-                <img src="assets/metrasofftlogo.png" alt="Logo" class="mtr-navbar-logo">
+                <img src="/assets/metrasofftlogo.png" alt="Logo" class="mtr-navbar-logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -44,7 +43,7 @@
 
     <div class="container-fluid mt-4">
         <div class="row">
-<!-- sidebar simplificado -->
+            <!-- sidebar simplificado -->
             <div class="col-lg-3 mb-3 mtr-sidebar">
                 <div class="list-group">
                     <a href="vehiculos.html" class="list-group-item list-group-item-action">
@@ -62,7 +61,7 @@
                 </div>
             </div>
 
-<!-- contenido principal -->
+            <!-- contenido principal -->
             <div class="col-lg-9">
                 <div class="card shadow-sm mtr-main-card">
                     <div class="card-body">
@@ -74,7 +73,7 @@
                             <div class="col">
                                 <div class="card h-100 mtr-stat-card">
                                     <div class="card-body text-center">
-                                        <h5><i class="bi bi-bus-front"></i>Vehículos Registrados</h5>
+                                        <h5><i class="bi bi-bus-front"></i> Vehículos Registrados</h5>
                                         <p class="display-4" id="contador-vehiculos">0</p>
                                     </div>
                                 </div>
@@ -93,7 +92,8 @@
             </div>
         </div>
     </div>
-<!-- Modal de confirmación de cierre de sesion -->
+
+    <!-- Modal de confirmación de cierre de sesion -->
     <div class="modal fade" id="logoutModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -116,118 +116,121 @@
         </div>
     </div>
 
-    <script src="assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const token = localStorage.getItem('jwt');
-    const userEmail = sessionStorage.getItem('userEmail');
-    
-    if (!token || !userEmail) {
-      redirectToLogin();
-      return;
-    }
-
-    // Mostrar email aunque esté cargando los contadores
-    document.getElementById('user-email').textContent = userEmail;
-
-    const options = {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    };
-
-    // Intentar cargar contadores
-    try {
-      const [vehiculosRes, conductoresRes] = await Promise.all([
-        fetch('/api/vehiculos/contar', options),
-        fetch('/api/conductores/contar', options)
-      ]);
-
-      // Manejar respuestas
-      if (vehiculosRes.status === 401 || conductoresRes.status === 401) {
-        handleUnauthorized();
-        return;
-      }
-
-      if (!vehiculosRes.ok || !conductoresRes.ok) {
-        throw new Error("Error en la API");
-      }
-
-      const vehiculosData = await vehiculosRes.json();
-      const conductoresData = await conductoresRes.json();
-
-      document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
-      document.getElementById('contador-conductores').textContent = conductoresData.total;
-    } catch (apiError) {
-      console.error("Error al cargar datos:", apiError);
-      // No redirigir, solo mostrar error
-      document.getElementById('contador-vehiculos').textContent = "Error";
-      document.getElementById('contador-conductores').textContent = "Error";
-    }
-
-    // Configurar logout (mantener tu implementación original)
-    setupLogout();
-
-  } catch (error) {
-    console.error("Error inicial:", error);
-    // No redirigir automáticamente, solo mostrar error
-    alert("Error al inicializar la aplicación");
-  }
-});
-
-// Funciones auxiliares
-function redirectToLogin() {
-  localStorage.removeItem('jwt');
-  sessionStorage.removeItem('userEmail');
-  window.location.href = '/HTML/login.html';
-}
-
-function handleUnauthorized() {
-  console.warn("Sesión expirada o inválida");
-  // Opcional: mostrar modal en lugar de redirigir automáticamente
-  showSessionExpiredModal();
-}
-
-function setupLogout() {
-  document.getElementById('logout').addEventListener('click', () => {
-    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
-    logoutModal.show();
-  });
-
-  document.getElementById('confirmLogout').addEventListener('click', () => {
-    redirectToLogin();
-  });
-}
-
-function showSessionExpiredModal() {
-  // Implementar un modal específico para sesión expirada
-  const modal = `
-    <div class="modal fade" id="sessionModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header bg-warning">
-            <h5 class="modal-title">Sesión expirada</h5>
-          </div>
-          <div class="modal-body">
-            Tu sesión ha expirado. Serás redirigido al login.
-          </div>
+    <!-- Modal para errores de sesión -->
+    <div class="modal fade" id="sessionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Error de sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="sessionModalMessage">Hubo un problema al verificar tu sesión.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', modal);
-  const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-  sessionModal.show();
-  
-  setTimeout(() => {
-    redirectToLogin();
-  }, 3000);
-}
-    
+
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funciones auxiliares
+        function redirectToLogin() {
+            localStorage.removeItem('jwt');
+            sessionStorage.removeItem('userEmail');
+            window.location.href = '/HTML/login.html';
+        }
+
+        function showSessionError(message) {
+            const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+            document.getElementById('sessionModalMessage').textContent = message;
+            sessionModal.show();
+        }
+
+        function setupLogout() {
+            document.getElementById('logout').addEventListener('click', () => {
+                const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+                logoutModal.show();
+            });
+
+            document.getElementById('confirmLogout').addEventListener('click', () => {
+                redirectToLogin();
+            });
+        }
+
+        // Código principal que se ejecuta al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Verificar autenticación
+                const token = localStorage.getItem('jwt');
+                const userEmail = sessionStorage.getItem('userEmail');
+                
+                if (!token || !userEmail) {
+                    redirectToLogin();
+                    return;
+                }
+
+                // Mostrar email del usuario
+                document.getElementById('user-email').textContent = userEmail;
+
+                // Configurar opciones de las peticiones
+                const requestOptions = {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                };
+
+                // Función para cargar datos de un endpoint
+                const fetchData = async (endpoint) => {
+                    try {
+                        const response = await fetch(endpoint, requestOptions);
+                        
+                        if (response.status === 401) {
+                            showSessionError('Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
+                            setTimeout(redirectToLogin, 3000);
+                            return null;
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+
+                        return await response.json();
+                    } catch (error) {
+                        console.error(`Error al cargar ${endpoint}:`, error);
+                        return null;
+                    }
+                };
+
+                // Cargar ambos contadores en paralelo
+                const [vehiculosData, conductoresData] = await Promise.all([
+                    fetchData('/api/vehiculos/contar'),
+                    fetchData('/api/conductores/contar')
+                ]);
+
+                // Actualizar la interfaz con los datos obtenidos
+                document.getElementById('contador-vehiculos').textContent = 
+                    vehiculosData?.total ?? "0";
+                document.getElementById('contador-conductores').textContent = 
+                    conductoresData?.total ?? "0";
+
+                // Configurar el evento de logout
+                setupLogout();
+
+            } catch (mainError) {
+                console.error('Error en la inicialización:', mainError);
+                // Mostrar valores por defecto en caso de error
+                document.getElementById('contador-vehiculos').textContent = "0";
+                document.getElementById('contador-conductores').textContent = "0";
+                
+                // Configurar el evento de logout incluso si hay errores
+                setupLogout();
+            }
+        });
     </script>
 </body>
 </html>

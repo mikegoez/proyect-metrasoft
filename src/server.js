@@ -14,10 +14,11 @@ app.set('trust proxy', 1);
 
 // Configuración de rutas absolutas
 const publicPath = path.resolve(__dirname, '../public');
-app.use(express.static(publicPath, {
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
+
+app.use('/css', express.static(path.join(publicPath, 'CSS'), {
+  setHeaders: (res, Path) => {
+    if (Path.endsWith('.css')) {
+      res.set('Content-Type', 'text/css');
     }
   }
 }));
