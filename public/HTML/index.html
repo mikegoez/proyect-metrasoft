@@ -124,10 +124,11 @@
     const userEmail = sessionStorage.getItem('userEmail');
     
     if (!token || !userEmail) {
-      window.location.href = '/HTML/login.html';
+      redirectToLogin();
       return;
     }
 
+    // Mostrar email aunque esté cargando los contadores
     document.getElementById('user-email').textContent = userEmail;
 
     const options = {
@@ -138,46 +139,95 @@
       credentials: 'include'
     };
 
-    const [vehiculosRes, conductoresRes] = await Promise.all([
-      fetch('/api/vehiculos/contar', options),
-      fetch('/api/conductores/contar', options)
-    ]);
+    // Intentar cargar contadores
+    try {
+      const [vehiculosRes, conductoresRes] = await Promise.all([
+        fetch('/api/vehiculos/contar', options),
+        fetch('/api/conductores/contar', options)
+      ]);
 
-    if (vehiculosRes.status === 401 || conductoresRes.status === 401) {
-      localStorage.removeItem('jwt');
-      sessionStorage.removeItem('userEmail');
-      window.location.href = '/HTML/login.html';
-      return;
+      // Manejar respuestas
+      if (vehiculosRes.status === 401 || conductoresRes.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      if (!vehiculosRes.ok || !conductoresRes.ok) {
+        throw new Error("Error en la API");
+      }
+
+      const vehiculosData = await vehiculosRes.json();
+      const conductoresData = await conductoresRes.json();
+
+      document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
+      document.getElementById('contador-conductores').textContent = conductoresData.total;
+    } catch (apiError) {
+      console.error("Error al cargar datos:", apiError);
+      // No redirigir, solo mostrar error
+      document.getElementById('contador-vehiculos').textContent = "Error";
+      document.getElementById('contador-conductores').textContent = "Error";
     }
 
-    if (!vehiculosRes.ok || !conductoresRes.ok) {
-      throw new Error("Error al obtener datos");
-    }
-
-    const vehiculosData = await vehiculosRes.json();
-    const conductoresData = await conductoresRes.json();
-
-    document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
-    document.getElementById('contador-conductores').textContent = conductoresData.total;
-
-    // Mantenemos la funcionalidad de cierre de sesión original
-    document.getElementById('logout').addEventListener('click', () => {
-      const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
-      logoutModal.show();
-    });
-
-    document.getElementById('confirmLogout').addEventListener('click', () => {
-      localStorage.removeItem('jwt');
-      sessionStorage.removeItem('userEmail');
-      window.location.href = '/HTML/login.html';
-    });
+    // Configurar logout (mantener tu implementación original)
+    setupLogout();
 
   } catch (error) {
-    console.error("Error:", error);
-    alert("No se pudieron cargar los contadores. Intenta recargar la página.");
+    console.error("Error inicial:", error);
+    // No redirigir automáticamente, solo mostrar error
+    alert("Error al inicializar la aplicación");
   }
 });
-        
+
+// Funciones auxiliares
+function redirectToLogin() {
+  localStorage.removeItem('jwt');
+  sessionStorage.removeItem('userEmail');
+  window.location.href = '/HTML/login.html';
+}
+
+function handleUnauthorized() {
+  console.warn("Sesión expirada o inválida");
+  // Opcional: mostrar modal en lugar de redirigir automáticamente
+  showSessionExpiredModal();
+}
+
+function setupLogout() {
+  document.getElementById('logout').addEventListener('click', () => {
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    logoutModal.show();
+  });
+
+  document.getElementById('confirmLogout').addEventListener('click', () => {
+    redirectToLogin();
+  });
+}
+
+function showSessionExpiredModal() {
+  // Implementar un modal específico para sesión expirada
+  const modal = `
+    <div class="modal fade" id="sessionModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Sesión expirada</h5>
+          </div>
+          <div class="modal-body">
+            Tu sesión ha expirado. Serás redirigido al login.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modal);
+  const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+  sessionModal.show();
+  
+  setTimeout(() => {
+    redirectToLogin();
+  }, 3000);
+}
+    
     </script>
 </body>
 </html>

@@ -41,21 +41,25 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { id: usuario.id_usuario, email: usuario.correo_electronico, rol: usuario.rol }, 
       process.env.JWT_SECRET,
-      { expiresIn: "2h" }
+      { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    // Configurar la cookie HTTP-only y segura
+  
     res.cookie('jwt', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 2 * 60 * 60 * 1000 // 2 horas
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
     });
 
-    res.json({ success: true, token }); // Envía el token también en la respuesta
+    res.json({ 
+      success: true, 
+      token,
+      expiresIn: 24 * 60 * 60 * 1000 // milisegundos
+     }); // Envía el token también en la respuesta
 
   } catch (error) {
-    res.status(500).json({ error: "Error en el servidor" });
+    res.status(500).json({ error: error.message });
   }
 };
  //controlador para solicitudes reset de contraseña
