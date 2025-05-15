@@ -117,58 +117,51 @@
 
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script>
-       document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            // 1. Verificar autenticación
-            const token = localStorage.getItem('token');
-            const userEmail = localStorage.getItem('userEmail'); // Cambiado a localStorage
-        
-            if (!token || !userEmail) {
-                window.location.href = '/HTML/login.html';
-                return;
+        // linea de codigo que espera que el DOM esté completamente cargado antes de ejecutar el código
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+        // verifica si el usuario está autenticado mediante sessionStorage
+            const userEmail = sessionStorage.getItem('userEmail');
+        // redirige al login si no hay correo almacenado
+            if (!userEmail) window.location.href = '/HTML/login.html';
+        // muestra el correo del usuario en la interfaz
+        document.getElementById('user-email').textContent = userEmail;
+        // obtiene datos de vehículos y conductores de forma paralela   
+            const vehiculosRes = await fetch('/api/vehiculos/contar');
+            const conductoresRes = await fetch('/api/conductores/contar');
+        // verifica si ambas respuestas http son exitosas  
+            if (!vehiculosRes.ok || !conductoresRes.ok) {
+                throw new Error("Error al obtener datos");
             }
-
-            // 2. Mostrar email del usuario
-            document.getElementById('user-email').textContent = userEmail;
-
-            // 3. Configurar headers con el token JWT
-            const headers = {
-                'Authorization': `Bearer ${token}`
-            };
-
-            // 4. Obtener datos en paralelo CON autenticación
-            const [vehiculosRes, conductoresRes] = await Promise.all([
-                fetch('/api/vehiculos/contar', { headers }),
-                fetch('/api/conductores/contar', { headers })
-            ]);
-
-            // 5. Verificar respuestas
-            if (!vehiculosRes.ok) throw new Error(await vehiculosRes.text());
-            if (!conductoresRes.ok) throw new Error(await conductoresRes.text());
-
-            // 6. Actualizar UI
+        // convierte las respustas a JSON    
             const vehiculosData = await vehiculosRes.json();
             const conductoresData = await conductoresRes.json();
-        
-            document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
-            document.getElementById('contador-conductores').textContent = conductoresData.total;
-
-        } catch (error) {
-            console.error("Error al cargar contadores:", error);
-            alert("No se pudieron cargar los contadores. Intenta recargar la página.");
-        }
-
-        // Configurar logout (sin cambios)
+        // actualiza los contadores en la interfaz
+        document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
+        document.getElementById('contador-conductores').textContent = conductoresData.total;
+            
         document.getElementById('logout').addEventListener('click', () => {
+        // Mostrar modal 
             const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
             logoutModal.show();
         });
 
+        // Confirmar cierre de sesión
         document.getElementById('confirmLogout').addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userEmail');
+        // Eliminar credenciales
+            localStorage.removeItem('jwt');
+            sessionStorage.removeItem('userEmail');
+        // Redirigir al login
             window.location.href = '/HTML/login.html';
         });
+        
+        } catch (error) {
+        // manejo basico de errores sean logins y notificaciones al usuario
+            console.error("Error:", error);
+        // para mostrar mensaje al usuario en los contadores
+            alert("No se pudieron cargar los contadores. Intenta recargar la página.");
+        }
+
     });
     </script>
 </body>
