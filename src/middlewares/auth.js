@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-exports.autenticarUsuario = async (req, res, next) => {
+const autenticarUsuario = async (req, res, next) => {
   try {
     // 1. Obtener token de headers, cookies o query params
     const token = req.headers.authorization?.split(' ')[1] || 
