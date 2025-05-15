@@ -22,7 +22,17 @@ app.use(cors({
   exposedHeaders: ['Authorization']
 }));
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      imgSrc: ["'self'", "data:"],
+      fontSrc: ["'self'", "https://cdn.jsdelivr.net"]
+    }
+  }
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -53,7 +63,15 @@ app.use((req, res, next) => {
 });
 
 // Archivos estáticos
-app.use(express.static(publicPath));
+app.use(express.static(publicPath, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
 // Middleware de autenticación
 const authMiddleware = require('./middlewares/auth');
