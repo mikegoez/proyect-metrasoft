@@ -23,6 +23,14 @@ app.use('/css', express.static(path.join(publicPath, 'CSS'), {
   }
 }));
 
+app.use('/JS', express.static(path.join(publicPath, 'JS'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
 const htmlPath = path.join(publicPath, 'HTML');
 
 // Middlewares
