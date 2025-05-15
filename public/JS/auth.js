@@ -1,16 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000' 
-    : window.location.origin;
+  // Configuración universal para desarrollo y producción
+  const BASE_URL = window.location.origin;
+  const API_URL = BASE_URL;
+  const IS_PRODUCTION = window.location.hostname !== 'localhost';
 
-  console.log("Conectando a API en:", API_URL); // Para depuración
+  console.log(`Conectando a API en: ${API_URL} (${IS_PRODUCTION ? 'Producción' : 'Desarrollo'})`);
 
+  // Redirección segura para todos los ambientes
   const safeRedirect = (path) => {
-    if (process.env.NODE_ENV === "production") {
-      window.location.href = path.startsWith("/") ? path.slice(1) : path;
-    } else {
-      window.location.href = path;
-    }
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    window.location.href = `${BASE_URL}${normalizedPath}`;
   };
 
   // ================== REGISTRO ==================
@@ -29,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/auth/registro`, { // URL dinámica
+        const response = await fetch(`${API_URL}/api/auth/registro`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -40,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         
         if (response.ok) {
-          window.location.href = "HTML/login.html";
+          safeRedirect("/HTML/login.html");
         } else {
           const errorData = await response.json();
           alert(errorData.error || "Error en el registro");
@@ -60,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const contraseña = document.getElementById("password").value;
 
       try {
-        const response = await fetch(`${API_URL}/api/auth/login`, { // URL dinámica
+        const response = await fetch(`${API_URL}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -73,12 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data.token) {
           localStorage.setItem("token", data.token);
-
-          const redirectPath = window.location.hostname === 'localhost'
-            ? 'HTML/index.html'
-            : '/HTML/index.html';
-
-          window.location.href = redirectPath;
+          safeRedirect("/HTML/index.html");
         } else {
           alert(data.error || "Credenciales incorrectas");
         }
@@ -92,14 +86,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const requestResetForm = document.getElementById("requestResetForm");
   const resetPasswordForm = document.getElementById("resetPasswordForm");
 
-  // Solicitar enlace de recuperación
   if (requestResetForm) {
     requestResetForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
 
       try {
-        const response = await fetch(`${API_URL}/api/auth/solicitar-reset`, { // URL dinámica
+        const response = await fetch(`${API_URL}/api/auth/solicitar-reset`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -117,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Restablecer contraseña con token
   if (resetPasswordForm) {
     resetPasswordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -131,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/auth/restablecer-contraseña`, { // URL dinámica
+        const response = await fetch(`${API_URL}/api/auth/restablecer-contraseña`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -142,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.ok) {
           alert("Contraseña actualizada correctamente");
-          window.location.href = "HTML/login.html";
+          safeRedirect("/HTML/login.html");
         } else {
           const errorData = await response.json();
           alert(errorData.error);
@@ -162,3 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// Polyfill para navegadores antiguos
+if (!window.location.origin) {
+  window.location.origin = window.location.protocol + "//" + 
+                         window.location.hostname + 
+                         (window.location.port ? ':' + window.location.port : '');
+}

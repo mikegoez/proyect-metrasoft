@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser');
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-
 // Inicialización
 const app = express();
 
@@ -15,6 +14,7 @@ app.set('trust proxy', 1);
 // Configuración de rutas absolutas
 const publicPath = path.resolve(__dirname, '../public');
 
+// Configuración mejorada para archivos estáticos
 app.use('/css', express.static(path.join(publicPath, 'CSS'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
@@ -31,10 +31,12 @@ app.use('/JS', express.static(path.join(publicPath, 'JS'), {
   }
 }));
 
+// Alias para /js (minúsculas) por compatibilidad
+app.use('/js', express.static(path.join(publicPath, 'JS')));
+
 const htmlPath = path.join(publicPath, 'HTML');
 
 // Middlewares
-
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
