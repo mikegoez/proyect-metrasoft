@@ -16,9 +16,9 @@ app.set('trust proxy', 1);
 const publicPath = path.resolve(__dirname, '../public');
 
 app.use('/css', express.static(path.join(publicPath, 'CSS'), {
-  setHeaders: (res, Path) => {
-    if (Path.endsWith('.css')) {
-      res.set('Content-Type', 'text/css');
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
     }
   }
 }));
