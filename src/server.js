@@ -1,4 +1,3 @@
-server.js
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
@@ -24,7 +23,6 @@ app.use(cors({
   credentials: true,
   exposedHeaders: ['Authorization']
 }));
-
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
