@@ -112,7 +112,7 @@ app.get('/HTML/*', authMiddleware.autenticarUsuario, (req, res) => {
   if (allowedFiles.includes(requestedFile)) {
     res.sendFile(path.join(htmlPath, requestedFile));
   } else {
-    res.status(404).sendFile(path.join(htmlPath, '404.html'));
+    res.redirect('/HTML/login.html');
   }
 });
 
