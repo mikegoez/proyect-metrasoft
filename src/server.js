@@ -26,13 +26,14 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
-      fontSrc: ["'self'", "https://cdn.jsdelivr.net"]
+      fontSrc: ["'self'"]
     }
   }
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -68,15 +69,26 @@ const staticOptions = {
   etag: true,
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
+      res.set('Content-Type', 'text/css');
     }
     if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
+      res.set('Content-Type', 'application/javascript');
     }
-  }
+  },
+  // Añade esto para manejar rutas incorrectas
+  fallthrough: false
 };
 
 app.use(express.static(publicPath, staticOptions));
+
+// Manejo de rutas no encontradas para archivos estáticos
+app.use((req, res, next) => {
+  if (req.accepts('html')) {
+    res.status(404).sendFile(path.join(htmlPath, '404.html'));
+  } else {
+    next();
+  }
+});
 
 // Middleware de autenticación
 const authMiddleware = require('./middlewares/auth');

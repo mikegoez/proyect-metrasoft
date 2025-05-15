@@ -4,10 +4,10 @@ const autenticarUsuario = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
-    if (req.accepts('html')) {
-      return res.redirect('/HTML/login.html');
+    if (req.path.startsWith('/api')) {
+      return res.status(401).json({ error: "No autorizado" });
     }
-    return res.status(401).json({ error: "No autorizado" });
+    return res.redirect('/HTML/login.html');
   }
 
   try {
@@ -16,10 +16,10 @@ const autenticarUsuario = (req, res, next) => {
     next();
   } catch (err) {
     res.clearCookie('jwt');
-    if (req.accepts('html')) {
-      return res.redirect('/HTML/login.html');
+    if (req.path.startsWith('/api')) {
+      return res.status(401).json({ error: "Token inválido" });
     }
-    res.status(401).json({ error: "Token inválido" });
+    return res.redirect('/HTML/login.html');
   }
 };
 
