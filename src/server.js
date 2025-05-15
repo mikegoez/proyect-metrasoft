@@ -10,6 +10,8 @@ const rateLimit = require("express-rate-limit");
 // Inicialización
 const app = express();
 
+const { redirigirSiAutenticado, autenticarUsuario } = require('./middlewares/auth');
+
 app.set('trust proxy', 1);
 
 // Configuración de rutas absolutas
