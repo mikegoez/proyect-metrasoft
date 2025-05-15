@@ -63,15 +63,20 @@ app.use((req, res, next) => {
 });
 
 // Archivos estáticos
-app.use(express.static(publicPath, {
+const staticOptions = {
+  maxAge: '1y',
+  etag: true,
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
-    } else if (path.endsWith('.js')) {
+    }
+    if (path.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
     }
   }
-}));
+};
+
+app.use(express.static(publicPath, staticOptions));
 
 // Middleware de autenticación
 const authMiddleware = require('./middlewares/auth');
