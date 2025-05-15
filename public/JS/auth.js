@@ -6,10 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log(`Conectando a API en: ${API_URL} (${IS_PRODUCTION ? 'Producción' : 'Desarrollo'})`);
 
-  // Redirección segura para todos los ambientes
+  // Redirección segura mejorada
   const safeRedirect = (path) => {
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    window.location.href = `${BASE_URL}${normalizedPath}`;
+    // Normalizar la ruta eliminando duplicados y barras innecesarias
+    let normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    normalizedPath = normalizedPath.replace(/\/+/g, '/').replace(/\/$/, '');
+    
+    // Construir URL completa
+    const fullUrl = `${BASE_URL}${normalizedPath}`;
+    console.log(`Redirigiendo a: ${fullUrl}`);
+    window.location.href = fullUrl;
   };
 
   // ================== REGISTRO ==================
@@ -39,12 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         
         if (response.ok) {
+          console.log("Registro exitoso, redirigiendo a login...");
           safeRedirect("/HTML/login.html");
         } else {
           const errorData = await response.json();
+          console.error("Error en registro:", errorData);
           alert(errorData.error || "Error en el registro");
         }
       } catch (error) {
+        console.error("Error de conexión:", error);
         alert("Error de conexión con el servidor");
       }
     });
@@ -72,11 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data.token) {
           localStorage.setItem("token", data.token);
+          console.log("Login exitoso, redirigiendo a index...");
           safeRedirect("/HTML/index.html");
         } else {
+          console.error("Credenciales incorrectas:", data.error);
           alert(data.error || "Credenciales incorrectas");
         }
       } catch (error) {
+        console.error("Error de conexión:", error);
         alert("Error al conectar con el servidor");
       }
     });
@@ -99,12 +111,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (response.ok) {
+          console.log("Correo de recuperación enviado");
           alert("Enlace de recuperación enviado a tu correo");
         } else {
           const errorData = await response.json();
+          console.error("Error en solicitud de reset:", errorData);
           alert(errorData.error);
         }
       } catch (error) {
+        console.error("Error de conexión:", error);
         alert("Error al procesar la solicitud");
       }
     });
@@ -133,13 +148,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (response.ok) {
+          console.log("Contraseña actualizada correctamente");
           alert("Contraseña actualizada correctamente");
           safeRedirect("/HTML/login.html");
         } else {
           const errorData = await response.json();
+          console.error("Error al restablecer contraseña:", errorData);
           alert(errorData.error);
         }
       } catch (error) {
+        console.error("Error de conexión:", error);
         alert("Error al actualizar la contraseña");
       }
     });
