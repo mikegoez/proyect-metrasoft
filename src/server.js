@@ -10,12 +10,22 @@ const rateLimit = require("express-rate-limit");
 const app = express();
 app.set('trust proxy', 1); 
 
-// Configuración de rutas absolutas
-const publicPath = path.join(__dirname, '../public');
+// ==============================================
+// CONFIGURACIÓN DE RUTAS (VERSIÓN CORREGIDA)
+// ==============================================
+const publicPath = path.resolve(__dirname, 'public');
 const htmlPath = path.join(publicPath, 'HTML');
 
-// Middlewares
+// Verificación de rutas (para diagnóstico)
+console.log('=== Rutas configuradas ===');
+console.log('Directorio actual:', __dirname);
+console.log('Ruta pública:', publicPath);
+console.log('Ruta HTML:', htmlPath);
+console.log('==========================');
 
+// ==============================================
+// MIDDLEWARES BÁSICOS
+// ==============================================
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
@@ -26,10 +36,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:"],
-      fontSrc: ["'self'"]
+      fontSrc: ["'self'", "https://cdn.jsdelivr.net"]
     }
   }
 }));
@@ -38,7 +48,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
+// ==============================================
+// RATE LIMITING
+// ==============================================
 app.use("/api/", rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
@@ -46,7 +58,9 @@ app.use("/api/", rateLimit({
   trustProxy: true
 }));
 
-// Conexión a MySQL
+// ==============================================
+// CONEXIÓN A BASE DE DATOS
+// ==============================================
 const pool = require("./config/db");
 pool.getConnection()
   .then(conn => {
@@ -63,7 +77,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Archivos estáticos
+// ==============================================
+// ARCHIVOS ESTÁTICOS (CONFIGURACIÓN CORREGIDA)
+// ==============================================
 const staticOptions = {
   maxAge: '1y',
   etag: true,
@@ -75,13 +91,13 @@ const staticOptions = {
       res.set('Content-Type', 'application/javascript');
     }
   },
-  // Añade esto para manejar rutas incorrectas
-  fallthrough: false
+  fallthrough: false,
+  index: false
 };
 
 app.use(express.static(publicPath, staticOptions));
 
-// Manejo de rutas no encontradas para archivos estáticos
+// Manejo de errores para archivos estáticos
 app.use((req, res, next) => {
   if (req.accepts('html')) {
     res.status(404).sendFile(path.join(htmlPath, '404.html'));
@@ -90,15 +106,21 @@ app.use((req, res, next) => {
   }
 });
 
-// Middleware de autenticación
+// ==============================================
+// MIDDLEWARE DE AUTENTICACIÓN
+// ==============================================
 const authMiddleware = require('./middlewares/auth');
 
-// 1. Ruta raíz redirige a login
+// ==============================================
+// RUTAS DE LA APLICACIÓN
+// ==============================================
+
+// 1. Redirección raíz
 app.get('/', authMiddleware.redirigirSiAutenticado, (req, res) => {
   res.redirect('/HTML/login.html');
 });
 
-// 2. Rutas públicas (login, registro, recuperación)
+// 2. Rutas públicas
 const rutasPublicas = [
   '/HTML/login.html',
   '/HTML/register.html',
@@ -107,23 +129,28 @@ const rutasPublicas = [
 
 rutasPublicas.forEach(ruta => {
   app.get(ruta, authMiddleware.redirigirSiAutenticado, (req, res) => {
-    res.sendFile(path.join(publicPath, ruta));
+    const filePath = path.join(htmlPath, ruta.split('/HTML/')[1]);
+    console.log(`Intentando servir archivo: ${filePath}`); // Para diagnóstico
+    res.sendFile(filePath);
   });
 });
 
-// 3. Rutas protegidas (todas las demás HTML)
+// 3. Rutas protegidas
+const archivosPermitidos = [
+  'index.html',
+  'conductores.html',
+  'vehiculos.html',
+  'despachos.html',
+  'notificaciones.html'
+];
+
 app.get('/HTML/*', authMiddleware.autenticarUsuario, (req, res) => {
-  const requestedFile = req.path.replace('/HTML/', '');
-  const allowedFiles = [
-    'index.html',
-    'conductores.html',
-    'vehiculos.html',
-    'despachos.html',
-    'notificaciones.html'
-  ];
+  const archivoSolicitado = req.path.split('/HTML/')[1];
   
-  if (allowedFiles.includes(requestedFile)) {
-    res.sendFile(path.join(htmlPath, requestedFile));
+  if (archivosPermitidos.includes(archivoSolicitado)) {
+    const rutaCompleta = path.join(htmlPath, archivoSolicitado);
+    console.log(`Sirviendo archivo protegido: ${rutaCompleta}`); // Para diagnóstico
+    res.sendFile(rutaCompleta);
   } else {
     res.status(404).sendFile(path.join(htmlPath, '404.html'));
   }
@@ -142,7 +169,9 @@ app.use('/api/conductores', authMiddleware.autenticarUsuario, conductoresRoutes)
 app.use('/api/despachos', authMiddleware.autenticarUsuario, despachosRoutes);
 app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesRoutes);
 
-// Manejo de errores
+// ==============================================
+// MANEJO DE ERRORES GLOBAL
+// ==============================================
 app.use((err, req, res, next) => {
   console.error("🔥 Error:", err.stack);
   res.status(500).json({ 
@@ -151,7 +180,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Inicio del servidor
+// ==============================================
+// INICIO DEL SERVIDOR
+// ==============================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`
