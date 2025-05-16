@@ -132,12 +132,3 @@ exports.eliminarConductor = async (req, res) => {
     }
 };
 // Controlador para obtener el total de conductores registrados
-exports.contarConductores = async (req, res) => {
-    try {
-        // Consulta para contar registros
-        const [result] = await pool.query("SELECT COUNT(id_conductor) AS total FROM conductores");
-        res.json({ total: result[0].total }); //decuelve el resultado numerico
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};

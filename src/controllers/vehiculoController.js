@@ -149,4 +149,3 @@ exports.eliminarVehiculo = async (req, res) => {
   }
 };
 // Contar total de vehículos registrados
-e
