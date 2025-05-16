@@ -51,8 +51,8 @@ exports.login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '.railway.app',
-      maxAge: 86400000, // 24h en ms
+      domain: 'proyect-metrasoft-production.up.railway.app',
+      maxAge: 86400000, 
       path: '/'
     });
 

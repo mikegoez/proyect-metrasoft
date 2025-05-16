@@ -26,7 +26,7 @@ const htmlPath = path.join(publicPath, 'HTML');
 
 // ================== MIDDLEWARES GLOBALES ==================
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: 'https://proyect-metrasoft-production.up.railway.app',
   credentials: true,
   exposedHeaders: ['Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -50,7 +50,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // ================== MIDDLEWARE DE REDIRECCIÓN GLOBAL ==================
-app.get('*', authMiddleware.redirigirSiAutenticado); // <- Aplica a TODAS las rutas primero
+app.get(['/', '/HTML/*'], authMiddleware.redirigirSiAutenticado);
 
 // ================== ARCHIVOS ESTÁTICOS CON CONFIGURACIÓN ESPECÍFICA ==================
 
