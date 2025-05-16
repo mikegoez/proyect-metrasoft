@@ -2,27 +2,13 @@ const jwt = require('jsonwebtoken');
 
 const autenticarUsuario = async (req, res, next) => {
   try {
-    // 1. Obtener token de headers, cookies o query params
-    const token = req.headers.authorization?.split(' ')[1] || 
-                 req.cookies.jwt || 
-                 req.query.token;
+    // Obtener token SOLO del header (no de cookies)
+    const token = req.headers.authorization?.replace('Bearer ', ''); // <- Cambia esto
 
     if (!token) {
-      return res.status(401).json({ error: "Acceso no autorizado" });
+      return res.status(401).json({ error: "Token no enviado" });
     }
 
-    // 2. Verificar token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 3. Adjuntar información del usuario a la solicitud
-    req.user = {
-      id: decoded.id,
-      email: decoded.email,
-      rol: decoded.rol
-    };
-
-    // 4. Continuar con la siguiente middleware/ruta
-    next();
   } catch (error) {
     console.error('Error en autenticación:', error.message);
     

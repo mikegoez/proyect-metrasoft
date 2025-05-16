@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data?.token) {
           // 9. Almacenamiento seguro de credenciales
           localStorage.setItem("jwt", data.token);
+          document.cookie = `jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`; // Borra cookie vieja si existe
           localStorage.setItem("userEmail", data.user?.email || correo);
           sessionStorage.setItem("userEmail", data.user?.email || correo);
 
