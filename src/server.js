@@ -99,12 +99,15 @@ rutasPublicas.forEach(ruta => {
 
 // -- Rutas protegidas --
 app.get('/HTML/*', (req, res, next) => {
-  const requestedFile = req.path.split('/HTML/')[1];
+  const requestedFile = req.path.replace('/HTML/', '');
   
   if (allowedFiles.includes(requestedFile)) {
-    authMiddleware.autenticarUsuario(req, res, next);
+    // Sirve el archivo directamente después de autenticar
+    authMiddleware.autenticarUsuario(req, res, () => {
+      res.sendFile(path.join(htmlPath, requestedFile));
+    });
   } else {
-    res.status(404).sendFile(path.join(htmlPath, '404.html')); // Manejo explícito
+    res.status(404).sendFile(path.join(htmlPath, '404.html'));
   }
 });
 
