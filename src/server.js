@@ -18,8 +18,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const cookieParser = require('cookie-parser');
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
+
 
 // Inicialización
 const app = express();
@@ -65,17 +64,7 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-        "connect-src": ["'self'", process.env.FRONTEND_URL]
-      },
-    },
-  })
-);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
