@@ -39,6 +39,10 @@ app.use('/JS', express.static(path.join(publicPath, 'JS'), {
   }
 }));
 
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(publicPath, 'favicon.ico'));
+});
+
 // Alias para /js (minúsculas) por compatibilidad
 app.use('/js', express.static(path.join(publicPath, 'JS')));
 
@@ -54,7 +58,16 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'"], 
+      },
+    },
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));

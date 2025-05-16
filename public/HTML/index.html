@@ -140,25 +140,22 @@
         try {
         // Verificar autenticación
         const token = localStorage.getItem('jwt');
-        const userEmail = localStorage.getItem('userEmail');
         
-        if (!token || !userEmail) {
+        if (!token) {
             redirectToLogin();
             return;
         }
 
         // Verificar token con el backend
         const verifyResponse = await fetch('/api/auth/verify', {
-            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
             },
-            credentials: 'include' // Importante para cookies
         });
 
         if (!verifyResponse.ok) {
-            throw new Error('Token inválido o expirado');
+            localStorage.removeItem('jwt');
+            redirectToLogin();
         }
 
         const verifyData = await verifyResponse.json();
