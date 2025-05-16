@@ -49,10 +49,9 @@ exports.login = async (req, res) => {
   
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true solo en producción
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // necesario para cross-site
-      domain: process.env.NODE_ENV === 'production' ? '.up.railway.app' : 'localhost', // dominio de Railway
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: 'none',
+      domain: '.railway.app',
     });
 
     
@@ -108,4 +107,15 @@ exports.restablecerContraseña = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error al actualizar contraseña" });
   }
+};
+
+// En controllers/authController.js
+exports.logout = (req, res) => {
+  res.clearCookie('jwt', {
+    domain: '.railway.app', // Dominio de Railway
+    secure: true, // Solo HTTPS
+    sameSite: 'none', // Cross-site
+    httpOnly: true
+  });
+  res.json({ success: true });
 };

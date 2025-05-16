@@ -16,5 +16,6 @@ router.get("/verify", authMiddleware.autenticarUsuario, (req, res) => {
     }
   });
 });
+router.post('/logout', authController.logout);
 
 module.exports = router;

@@ -34,17 +34,16 @@ const autenticarUsuario = async (req, res, next) => {
 const redirigirSiAutenticado = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
-  if (token) {
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (!err) {
-        return res.redirect('/HTML/index.html'); // Usuario autenticado → redirige a index
-      }
-      res.clearCookie('jwt'); // Token inválido → limpia cookie
-      next();
-    });
-  } else {
-    next(); // No hay token → continúa al login
-  }
+  if (!token) return next(); // Si no hay token, continúa al login
+  
+  jwt.verify(token, process.env.JWT_SECRET, (err) => {
+    if (err) {
+      res.clearCookie('jwt');
+      return next();
+    }
+    // Token válido → redirige a index
+    return res.redirect('/HTML/index.html');
+  });
 };
 
 

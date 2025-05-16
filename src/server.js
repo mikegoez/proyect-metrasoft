@@ -53,6 +53,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get('*', authMiddleware.redirigirSiAutenticado); // <- Aplica a TODAS las rutas primero
 
 // ================== ARCHIVOS ESTÁTICOS CON CONFIGURACIÓN ESPECÍFICA ==================
+
+app.use('/assets', express.static(path.join(publicPath, 'assets')));
+
 app.use('/CSS', express.static(path.join(publicPath, 'CSS'), (req, res, next) => {
   res.type('text/css');
   next();
@@ -63,7 +66,6 @@ app.use('/JS', express.static(path.join(publicPath, 'JS'), (req, res, next) => {
   next();
 }));
 
-app.use('/assets', express.static(path.join(publicPath, 'assets')));
 
 // ================== RUTAS ESPECÍFICAS ==================
 // 1. Ruta raíz principal

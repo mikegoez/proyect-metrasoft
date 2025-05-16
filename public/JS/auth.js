@@ -101,8 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (data?.token) {
           // 9. Almacenamiento seguro de credenciales
-          localStorage.setItem("jwt", data.token);
-          document.cookie = `jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`; // Borra cookie vieja si existe
           localStorage.setItem("userEmail", data.user?.email || correo);
           sessionStorage.setItem("userEmail", data.user?.email || correo);
 
@@ -119,6 +117,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // ================== LOGOUT ==================
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutButton = document.getElementById('logout');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+      try {
+        // 1. Llamar al endpoint de logout
+        const response = await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include' // Necesario para cookies
+        });
+
+        // 2. Limpiar almacenamiento local
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('userEmail');
+        sessionStorage.clear();
+
+        // 3. Redirigir al login
+        window.location.href = '/HTML/login.html';
+        
+      } catch (error) {
+        console.error('Error en logout:', error);
+      }
+    });
+  }
+});
 
   // ========== RECUPERACIÓN DE CONTRASEÑA ==========
   const requestResetForm = document.getElementById("requestResetForm");
@@ -217,3 +242,4 @@ document.addEventListener("DOMContentLoaded", () => {
 if (!window.location.origin) {
   window.location.origin = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
 }
+
