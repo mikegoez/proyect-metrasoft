@@ -1,24 +1,18 @@
-let server;
-
 process.on('uncaughtException', (err) => {
   console.error('⚠️ Error no capturado:', err);
-  if (server) server.close();
   process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('⚠️ Promesa rechazada:', err);
+  console.error('⚠️ Promesa rechazada no manejada:', err);
 });
-// Agrega al principio del archivo
-const morgan = require('morgan');
-app.use(morgan('combined')); // Logs detallados
-
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const cookieParser = require('cookie-parser');
-
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 // Inicialización
 const app = express();
@@ -64,7 +58,17 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+        "connect-src": ["'self'", process.env.FRONTEND_URL]
+      },
+    },
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -101,9 +105,6 @@ app.use(express.static(publicPath));
 const authMiddleware = require('./middlewares/auth');
 
 // 1. Ruta raíz redirige a login
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
-});
 app.get('/', authMiddleware.redirigirSiAutenticado, (req, res) => {
   res.redirect('/HTML/login.html');
 });
@@ -154,21 +155,25 @@ app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesR
 
 // Manejo de errores
 app.use((err, req, res, next) => {
-  console.error('🔥 ERROR:', {
-    mensaje: err.message,
-    stack: err.stack,
-    ruta: req.path,
-    metodo: req.method,
+  console.error("🔥 Error:", err.stack);
+  res.status(500).json({ 
+    error: "Error interno del servidor",
+    ...(process.env.NODE_ENV === 'development' && { details: err.message })
   });
-  res.status(500).json({ error: "Error interno" });
 });
 
 // Inicio del servidor
-
 // server.js (al final del archivo)
-const HOST = process.env.HOST || '0.0.0.0'; // <-- ¡Esta línea es clave!
-const PORT = process.env.PORT || 8080;
-
-app.listen(PORT, HOST, () => {
-  console.log(`Servidor activo en ${HOST}:${PORT}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => { // <- Agrega '0.0.0.0'
+  console.log(`
+    ====================================
+    🚀 Servidor Metrasoft iniciado
+    ====================================
+    Entorno: ${process.env.NODE_ENV || 'development'}
+    Puerto: ${PORT}
+    Ruta pública: ${publicPath}
+    Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/HTML/login.html
+    ====================================
+  `);
 });
