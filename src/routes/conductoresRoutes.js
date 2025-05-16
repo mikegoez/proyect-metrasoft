@@ -15,7 +15,7 @@ router.get('/contar', async (req, res) => {
     const [result] = await req.db.query('SELECT COUNT(*) AS total FROM conductores');
     res.json({ total: result[0].total });
   } catch (error) {
-     console.error('Error en /contar:', error);
+      console.error('Error SQL:', error.sqlMessage || error.message);
     res.status(500).json({ error: "Error al contar conductores" });
   }
 });

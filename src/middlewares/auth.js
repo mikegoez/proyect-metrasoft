@@ -9,13 +9,14 @@ const autenticarUsuario = async (req, res, next) => {
       return res.status(401).json({ error: "Acceso no autorizado" });
     }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = {
-          id: decoded.id,
-          email: decoded.email,
-          rol: decoded.rol
-        };
-        next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      rol: decoded.rol
+    };
+    next();
 
   } catch (error) {
     console.error('Error en autenticación:', error.message);
@@ -24,7 +25,7 @@ const autenticarUsuario = async (req, res, next) => {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ error: "Sesión expirada" });
     }
-    
+    res.clearCookie('jwt');
     return res.status(401).json({ error: "Token inválido" });
   }
 };
