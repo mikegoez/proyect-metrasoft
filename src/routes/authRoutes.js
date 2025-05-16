@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
+const authMiddleware = require("../middlewares/auth");
 //definicion de endpoints de autentificacion
 router.post("/registro", authController.registro); //registar nuevo usuario
 router.post("/login", authController.login); //iniciar sesion

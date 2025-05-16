@@ -52,7 +52,6 @@ const redirigirSiAutenticado = (req, res, next) => {
   }
 };
 
-// Exportación CORRECTA (usando module.exports)
 module.exports = {
   autenticarUsuario,
   redirigirSiAutenticado
