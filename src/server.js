@@ -163,16 +163,17 @@ app.use((err, req, res, next) => {
 });
 
 // Inicio del servidor
+// server.js (al final del archivo)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => { // <- Agrega '0.0.0.0'
   console.log(`
-  ====================================
-  🚀 Servidor Metrasoft iniciado
-  ====================================
-  Entorno: ${process.env.NODE_ENV || 'development'}
-  Puerto: ${PORT}
-  Ruta pública: ${publicPath}
-  Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/HTML/login.html
-  ====================================
+    ====================================
+    🚀 Servidor Metrasoft iniciado
+    ====================================
+    Entorno: ${process.env.NODE_ENV || 'development'}
+    Puerto: ${PORT}
+    Ruta pública: ${publicPath}
+    Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/HTML/login.html
+    ====================================
   `);
 });
