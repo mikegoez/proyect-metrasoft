@@ -45,12 +45,24 @@ app.use(helmet({
   }
 }));
 
+// ======== AÑADE LOS HEADERS MANUALMENTE AQUÍ ========
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://proyect-metrasoft-production.up.railway.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// ================== MIDDLEWARE DE REDIRECCIÓN GLOBAL ==================
-app.get(['/', '/HTML/*'], authMiddleware.redirigirSiAutenticado);
+app.get('/HTML/*', (req, res, next) => {
+  if (allowedFiles.includes(req.path.replace('/HTML/', ''))) {
+    authMiddleware.autenticarUsuario(req, res, next); // Solo aplica autenticación
+  } else {
+    next(); // Permite el acceso a otros archivos (CSS, JS, etc.)
+  }
+});
 
 // ================== ARCHIVOS ESTÁTICOS CON CONFIGURACIÓN ESPECÍFICA ==================
 
@@ -95,12 +107,6 @@ const allowedFiles = [
   'notificaciones.html'
 ];
 
-app.get('/HTML/*', authMiddleware.autenticarUsuario, (req, res) => {
-  const requestedFile = req.path.replace('/HTML/', '');
-  allowedFiles.includes(requestedFile) 
-    ? res.sendFile(path.join(htmlPath, requestedFile))
-    : res.redirect('/HTML/login.html');
-});
 
 // ================== CONFIGURACIÓN DE API ==================
 const authRoutes = require('./routes/authRoutes');
