@@ -1,6 +1,15 @@
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Error no capturado:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('⚠️ Promesa rechazada no manejada:', err);
+});
+
 require('dotenv').config();
 const express = require("express");
-const cors = require("cors");
+const cors = require("cors");s
 const path = require("path");
 const cookieParser = require('cookie-parser');
 const helmet = require("helmet");

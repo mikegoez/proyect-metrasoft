@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const vehiculoController = require('../controllers/vehiculoController');
-const pool = require("../config/db");
+
 // Configuración de rutas RESTful para vehículos
 
 router.post('/', vehiculoController.crearVehiculo);
@@ -12,9 +12,11 @@ router.put("/:placa", vehiculoController.actualizarVehiculo);
 router.delete("/:placa", vehiculoController.eliminarVehiculo);
 router.get('/contar', async (req, res) => {
   try {
+    console.log('Consultando vehículos...');
     const [result] = await req.db.query('SELECT COUNT(*) AS total FROM vehiculos');
     res.json({ total: result[0].total });
   } catch (error) {
+    console.error('Error en /contar:', error);
     res.status(500).json({ error: "Error al contar vehículos" });
   }
 });

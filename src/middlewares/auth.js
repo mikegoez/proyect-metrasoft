@@ -31,12 +31,10 @@ const redirigirSiAutenticado = (req, res, next) => {
       return res.redirect('/HTML/index.html');
     } catch (err) {
       res.clearCookie('jwt');
-      next();
     }
-  } else {
-    next();
-  }
-};
+  } 
+  next();
+  };
 
 module.exports = {
   autenticarUsuario,
