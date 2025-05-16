@@ -136,107 +136,87 @@
 
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Funciones auxiliares
-        function redirectToLogin() {
-            localStorage.removeItem('jwt');
-            sessionStorage.removeItem('userEmail');
-            window.location.href = '/HTML/login.html';
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Verificar autenticación
+        const token = localStorage.getItem('jwt');
+        const userEmail = localStorage.getItem('userEmail');
+        
+        if (!token || !userEmail) {
+            redirectToLogin();
+            return;
         }
 
-        function showSessionError(message) {
-            const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            document.getElementById('sessionModalMessage').textContent = message;
-            sessionModal.show();
-        }
-
-        function setupLogout() {
-            document.getElementById('logout').addEventListener('click', () => {
-                const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
-                logoutModal.show();
-            });
-
-            document.getElementById('confirmLogout').addEventListener('click', () => {
-                redirectToLogin();
-            });
-        }
-
-        // Código principal que se ejecuta al cargar la página
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // Verificar autenticación
-                const token = localStorage.getItem('jwt');
-                const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-                
-                if (!token || !userEmail) {
-                    redirectToLogin();
-                    return;
-                }
-                const response = await fetch('/api/auth/verify', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Token inválido');
-                }
-
-                // Mostrar email del usuario
-                document.getElementById('user-email').textContent = userEmail;
-
-                // Configurar opciones de las peticiones
-                const requestOptions = {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include'
-                };
-
-                // Función para cargar datos de un endpoint
-                const fetchData = async (endpoint) => {
-                    try {
-                        const response = await fetch(endpoint, requestOptions);
-                        
-                        if (response.status === 401) {
-                            showSessionError('Tu sesión ha expirado. Por favor inicia sesión nuevamente.');
-                            setTimeout(redirectToLogin, 3000);
-                            return null;
-                        }
-
-                        if (!response.ok) {
-                            throw new Error(`Error HTTP: ${response.status}`);
-                        }
-
-                        return await response.json();
-                    } catch (error) {
-                        console.error(`Error al cargar ${endpoint}:`, error);
-                        return null;
-                    }
-                };
-
-                // Cargar ambos contadores en paralelo
-                const [vehiculosData, conductoresData] = await Promise.all([
-                    fetchData('/api/vehiculos/contar'),
-                    fetchData('/api/conductores/contar')
-                ]);
-
-                // Actualizar la interfaz con los datos obtenidos
-                document.getElementById('contador-vehiculos').textContent = 
-                    vehiculosData?.total ?? "0";
-                document.getElementById('contador-conductores').textContent = 
-                    conductoresData?.total ?? "0";
-
-                // Configurar el evento de logout
-                setupLogout();
-
-            } catch (error) {
-                console.error('Error en la verificacion:', error);
-                showSessionError('Tu sesión no es válida o ha expirado');
-                setTimeout(redirectToLogin, 3000);
-            }
+        // Verificar token con el backend
+        const verifyResponse = await fetch('/api/auth/verify', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include' // Importante para cookies
         });
+
+        if (!verifyResponse.ok) {
+            throw new Error('Token inválido o expirado');
+        }
+
+        const verifyData = await verifyResponse.json();
+        
+        // Mostrar email del usuario
+        document.getElementById('user-email').textContent = userEmail;
+
+        // Configurar headers para las peticiones
+        const requestHeaders = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        // Función mejorada para cargar datos
+        const fetchData = async (endpoint) => {
+            const response = await fetch(endpoint, {
+                headers: requestHeaders,
+                credentials: 'include'
+            });
+            
+            if (response.status === 401) {
+                throw new Error('No autorizado');
+            }
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            return await response.json();
+        };
+
+        // Cargar contadores con manejo de errores individual
+        try {
+            const vehiculosData = await fetchData('/api/vehiculos/contar');
+            document.getElementById('contador-vehiculos').textContent = vehiculosData.total;
+        } catch (error) {
+            console.error('Error al cargar vehículos:', error);
+            document.getElementById('contador-vehiculos').textContent = "0";
+        }
+
+        try {
+            const conductoresData = await fetchData('/api/conductores/contar');
+            document.getElementById('contador-conductores').textContent = conductoresData.total;
+        } catch (error) {
+            console.error('Error al cargar conductores:', error);
+            document.getElementById('contador-conductores').textContent = "0";
+        }
+
+        // Configurar logout
+        setupLogout();
+
+    } catch (error) {
+        console.error('Error en la verificación:', error);
+        showSessionError('Error de autenticación. Serás redirigido al login.');
+        setTimeout(redirectToLogin, 3000);
+    }
+});
+ 
     </script>
 </body>
 </html>

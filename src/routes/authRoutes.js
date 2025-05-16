@@ -8,7 +8,13 @@ router.post("/login", authController.login); //iniciar sesion
 router.post("/solicitar-reset", authController.solicitarReset); 
 router.post("/restablecer-contraseña", authController.restablecerContraseña);
 router.get("/verify", authMiddleware.autenticarUsuario, (req, res) => {
-  res.json({ valid: true, user: req.user });
+  res.json({ 
+    valid: true, 
+    user: {
+      email: req.user.email,
+      rol: req.user.rol 
+    }
+  });
 });
 
 module.exports = router;

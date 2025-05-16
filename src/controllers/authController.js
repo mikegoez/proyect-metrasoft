@@ -29,41 +29,41 @@ exports.registro = async (req, res) => {
 
 //controlador de autentificacion
 exports.login = async (req, res) => {
-  try {
-    const { correo_electronico, contraseña } = req.body;
-    const usuario = await Usuario.buscarPorEmail(correo_electronico);
-    
-    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
-    
-    const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
-    if (!contraseñaValida) return res.status(401).json({ error: "Contraseña incorrecta" });
-    
-    const token = jwt.sign(
-      { id: usuario.id_usuario, email: usuario.correo_electronico, rol: usuario.rol }, 
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h'}
-    );
+    try {
+        const { correo_electronico, contraseña } = req.body;
+        const usuario = await Usuario.buscarPorEmail(correo_electronico);
+        
+        if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+        
+        const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
+        if (!contraseñaValida) return res.status(401).json({ error: "Contraseña incorrecta" });
+        
+        const token = jwt.sign(
+            { id: usuario.id_usuario, email: usuario.correo_electronico, rol: usuario.rol }, 
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+        );
 
-  
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 horas
-    });
+        // Configuración mejorada de cookies
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none',
+            maxAge: 24 * 60 * 60 * 1000, // 24 horas
+            domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined
+        });
 
-    res.json({ 
-      success: true, 
-      token,
-      user: {
-        email: usuario.correo_electronico,
-        rol: usuario.rol
-      }
-    });
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+        res.json({ 
+            success: true, 
+            token,
+            user: {
+                email: usuario.correo_electronico,
+                rol: usuario.rol
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
  //controlador para solicitudes reset de contraseña
 exports.solicitarReset = async (req, res) => {

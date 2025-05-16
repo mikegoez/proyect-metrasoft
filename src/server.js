@@ -42,7 +42,9 @@ app.use(cors({
   credentials: true,
   exposedHeaders: ['Authorization'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 app.use(helmet());
 app.use(express.json());
