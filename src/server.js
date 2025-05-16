@@ -1,10 +1,13 @@
+let server;
+
 process.on('uncaughtException', (err) => {
   console.error('⚠️ Error no capturado:', err);
+  if (server) server.close();
   process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('⚠️ Promesa rechazada no manejada:', err);
+  console.error('⚠️ Promesa rechazada:', err);
 });
 require('dotenv').config();
 const express = require("express");
@@ -105,6 +108,9 @@ app.use(express.static(publicPath));
 const authMiddleware = require('./middlewares/auth');
 
 // 1. Ruta raíz redirige a login
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
 app.get('/', authMiddleware.redirigirSiAutenticado, (req, res) => {
   res.redirect('/HTML/login.html');
 });
@@ -163,17 +169,14 @@ app.use((err, req, res, next) => {
 });
 
 // Inicio del servidor
-// server.js (al final del archivo)
+
+const HOST = process.env.HOST || '0.0.0.0'; // <- Usa la variable HOST
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => { // <- Agrega '0.0.0.0'
+
+app.listen(PORT, HOST, () => {
   console.log(`
     ====================================
-    🚀 Servidor Metrasoft iniciado
-    ====================================
-    Entorno: ${process.env.NODE_ENV || 'development'}
-    Puerto: ${PORT}
-    Ruta pública: ${publicPath}
-    Login: ${process.env.FRONTEND_URL || 'http://localhost:' + PORT}/HTML/login.html
+    🚀 Servidor iniciado en ${HOST}:${PORT}
     ====================================
   `);
 });
