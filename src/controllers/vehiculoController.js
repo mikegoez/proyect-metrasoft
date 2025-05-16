@@ -149,12 +149,4 @@ exports.eliminarVehiculo = async (req, res) => {
   }
 };
 // Contar total de vehículos registrados
-exports.contarVehiculos = async (req, res) => {
-  try {
-      // Consulta de conteo
-      const [result] = await pool.query("SELECT COUNT(id_vehiculo) AS total FROM vehiculos");
-      res.json({ total: result[0].total }); //devuelve numero 
-  } catch (error) {
-      res.status(500).json({ error: error.message });
-  }
-};
+e

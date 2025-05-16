@@ -52,6 +52,8 @@ exports.login = async (req, res) => {
       secure: true,
       sameSite: 'none',
       domain: '.railway.app',
+      maxAge: 86400000, // 24h en ms
+      path: '/'
     });
 
     

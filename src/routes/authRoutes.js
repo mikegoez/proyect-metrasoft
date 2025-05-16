@@ -7,6 +7,7 @@ router.post("/registro", authController.registro); //registar nuevo usuario
 router.post("/login", authController.login); //iniciar sesion
 router.post("/solicitar-reset", authController.solicitarReset); 
 router.post("/restablecer-contraseña", authController.restablecerContraseña);
+router.post('/logout', authController.logout);
 router.get("/verify", authMiddleware.autenticarUsuario, (req, res) => {
   res.json({ 
     valid: true, 
@@ -16,6 +17,6 @@ router.get("/verify", authMiddleware.autenticarUsuario, (req, res) => {
     }
   });
 });
-router.post('/logout', authController.logout);
+
 
 module.exports = router;

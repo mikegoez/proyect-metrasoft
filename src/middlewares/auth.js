@@ -32,17 +32,15 @@ const autenticarUsuario = async (req, res, next) => {
 
 // Middleware para redirigir usuarios ya logueados
 const redirigirSiAutenticado = (req, res, next) => {
-  const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
-  
-  if (!token) return next(); // Si no hay token, continúa al login
+  const token = req.cookies.jwt;
+  if (!token) return next();
   
   jwt.verify(token, process.env.JWT_SECRET, (err) => {
     if (err) {
       res.clearCookie('jwt');
       return next();
     }
-    // Token válido → redirige a index
-    return res.redirect('/HTML/index.html');
+    res.redirect('/HTML/index.html'); // Token válido → redirige
   });
 };
 

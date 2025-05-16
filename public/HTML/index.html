@@ -69,23 +69,6 @@
                         <div class="alert alert-info mtr-alert">
                             <span id="user-email" class="fw-bold"></span> - Selecciona un módulo del menú
                         </div>
-                        <div class="row row-cols-1 row-cols-md-2 g-4">
-                            <div class="col">
-                                <div class="card h-100 mtr-stat-card">
-                                    <div class="card-body text-center">
-                                        <h5><i class="bi bi-bus-front"></i> Vehículos Registrados</h5>
-                                        <p class="display-4" id="contador-vehiculos">0</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="card h-100 mtr-stat-card">
-                                    <div class="card-body text-center">
-                                        <h5><i class="bi bi-person-plus"></i> Conductores Registrados</h5>
-                                        <p class="display-4" id="contador-conductores">0</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,97 +117,38 @@
         </div>
     </div>
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/JS/auth.js"></script>
     <script>
-        const redirectToLogin = () => {
-            localStorage.removeItem('jwt');
-            localStorage.removeItem('userEmail');
+    // ================== FUNCIÓN DE LOGOUT SIMPLIFICADA ==================
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', { 
+                method: 'POST', 
+                credentials: 'include' 
+            });
             window.location.href = '/HTML/login.html';
-        };
-        
-        const showSessionError = (message) => {
-            document.getElementById('sessionModalMessage').textContent = message;
-            new bootstrap.Modal(document.getElementById('sessionModal')).show();
-        };
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const token = localStorage.getItem('jwt');
-                
-                if (!token) {
-                    redirectToLogin();
-                    return;
-                }
-                
-                const verifyResponse = await fetch('/api/auth/verify', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,z
-                    },
-                });
-                
-                if (!verifyResponse.ok) {
-                    localStorage.removeItem('jwt');
-                    redirectToLogin();
-                }
-                const verifyData = await verifyResponse.json();
-                
-                document.getElementById('user-email').textContent = userEmail;
-                
-                const requestHeaders = {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                };
-                
-                const fetchData = async (endpoint) => {
-                    const response = await fetch(endpoint, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('jwt')}`,'Content-Type': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
-                    
-                    if (response.status === 401) {
-                        throw new Error('No autorizado');
-                    }
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-                    
-                    return await response.json();
-                };
-                
-                try {
-                    const vehiculosData = await fetchData('/api/vehiculos/contar');
-                    document.getElementById('contador-vehiculos').textContent = 
-                    vehiculosData.total;
-                } catch (error) {
-                    console.error('Error al cargar vehículos:', error);
-                    document.getElementById('contador-vehiculos').textContent = "0";
-                }
-                
-                try {
-                    const conductoresData = await fetchData('/api/conductores/contar');
-                    document.getElementById('contador-conductores').textContent = conductoresData.total;
-                } catch (error) {
-                    console.error('Error al cargar conductores:', error);
-                    
-                    document.getElementById('contador-conductores').textContent = "0";
-                }
-                
-                const setupLogout = () => {
-                    document.getElementById('confirmLogout').addEventListener('click', () => {
-                        localStorage.clear();
-                        window.location.href = '/HTML/login.html';
-                    });
-                };
+        } catch (error) {
+            console.error('Error en logout:', error);
+        }
+    }
+
+    // ================== VERIFICACIÓN DE SESIÓN (SIMPLIFICADA) ==================
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch('/api/auth/verify', { 
+                credentials: 'include' 
+            });
             
-            } catch (error) {
-                console.error('Error en la verificación:', error);
-                showSessionError('Error de autenticación. Serás redirigido al login.');
-                setTimeout(redirectToLogin, 3000);
+            if (!response.ok) {
+                window.location.href = '/HTML/login.html';
+            } else {
+                const userData = await response.json();
+                document.getElementById('user-email').textContent = userData.user.email;
             }
-        });
- 
-    </script>
+        } catch (error) {
+            window.location.href = '/HTML/login.html';
+        }
+    });
+</script>
+    
 </body>
 </html>
