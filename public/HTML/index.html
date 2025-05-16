@@ -136,6 +136,16 @@
 
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script>
+        const redirectToLogin = () => {
+  localStorage.removeItem('jwt');
+  localStorage.removeItem('userEmail');
+  window.location.href = '/HTML/login.html';
+};
+
+const showSessionError = (message) => {
+  document.getElementById('sessionModalMessage').textContent = message;
+  new bootstrap.Modal(document.getElementById('sessionModal')).show();
+};
     document.addEventListener('DOMContentLoaded', async () => {
         try {
         // Verificar autenticación

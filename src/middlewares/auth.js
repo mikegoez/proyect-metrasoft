@@ -3,11 +3,19 @@ const jwt = require('jsonwebtoken');
 const autenticarUsuario = async (req, res, next) => {
   try {
     // Obtener token SOLO del header (no de cookies)
-    const token = req.headers.authorization?.replace('Bearer ', ''); // <- Cambia esto
-
+    const token = req.headers.authorization?.replace('Bearer ', '') || req.cookies.jwt;
+    
     if (!token) {
-      return res.status(401).json({ error: "Token no enviado" });
+      return res.status(401).json({ error: "Acceso no autorizado" });
     }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = {
+          id: decoded.id,
+          email: decoded.email,
+          rol: decoded.rol
+        };
+        next();
 
   } catch (error) {
     console.error('Error en autenticación:', error.message);
@@ -26,15 +34,15 @@ const redirigirSiAutenticado = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization?.split(' ')[1];
   
   if (token) {
-    try {
-      jwt.verify(token, process.env.JWT_SECRET);
-      return res.redirect('/HTML/index.html');
-    } catch (err) {
+    jwt.verify(token, process.env.JWT_SECRET, (err) => {
+      if (!err) return res.redirect('/HTML/index.html');
       res.clearCookie('jwt');
-    }
-  } 
-  next();
-  };
+      next();
+    });
+  } else {
+    next();
+  }
+};
 
 module.exports = {
   autenticarUsuario,
