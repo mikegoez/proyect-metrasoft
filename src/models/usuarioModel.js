@@ -1,43 +1,42 @@
 const pool = require("../config/db");
 
 class Usuario {
-  //crear usuario
-  static async crear(correo, contraseñaHash, rol) {
-    const [result] = await pool.query(
-      "INSERT INTO usuarios (correo_electronico, contraseña_hash, rol) VALUES (?, ?, ?)",
-      [correo, contraseñaHash, rol]
+  static async buscarPorEmail(correo_electronico) {
+    const [rows] = await pool.query(
+      'SELECT id_usuario, correo_electronico, contraseña_hash, rol FROM usuarios WHERE correo_electronico = ?', 
+      [correo_electronico]
     );
-    return result.insertId; //retorna el id del nuevo usuario
-  }
-//buscar usuario por correo electronico
-  static async buscarPorEmail(correo) {
-    const [rows] = await pool.query("SELECT * FROM usuarios WHERE correo_electronico = ?", [correo]);
-    return rows[0]; //retorna el primer resultado
-  }
-  //guardar token de recuperacion con expiracion
-  static async guardarTokenReset(email, token) {
-    const [result] = await pool.query(
-      "UPDATE usuarios SET token_reset = ?, token_expira = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE correo_electronico = ?",
-      [token, email]
-    );
-    return result.affectedRows > 0; //retona true si se actualizo
+    return rows[0];
   }
 
-  //buscar usuario  por token valido 
+  static async crear(correo_electronico, contraseña_hash, rol) {
+    const [result] = await pool.query(
+      'INSERT INTO usuarios (correo_electronico, contraseña_hash, rol) VALUES (?, ?, ?)',
+      [correo_electronico, contraseña_hash, rol]
+    );
+    return result;
+  }
+
   static async buscarPorToken(token) {
     const [rows] = await pool.query(
-      "SELECT * FROM usuarios WHERE token_reset = ? AND token_expira > NOW()",
+      'SELECT id_usuario, correo_electronico FROM usuarios WHERE token_reset = ? AND token_expira > NOW()',
       [token]
     );
     return rows[0];
   }
-   //atualizar contraseña y limpiar token
-  static async actualizarContraseña(idUsuario, nuevaContraseñaHash) {
-    const [result] = await pool.query(
-      "UPDATE usuarios SET contraseña_hash = ?, token_reset = NULL, token_expira = NULL WHERE id_usuario = ?",
-      [nuevaContraseñaHash, idUsuario]
+
+  static async guardarTokenReset(correo_electronico, token) {
+    await pool.query(
+      'UPDATE usuarios SET token_reset = ?, token_expira = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE correo_electronico = ?',
+      [token, correo_electronico]
     );
-    return result.affectedRows > 0;
+  }
+
+  static async actualizarContraseña(id_usuario, contraseña_hash) {
+    await pool.query(
+      'UPDATE usuarios SET contraseña_hash = ?, token_reset = NULL, token_expira = NULL WHERE id_usuario = ?',
+      [contraseña_hash, id_usuario]
+    );
   }
 }
 

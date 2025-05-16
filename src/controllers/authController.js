@@ -1,69 +1,69 @@
-const bcrypt = require("bcryptjs"); // para hashing de contraseñas
-const jwt = require("jsonwebtoken"); // para generación de tokens JWT
-const Usuario = require("../models/usuarioModel"); // modelo de usuario
-const { enviarCorreoRecuperacion } = require("../config/email"); //servico de correos
-const crypto = require("crypto"); //para la generacion de tokens seguros
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Usuario = require("../models/usuarioModel");
 
-//controllador registro de usuarios
 exports.registro = async (req, res) => {
   try {
     const { correo_electronico, contraseña, rol } = req.body;
-    //validacion de campos obligatorios 
+    
     if (!correo_electronico || !contraseña || !rol) {
       return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
-    //hashear contraeñas con costo 10
     const contraseñaHash = await bcrypt.hash(contraseña, 10);
-
-    // crear usuario en la base de datos
     await Usuario.crear(correo_electronico, contraseñaHash, rol);
-
+    
     res.status(201).json({ success: true });
-
   } catch (error) {
-    console.error("Error en registro:", error);
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: "El correo ya está registrado" });
+    }
     res.status(500).json({ error: "Error al registrar usuario" });
   }
 };
 
-//controlador de autentificacion
 exports.login = async (req, res) => {
-    try {
-        const { correo_electronico, contraseña } = req.body;
-        const usuario = await Usuario.buscarPorEmail(correo_electronico);
-        
-        if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
-        
-        const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
-        if (!contraseñaValida) return res.status(401).json({ error: "Contraseña incorrecta" });
-        
-        const token = jwt.sign(
-            { id: usuario.id_usuario, email: usuario.correo_electronico, rol: usuario.rol }, 
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-        );
-
-        // Configuración mejorada de cookies
-        res.cookie('jwt', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
-            maxAge: 24 * 60 * 60 * 1000, // 24 horas
-            domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined
-        });
-
-        res.json({ 
-            success: true, 
-            token,
-            user: {
-                email: usuario.correo_electronico,
-                rol: usuario.rol
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const { correo_electronico, contraseña } = req.body;
+    const usuario = await Usuario.buscarPorEmail(correo_electronico);
+    
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+    
+    const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña_hash);
+    if (!contraseñaValida) {
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
+    
+    const token = jwt.sign(
+      { 
+        id: usuario.id_usuario, 
+        email: usuario.correo_electronico, 
+        rol: usuario.rol 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.json({ 
+      success: true, 
+      token,
+      user: {
+        email: usuario.correo_electronico,
+        rol: usuario.rol
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
  //controlador para solicitudes reset de contraseña
 exports.solicitarReset = async (req, res) => {
