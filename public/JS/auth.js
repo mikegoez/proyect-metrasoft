@@ -75,13 +75,18 @@ document.addEventListener("DOMContentLoaded", () => {
             correo_electronico: correo, 
             contraseña: contraseña 
           }),
+          credentials: 'include'
         });
 
         const data = await response.json();
         
         if (data.token) {
-          localStorage.setItem("token", data.token);
+          localStorage.setItem("jwt", data.token);
+          localStorage.setItem("userEmail", data.user.email);
+          sessionStorage.setItem("userEmail", data.user.email);
+
           console.log("Login exitoso, redirigiendo a index...");
+
           safeRedirect("/HTML/index.html");
         } else {
           console.error("Credenciales incorrectas:", data.error);

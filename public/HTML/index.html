@@ -165,11 +165,21 @@
             try {
                 // Verificar autenticación
                 const token = localStorage.getItem('jwt');
-                const userEmail = sessionStorage.getItem('userEmail');
+                const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
                 
                 if (!token || !userEmail) {
                     redirectToLogin();
                     return;
+                }
+                const response = await fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Token inválido');
                 }
 
                 // Mostrar email del usuario
@@ -221,14 +231,10 @@
                 // Configurar el evento de logout
                 setupLogout();
 
-            } catch (mainError) {
-                console.error('Error en la inicialización:', mainError);
-                // Mostrar valores por defecto en caso de error
-                document.getElementById('contador-vehiculos').textContent = "0";
-                document.getElementById('contador-conductores').textContent = "0";
-                
-                // Configurar el evento de logout incluso si hay errores
-                setupLogout();
+            } catch (error) {
+                console.error('Error en la verificacion:', error);
+                showSessionError('Tu sesión no es válida o ha expirado');
+                setTimeout(redirectToLogin, 3000);
             }
         });
     </script>

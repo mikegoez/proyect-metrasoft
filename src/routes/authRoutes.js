@@ -6,5 +6,8 @@ router.post("/registro", authController.registro); //registar nuevo usuario
 router.post("/login", authController.login); //iniciar sesion
 router.post("/solicitar-reset", authController.solicitarReset); 
 router.post("/restablecer-contraseña", authController.restablecerContraseña);
+router.get("/verify", authMiddleware.autenticarUsuario, (req, res) => {
+  res.json({ valid: true, user: req.user });
+});
 
 module.exports = router;
