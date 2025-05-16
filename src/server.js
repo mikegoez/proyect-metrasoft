@@ -9,6 +9,10 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
   console.error('⚠️ Promesa rechazada:', err);
 });
+// Agrega al principio del archivo
+const morgan = require('morgan');
+app.use(morgan('combined')); // Logs detallados
+
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
@@ -161,22 +165,21 @@ app.use('/api/notificaciones', authMiddleware.autenticarUsuario, notificacionesR
 
 // Manejo de errores
 app.use((err, req, res, next) => {
-  console.error("🔥 Error:", err.stack);
-  res.status(500).json({ 
-    error: "Error interno del servidor",
-    ...(process.env.NODE_ENV === 'development' && { details: err.message })
+  console.error('🔥 ERROR:', {
+    mensaje: err.message,
+    stack: err.stack,
+    ruta: req.path,
+    metodo: req.method,
   });
+  res.status(500).json({ error: "Error interno" });
 });
 
 // Inicio del servidor
 
-const HOST = process.env.HOST || '0.0.0.0'; // <- Usa la variable HOST
-const PORT = process.env.PORT || 3000;
+// server.js (al final del archivo)
+const HOST = process.env.HOST || '0.0.0.0'; // <-- ¡Esta línea es clave!
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, HOST, () => {
-  console.log(`
-    ====================================
-    🚀 Servidor iniciado en ${HOST}:${PORT}
-    ====================================
-  `);
+  console.log(`Servidor activo en ${HOST}:${PORT}`);
 });
