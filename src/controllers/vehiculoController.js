@@ -132,14 +132,20 @@ exports.actualizarVehiculo = async (req, res) => {
       [placa]
     );
 
-    await crearNotificacion(
-      'actualizacion',
-      `Vehículo ${placa} actualizado: 
-      - Nuevo SOAT: ${fecha_vencimiento_soat}
-      - Nueva Tecnomecánica: ${fecha_vencimiento_tecnomecanica}`,
-      vehiculo[0].id_vehiculo,
-      'vehiculo'
-    );
+    if (!vehiculo.length) { // 👈 Validación crítica
+      return res.status(404).json({ error: "Datos del vehículo inconsistentes" });
+    }
+
+     try {
+      await crearNotificacion(
+        'actualizacion',
+        `Vehículo ${placa} actualizado`,
+        vehiculo[0].id_vehiculo,
+        'vehiculo'
+      );
+    } catch (notificacionError) {
+      console.error("Error en notificación:", notificacionError);
+    }
 
     // ================================================
     // 4. RESPUESTA EXITOSA

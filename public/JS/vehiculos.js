@@ -162,17 +162,24 @@ function mostrarFormularioActualizacion(vehiculo) {
 
 async function actualizarVehiculo(event) {
     event.preventDefault();
-    const placa = document.getElementById('placa-actualizar').value;
+    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
     const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
     const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
     const errorDiv = document.getElementById('error-actualizar');
+
+    // Validar fechas en el frontend
+    if (!nuevaFechaSOAT || !nuevaFechaTecno) {
+        errorDiv.textContent = "Ambas fechas son requeridas";
+        errorDiv.style.display = 'block';
+        return;
+    }
 
     try {
         const response = await fetch(`/api/vehiculos/${placa}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // 👈 Añade autorización
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
                 fecha_vencimiento_soat: nuevaFechaSOAT,
@@ -180,18 +187,16 @@ async function actualizarVehiculo(event) {
             })
         });
 
-        const data = await response.json(); // 👈 Siempre parsea la respuesta
+        const data = await response.json();
 
         if (!response.ok) {
             throw new Error(data.error || "Error al actualizar");
         }
 
-        alert("¡Vehículo actualizado!");
-        document.getElementById('formulario-actualizacion').style.display = 'none';
-        
-        // Limpiar campo de placa y errores
+        // Forzar recarga de datos
         document.getElementById('placa-actualizar').value = '';
-        errorDiv.style.display = 'none';
+        document.getElementById('formulario-actualizacion').style.display = 'none';
+        alert("¡Actualización exitosa! Consulta de nuevo para ver los cambios.");
 
     } catch (error) {
         errorDiv.textContent = `Error: ${error.message}`;

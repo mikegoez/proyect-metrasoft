@@ -1,3 +1,11 @@
+process.on('SIGTERM', () => {
+  console.log('⚠️ Recibida señal SIGTERM. Cerrando servidor...');
+  server.close(() => {
+    console.log('Servidor cerrado exitosamente');
+    process.exit(0);
+  });
+});
+
 process.on('uncaughtException', (err) => {
   console.error('⚠️ Error no capturado:', err);
   process.exit(1);
