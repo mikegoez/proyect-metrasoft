@@ -62,7 +62,7 @@ exports.obtenerVehiculo = async (req, res) => {
 // Controlador para obtener todos los vehículos (NECESARIO)
 exports.obtenerVehiculos = async (req, res) => {
   try {
-    const [vehiculos] = await pool.query("SELECT * FROM vehiculos");
+    const [vehiculos] = await pool.query("SELECT * FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
     res.json(vehiculos);
   } catch (error) {
     res.status(500).json({ error: error.message });

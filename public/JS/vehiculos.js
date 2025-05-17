@@ -73,7 +73,11 @@ async function consultarVehiculo() {
 
     try {
         //obtener datos del vehiculo por placa
-        const response = await fetch(`/api/vehiculos/${placa}`);
+        const response = await fetch(`/api/vehiculos/${placa}`,{
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
         
         // Si la respuesta no es exitosa, lee el error del servidor
         if (!response.ok) {
@@ -107,7 +111,11 @@ async function buscarParaActualizar() {
 
     try {
         //para bucar vehiculo para actualizar
-        const response = await fetch(`/api/vehiculos/${placa}`);
+        const response = await fetch(`/api/vehiculos/${placa}`,{
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // 👈 Añade esto
+                }
+        });
         if (!response.ok) throw new Error("Vehículo no encontrado");
         // para mostar formulario de actualizacion con los datos actuales
         const vehiculo = await response.json();
