@@ -45,30 +45,17 @@ exports.crearVehiculo = async (req, res) => {
 
 
 // Controlador para obtener lista básica de vehículos
-exports.obtenerVehiculo = async (req, res) => {
-  try {
-    const { placa } = req.params;
-    console.log("🔍 Buscando placa:", placa); // 👈 Log de depuración
-    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
-    console.log("📦 Resultado de la consulta:", vehiculo); // 👈 Ver datos
-    if (!vehiculo.length) return res.status(404).json({ error: "Vehículo no encontrado" });
-    res.json(vehiculo[0]);
-  } catch (error) {
-    console.error("❌ Error en obtenerVehiculo:", error); // 👈 Log de error
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Controlador para obtener todos los vehículos (NECESARIO)
 exports.obtenerVehiculos = async (req, res) => {
   try {
-    const [vehiculos] = await pool.query("SELECT * FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
-    res.json(vehiculos);
+    // Consultar solo ID y placa de todos los vehículos
+      const [vehiculos] = await pool.query(
+          "SELECT id_vehiculo, placa FROM vehiculos"
+      );
+      res.json(vehiculos); //devuelve lista
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
   }
 };
-
 // Obtener detalles técnicos por ID de vehículo
 exports.obtenerVehiculoPorId = async (req, res) => {
   try {
@@ -83,6 +70,20 @@ exports.obtenerVehiculoPorId = async (req, res) => {
       res.json(vehiculo[0]);
   } catch (error) {
       res.status(500).json({ error: error.message });
+  }
+};
+
+// Buscar vehículo completo por placa
+exports.obtenerVehiculo = async (req, res) => {
+  try {
+    const { placa } = req.params;// Obtener placa de la URL
+    // Consultar todos los campos
+    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE placa = ?", [placa]);
+    
+    if (!vehiculo.length) return res.status(404).json({ error: "Vehículo no encontrado" });
+    res.json(vehiculo[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -140,7 +141,7 @@ exports.eliminarVehiculo = async (req, res) => {
       'vehiculo'
     );
     // Ejecutar eliminación
-    await pool.query("DELETE FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
+    await pool.query("DELETE FROM vehiculos WHERE placa = ?", [placa]);
     
     res.json({ success: true });
   } catch (error) {
@@ -148,3 +149,12 @@ exports.eliminarVehiculo = async (req, res) => {
   }
 };
 // Contar total de vehículos registrados
+exports.contarVehiculos = async (req, res) => {
+  try {
+      // Consulta de conteo
+      const [result] = await pool.query("SELECT COUNT(id_vehiculo) AS total FROM vehiculos");
+      res.json({ total: result[0].total }); //devuelve numero 
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
