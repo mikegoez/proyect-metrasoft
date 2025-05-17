@@ -45,15 +45,17 @@ exports.crearVehiculo = async (req, res) => {
 
 
 // Controlador para obtener lista básica de vehículos
-exports.obtenerVehiculos = async (req, res) => {
+exports.obtenerVehiculo = async (req, res) => {
   try {
-    // Consultar solo ID y placa de todos los vehículos
-      const [vehiculos] = await pool.query(
-          "SELECT id_vehiculo, placa FROM vehiculos"
-      );
-      res.json(vehiculos); //devuelve lista
+    const { placa } = req.params;
+    console.log("🔍 Buscando placa:", placa); // 👈 Log de depuración
+    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE placa = ?", [placa]);
+    console.log("📦 Resultado de la consulta:", vehiculo); // 👈 Ver datos
+    if (!vehiculo.length) return res.status(404).json({ error: "Vehículo no encontrado" });
+    res.json(vehiculo[0]);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    console.error("❌ Error en obtenerVehiculo:", error); // 👈 Log de error
+    res.status(500).json({ error: error.message });
   }
 };
 // Obtener detalles técnicos por ID de vehículo

@@ -66,6 +66,7 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
 });
 
 //consultar vehiculo
+//consultar vehiculo
 async function consultarVehiculo() {
     // obtiene y limpia la placa ingresada
     const placa = document.getElementById('placa-consultar').value.trim();
@@ -74,8 +75,14 @@ async function consultarVehiculo() {
     try {
         //obtener datos del vehiculo por placa
         const response = await fetch(`/api/vehiculos/${placa}`);
-        if (!response.ok) throw new Error("Vehículo no encontrado");
-        //procesa y muestra los resultados
+        
+        // Si la respuesta no es exitosa, lee el error del servidor
+        if (!response.ok) {
+            const errorData = await response.json(); // 👈 Captura el mensaje del backend
+            throw new Error(errorData.error || "Error desconocido del servidor");
+        }
+
+        // Procesa y muestra los resultados
         const vehiculo = await response.json();
         const resultado = document.getElementById('resultado-consultar');
         resultado.innerHTML = `
@@ -86,12 +93,13 @@ async function consultarVehiculo() {
                 <p>Tecnomecánica: ${vehiculo.fecha_vencimiento_tecnomecanica}</p>
             </div>
         `;
-        resultado.style.display = 'block'; // Muestra el contenedor de resultados
-    } catch (error) {
-        alert(error.message); // Muestra el error al usuario
+        resultado.style.display = 'block';
+
+    } catch (error) { 
+        console.error("🔴 Error en consultarVehiculo:", error); // 👈 Registra el error en consola
+        alert(error.message); // 👈 Muestra el mensaje específico del servidor
     }
 }
-
 //actualizar vehiculo
 async function buscarParaActualizar() {
     // Obtiene y valida la placa
