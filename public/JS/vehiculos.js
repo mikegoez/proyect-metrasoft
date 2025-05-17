@@ -6,7 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
 });
 //mostar secciones
-
+function mostrarSeccion(seccion) {
+    // Ocultar todas las secciones
+    document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
+    // Mostrar la sección seleccionada
+    document.getElementById(seccion).style.display = 'block';
+}
 //crear vehiculo
 // Escucha el evento submit del formulario de creación
 document.getElementById('form-crear').addEventListener('submit', async (e) => {
