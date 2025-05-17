@@ -103,8 +103,13 @@ app.get('/HTML/*', (req, res, next) => {
   
   if (allowedFiles.includes(requestedFile)) {
     // Sirve el archivo directamente después de autenticar
-    authMiddleware.autenticarUsuario(req, res, () => {
-      res.sendFile(path.join(htmlPath, requestedFile));
+      authMiddleware.autenticarUsuario(req, res, () => {
+      res.sendFile(path.join(htmlPath, requestedFile), (err) => {
+        if (err) {
+          console.error("Error al enviar archivo:", err);
+          res.status(500).json({ error: "Error interno del servidor" });
+        }
+      });
     });
   } else {
     res.status(404).sendFile(path.join(htmlPath, '404.html'));
