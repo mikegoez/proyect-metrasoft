@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/CSS/utilities.css">
 </head>
 <body class="bg-light">
-<!-- barra de navegación -->
+    <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mtr-navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">
@@ -36,7 +36,7 @@
 
     <div class="container-fluid mt-4">
         <div class="row">
-<!-- sidebar -->
+            <!-- Sidebar -->
             <div class="col-lg-3 mb-3 mtr-sidebar">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -58,9 +58,9 @@
                 </div>
             </div>
 
-<!-- contenido principal -->
+            <!-- Contenido principal -->
             <div class="col-lg-9">
-<!-- crear vhiculo -->
+                <!-- Crear Vehículo -->
                 <section id="crear" class="card shadow-sm mb-4">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-bus-front"></i> Registrar Vehículo</h2>
@@ -99,18 +99,14 @@
                                 <label class="form-label">Capacidad (KG)</label>
                                 <input type="number" class="form-control" name="capacidad_kg" required>
                             </div>
-<!------------------------ revisar cambios -->
                             <div class="col-md-6">
                                 <label class="form-label">Vencimiento SOAT</label>
-                                <input type="date" class="form-control" name="fecha_vencimiento_soat"
-                                id="fecha_vencimiento_soat" required>
+                                <input type="date" class="form-control" name="fecha_vencimiento_soat" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Vencimiento Tecnomecánica</label>
-                                <input type="date" class="form-control" name="fecha_vencimiento_tecnomecanica"
-                                id="fecha_vencimiento_tecnomecanica" required>
+                                <input type="date" class="form-control" name="fecha_vencimiento_tecnomecanica" required>
                             </div>
-<!------------------------ revisar cambios -->
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="bi bi-save"></i> Guardar Vehículo
@@ -120,65 +116,84 @@
                     </div>
                 </section>
 
-<!--consultar vehiculo-->
+                <!-- Consultar Vehículo -->
                 <section id="consultar" class="card shadow-sm mb-4" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-search"></i> Consultar Vehículo</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="placa-consultar" 
-                                       placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
+                        <form id="form-consultar" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="placa-consultar" 
+                                           placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}" required>
+                                    <div class="invalid-feedback">
+                                        Ingresa una placa válida (Ejemplo: ABC123).
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary w-100" type="submit">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" id="btn-buscar-consultar" type="button"> 
-                                    <i class="bi bi-search"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
+                        </form>
+                        <div class="alert alert-danger mt-3" id="error-consultar" style="display: none;"></div>
                         <div id="resultado-consultar" class="mt-4" style="display:none;"></div>
                     </div>
-                </section> 
+                </section>
 
-<!-- actualizar vehiculo -->
+                <!-- Actualizar Vehículo -->
                 <section id="actualizar" class="card shadow-sm mb-4" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-pencil-square"></i> Actualizar Vehículo</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="placa-actualizar" 
-                                       placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
+                        <form id="form-actualizar" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="placa-actualizar" 
+                                           placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}" required>
+                                    <div class="invalid-feedback">
+                                        Ingresa una placa válida.
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary w-100" type="submit">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" id="btn-buscar-actualizar" type="button">
-                                    <i class="bi bi-search"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
+                        </form>
+                        <div class="alert alert-danger mt-3" id="error-actualizar" style="display: none;"></div>
                         <div id="formulario-actualizacion" class="mt-4" style="display:none;"></div>
                     </div>
                 </section>
-<!-- eliminar vehiculos -->
+
+                <!-- Eliminar Vehículo -->
                 <section id="eliminar" class="card shadow-sm" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Vehículo</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="placa-eliminar" 
-                                       placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
+                        <form id="form-eliminar" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="placa-eliminar" 
+                                           placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}" required>
+                                    <div class="invalid-feedback">
+                                        Ingresa una placa válida.
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" type="submit">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-danger w-100" id="btn-confirmar-eliminar" type="button">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </div>
-                        </div>
+                        </form>
+                        <div class="alert alert-danger mt-3" id="error-eliminar" style="display: none;"></div>
                     </div>
                 </section>
             </div>
         </div>
     </div>
-    
-<!-- scripts -->
+
+    <!-- Scripts -->
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script src="/JS/vehiculos.js"></script>
 </body>

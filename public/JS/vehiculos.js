@@ -4,28 +4,23 @@ window.mostrarSeccion = function(seccion) {
     document.getElementById(seccion).style.display = 'block';
 };
 
-window.consultarVehiculo = async function() { /* ... */ };
-window.buscarParaActualizar = async function() { /* ... */ };
-window.eliminarVehiculo = async function() { /* ... */ };
-
-
+// Mapeo de botones a secciones
 document.addEventListener("DOMContentLoaded", () => {
-// Mapeo de botones a funciones
-  document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
-  document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
-  document.getElementById("btn-actualizar").addEventListener("click", () => mostrarSeccion('actualizar'));
-  document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
-// Listeners para acciones
-  document.getElementById("btn-buscar-consultar").addEventListener("click", consultarVehiculo);
-  document.getElementById("btn-buscar-actualizar").addEventListener("click", buscarParaActualizar);
-  document.getElementById("btn-confirmar-eliminar").addEventListener("click", eliminarVehiculo);
+    document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
+    document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
+    document.getElementById("btn-actualizar").addEventListener("click", () => mostrarSeccion('actualizar'));
+    document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
+
+    // Listeners para formularios
+    document.getElementById("form-crear").addEventListener("submit", crearVehiculo);
+    document.getElementById("form-consultar").addEventListener("submit", consultarVehiculo);
+    document.getElementById("form-actualizar").addEventListener("submit", buscarParaActualizar);
+    document.getElementById("form-eliminar").addEventListener("submit", eliminarVehiculo);
 });
 
-//crear vehiculo
-// Escucha el evento submit del formulario de creación
-document.getElementById('form-crear').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Previene el comportamiento por defecto del formulario
-    //recopilacion de datos del formulario 
+// Crear vehículo
+async function crearVehiculo(e) {
+    e.preventDefault();
     const formData = {
         placa: e.target.placa.value,
         marca: e.target.marca.value,
@@ -39,7 +34,6 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
     };
 
     try {
-        //enviar datos al backend mediamndte POST
         const response = await fetch('/api/vehiculos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -48,38 +42,40 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             alert("¡Vehículo creado!");
-            e.target.reset();  // limpia el formulario
+            e.target.reset();
         } else {
-            // lee el error del servidor
             const error = await response.json();
             alert(`Error: ${error.error}`);
         }
-    } catch (error) { // captura errores de red
+    } catch (error) {
         alert("Error de conexión");
     }
-});
+}
 
-//consultar vehiculo
-async function consultarVehiculo() {
-    // obtiene y limpia la placa ingresada
+// Consultar vehículo
+async function consultarVehiculo(e) {
+    e.preventDefault();
+    const formulario = e.target;
+    const errorDiv = document.getElementById('error-consultar');
+
+    if (!formulario.checkValidity()) {
+        formulario.classList.add('was-validated');
+        return;
+    }
+
     const placa = document.getElementById('placa-consultar').value.trim().toUpperCase();
-    if (!placa) return alert("Ingresa una placa"); // validación básica
-
     try {
-        //obtener datos del vehiculo por placa
-        const response = await fetch(`/api/vehiculos/${placa}`,{
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+        const response = await fetch(`/api/vehiculos/${placa}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        
-        // Si la respuesta no es exitosa, lee el error del servidor
+
         if (!response.ok) {
-            const errorData = await response.json(); // 👈 Captura el mensaje del backend
-            throw new Error(errorData.error || "Error desconocido del servidor");
+            const errorData = await response.json();
+            errorDiv.textContent = `Error: ${errorData.error}`;
+            errorDiv.style.display = 'block';
+            return;
         }
 
-        // Procesa y muestra los resultados
         const vehiculo = await response.json();
         const resultado = document.getElementById('resultado-consultar');
         resultado.innerHTML = `
@@ -91,38 +87,50 @@ async function consultarVehiculo() {
             </div>
         `;
         resultado.style.display = 'block';
-
-    } catch (error) { 
-        console.error("🔴 Error en consultarVehiculo:", error); // 👈 Registra el error en consola
-        alert(error.message); // 👈 Muestra el mensaje específico del servidor
+        errorDiv.style.display = 'none';
+    } catch (error) {
+        errorDiv.textContent = "Error de conexión con el servidor";
+        errorDiv.style.display = 'block';
     }
 }
-//actualizar vehiculo
-async function buscarParaActualizar() {
-    // Obtiene y valida la placa
-    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
-    if (!placa) return alert("Ingresa una placa");
 
+// Actualizar vehículo
+async function buscarParaActualizar(e) {
+    e.preventDefault();
+    const formulario = e.target;
+    const errorDiv = document.getElementById('error-actualizar');
+
+    if (!formulario.checkValidity()) {
+        formulario.classList.add('was-validated');
+        return;
+    }
+
+    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
     try {
-        //para bucar vehiculo para actualizar
-        const response = await fetch(`/api/vehiculos/${placa}`,{
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // 👈 Añade esto
-                }
+        const response = await fetch(`/api/vehiculos/${placa}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        if (!response.ok) throw new Error("Vehículo no encontrado");
-        // para mostar formulario de actualizacion con los datos actuales
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            errorDiv.textContent = `Error: ${errorData.error}`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+
         const vehiculo = await response.json();
         mostrarFormularioActualizacion(vehiculo);
+        errorDiv.style.display = 'none';
     } catch (error) {
-        alert(error.message);
+        errorDiv.textContent = "Error al buscar el vehículo";
+        errorDiv.style.display = 'block';
     }
 }
 
 function mostrarFormularioActualizacion(vehiculo) {
     const contenedor = document.getElementById('formulario-actualizacion');
     contenedor.innerHTML = `
-        <form id="form-actualizar"> <!-- 👈 Añade ID al formulario -->
+        <form id="form-actualizar" class="needs-validation" novalidate>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label>Nueva fecha SOAT</label>
@@ -143,24 +151,17 @@ function mostrarFormularioActualizacion(vehiculo) {
         </form>
     `;
 
-    // 👇 Agrega el event listener después de generar el HTML
-    document.getElementById('form-actualizar').addEventListener('submit', (event) => {
-        event.preventDefault();
-        actualizarVehiculo(event);
-    });
-
+    document.getElementById('form-actualizar').addEventListener('submit', actualizarVehiculo);
     contenedor.style.display = 'block';
 }
 
 async function actualizarVehiculo(event) {
-    event.preventDefault(); // Previene el envío tradicional del formulario
-    // Obtiene los valores actualizados
+    event.preventDefault();
     const placa = document.getElementById('placa-actualizar').value;
     const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
     const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
 
     try {
-        //envia actualizacion al servidor
         const response = await fetch(`/api/vehiculos/${placa}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -173,39 +174,45 @@ async function actualizarVehiculo(event) {
         if (response.ok) {
             alert("¡Vehículo actualizado!");
             document.getElementById('formulario-actualizacion').style.display = 'none';
-            //oculta formulario
+        } else {
+            const error = await response.json();
+            alert(`Error: ${error.error}`);
         }
     } catch (error) {
         alert("Error al actualizar");
     }
 }
 
-// eliminar vehiculo
-async function eliminarVehiculo() {
-    // Obtiene y valida la placa
-    const placa = document.getElementById('placa-eliminar').value.trim().toUpperCase();
-    if (!placa) return alert("Ingresa una placa");
+// Eliminar vehículo
+async function eliminarVehiculo(e) {
+    e.preventDefault();
+    const formulario = e.target;
+    const errorDiv = document.getElementById('error-eliminar');
 
-    // Confirmación de seguridad
+    if (!formulario.checkValidity()) {
+        formulario.classList.add('was-validated');
+        return;
+    }
+
+    const placa = document.getElementById('placa-eliminar').value.trim().toUpperCase();
     if (!confirm(`¿Eliminar vehículo ${placa} permanentemente?`)) return;
 
     try {
-        // Envía la solicitud de eliminación
         const response = await fetch(`/api/vehiculos/${placa}`, { 
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
-        if (response.ok) {
-            alert("Vehículo eliminado");
-            document.getElementById('placa-eliminar').value = '';
-        } else {
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error al eliminar");
         }
+
+        alert("Vehículo eliminado");
+        document.getElementById('placa-eliminar').value = '';
+        errorDiv.style.display = 'none';
     } catch (error) {
-        alert("Error al eliminar");
+        errorDiv.textContent = `Error: ${error.message}`;
+        errorDiv.style.display = 'block';
     }
 }
