@@ -66,10 +66,9 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
 });
 
 //consultar vehiculo
-//consultar vehiculo
 async function consultarVehiculo() {
     // obtiene y limpia la placa ingresada
-    const placa = document.getElementById('placa-consultar').value.trim();
+    const placa = document.getElementById('placa-consultar').value.trim().toUpperCase();
     if (!placa) return alert("Ingresa una placa"); // validación básica
 
     try {
@@ -103,7 +102,7 @@ async function consultarVehiculo() {
 //actualizar vehiculo
 async function buscarParaActualizar() {
     // Obtiene y valida la placa
-    const placa = document.getElementById('placa-actualizar').value.trim();
+    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
     if (!placa) return alert("Ingresa una placa");
 
     try {
@@ -182,7 +181,7 @@ async function actualizarVehiculo(event) {
 // eliminar vehiculo
 async function eliminarVehiculo() {
     // Obtiene y valida la placa
-    const placa = document.getElementById('placa-eliminar').value.trim();
+    const placa = document.getElementById('placa-eliminar').value.trim().toUpperCase();
     if (!placa) return alert("Ingresa una placa");
 
     // Confirmación de seguridad
