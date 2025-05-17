@@ -45,7 +45,7 @@
                                 <i class="bi bi-bus-front"></i> Crear Vehículo
                             </button>
                             <button class="list-group-item list-group-item-action active" id="btn-consultar">
-                                <i class="bi bi-bus-front"></i> Consultar
+                                <i class="bi bi-search"></i> Consultar
                             </button>
                             <button class="list-group-item list-group-item-action" id="btn-actualizar">
                                 <i class="bi bi-pencil-square"></i> Actualizar
@@ -130,7 +130,7 @@
                                        placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="consultarVehiculo()">
+                                <button class="btn btn-primary w-100" id="btn-buscar-consultar"> 
                                     <i class="bi bi-search"></i> Buscar
                                 </button>
                             </div>
@@ -149,7 +149,7 @@
                                        placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="buscarParaActualizar()">
+                                <button class="btn btn-primary w-100" id="btn-buscar-actualizar">
                                     <i class="bi bi-search"></i> Buscar
                                 </button>
                             </div>
@@ -167,7 +167,7 @@
                                        placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}">
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-danger w-100" onclick="eliminarVehiculo()">
+                                <button class="btn btn-danger w-100" id="btn-confirmar-eliminar">
                                     <i class="bi bi-trash"></i> Eliminar
                                 </button>
                             </div>

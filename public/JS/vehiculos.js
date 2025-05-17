@@ -1,9 +1,24 @@
+// Funciones globales
+window.mostrarSeccion = function(seccion) {
+    document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
+    document.getElementById(seccion).style.display = 'block';
+};
+
+window.consultarVehiculo = async function() { /* ... */ };
+window.buscarParaActualizar = async function() { /* ... */ };
+window.eliminarVehiculo = async function() { /* ... */ };
+
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Mapeo de botones a funciones
+// Mapeo de botones a funciones
   document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
   document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
   document.getElementById("btn-actualizar").addEventListener("click", () => mostrarSeccion('actualizar'));
   document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
+// Listeners para acciones
+  document.getElementById("btn-buscar-consultar").addEventListener("click", consultarVehiculo);
+  document.getElementById("btn-buscar-actualizar").addEventListener("click", buscarParaActualizar);
+  document.getElementById("btn-confirmar-eliminar").addEventListener("click", eliminarVehiculo);
 });
 //mostar secciones
 function mostrarSeccion(seccion) {
@@ -96,10 +111,9 @@ async function buscarParaActualizar() {
 }
 
 function mostrarFormularioActualizacion(vehiculo) {
-    // genera el formulario de actualización con los valores actuales
     const contenedor = document.getElementById('formulario-actualizacion');
     contenedor.innerHTML = `
-        <form onsubmit="actualizarVehiculo(event)">
+        <form id="form-actualizar"> <!-- 👈 Añade ID al formulario -->
             <div class="row g-3">
                 <div class="col-md-6">
                     <label>Nueva fecha SOAT</label>
@@ -119,7 +133,14 @@ function mostrarFormularioActualizacion(vehiculo) {
             </div>
         </form>
     `;
-    contenedor.style.display = 'block'; //muestra el formulario
+
+    // 👇 Agrega el event listener después de generar el HTML
+    document.getElementById('form-actualizar').addEventListener('submit', (event) => {
+        event.preventDefault();
+        actualizarVehiculo(event);
+    });
+
+    contenedor.style.display = 'block';
 }
 
 async function actualizarVehiculo(event) {
