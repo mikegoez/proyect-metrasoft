@@ -20,13 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btn-buscar-actualizar").addEventListener("click", buscarParaActualizar);
   document.getElementById("btn-confirmar-eliminar").addEventListener("click", eliminarVehiculo);
 });
-//mostar secciones
-function mostrarSeccion(seccion) {
-    // Ocultar todas las secciones
-    document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
-    // Mostrar la sección seleccionada
-    document.getElementById(seccion).style.display = 'block';
-}
+
 //crear vehiculo
 // Escucha el evento submit del formulario de creación
 document.getElementById('form-crear').addEventListener('submit', async (e) => {
@@ -198,12 +192,18 @@ async function eliminarVehiculo() {
     try {
         // Envía la solicitud de eliminación
         const response = await fetch(`/api/vehiculos/${placa}`, { 
-            method: 'DELETE' 
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         });
 
         if (response.ok) {
             alert("Vehículo eliminado");
-            document.getElementById('placa-eliminar').value = ''; //limpia campo
+            document.getElementById('placa-eliminar').value = '';
+        } else {
+            const error = await response.json();
+            alert(`Error: ${error.error}`);
         }
     } catch (error) {
         alert("Error al eliminar");
