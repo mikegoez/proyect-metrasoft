@@ -10,9 +10,9 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: process.env.NODE_ENV === 'production' 
-    ? { rejectUnauthorized: false }
-    : null
+  ssl: {
+    rejectUnauthorized: true, // 👈 Necesario para Railway
+  },
 });
 
 module.exports = pool;

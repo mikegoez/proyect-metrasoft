@@ -49,7 +49,7 @@ exports.obtenerVehiculo = async (req, res) => {
   try {
     const { placa } = req.params;
     console.log("🔍 Buscando placa:", placa); // 👈 Log de depuración
-    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE placa = ?", [placa]);
+    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
     console.log("📦 Resultado de la consulta:", vehiculo); // 👈 Ver datos
     if (!vehiculo.length) return res.status(404).json({ error: "Vehículo no encontrado" });
     res.json(vehiculo[0]);
@@ -140,7 +140,7 @@ exports.eliminarVehiculo = async (req, res) => {
       'vehiculo'
     );
     // Ejecutar eliminación
-    await pool.query("DELETE FROM vehiculos WHERE placa = ?", [placa]);
+    await pool.query("DELETE FROM vehiculos WHERE UPPER(placa) = UPPER(?)", [placa]);
     
     res.json({ success: true });
   } catch (error) {

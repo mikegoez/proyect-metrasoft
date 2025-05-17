@@ -7,8 +7,7 @@ const authMiddleware = require('../middlewares/auth');
 
 router.post('/', authMiddleware.vehiculoController.crearVehiculo);
 router.get("/:placa", authMiddleware.vehiculoController.obtenerVehiculo);
-router.get('/', authMiddleware.vehiculoController.obtenerVehiculos); 
-router.get('/by-id/:id', authMiddleware.vehiculoController.obtenerVehiculoPorId);
+
 router.put("/:placa", authMiddleware.vehiculoController.actualizarVehiculo);
 router.delete("/:placa", authMiddleware.vehiculoController.eliminarVehiculo);
 
