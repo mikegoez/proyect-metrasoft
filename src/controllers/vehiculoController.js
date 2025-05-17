@@ -58,6 +58,17 @@ exports.obtenerVehiculo = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Controlador para obtener todos los vehículos (NECESARIO)
+exports.obtenerVehiculos = async (req, res) => {
+  try {
+    const [vehiculos] = await pool.query("SELECT * FROM vehiculos");
+    res.json(vehiculos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Obtener detalles técnicos por ID de vehículo
 exports.obtenerVehiculoPorId = async (req, res) => {
   try {
@@ -72,20 +83,6 @@ exports.obtenerVehiculoPorId = async (req, res) => {
       res.json(vehiculo[0]);
   } catch (error) {
       res.status(500).json({ error: error.message });
-  }
-};
-
-// Buscar vehículo completo por placa
-exports.obtenerVehiculo = async (req, res) => {
-  try {
-    const { placa } = req.params;// Obtener placa de la URL
-    // Consultar todos los campos
-    const [vehiculo] = await pool.query("SELECT * FROM vehiculos WHERE placa = ?", [placa]);
-    
-    if (!vehiculo.length) return res.status(404).json({ error: "Vehículo no encontrado" });
-    res.json(vehiculo[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 };
 
