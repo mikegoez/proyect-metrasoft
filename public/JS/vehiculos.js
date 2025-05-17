@@ -1,10 +1,11 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // Mapeo de botones a funciones
+  document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
+  document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
+  document.getElementById("btn-actualizar").addEventListener("click", () => mostrarSeccion('actualizar'));
+  document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
+});
 //mostar secciones
-function mostrarSeccion(seccion) {
-    // Oculta todas las secciones de la página
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-    // Muestra solo la sección solicitada
-    document.getElementById(seccion).style.display = 'block';
-}
 
 //crear vehiculo
 // Escucha el evento submit del formulario de creación
