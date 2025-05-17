@@ -29,7 +29,7 @@ const htmlPath = path.join(publicPath, 'HTML');
 const allowedFiles = [
   'index.html',
   'conductores.html',
-  'vehiculos.html',
+  'Vehiculos.html',
   'despachos.html',
   'notificaciones.html'
 ];
