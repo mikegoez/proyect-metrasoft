@@ -90,38 +90,78 @@ exports.obtenerVehiculo = async (req, res) => {
 // Actualizar fechas de documentos del vehículo
 exports.actualizarVehiculo = async (req, res) => {
   try {
- 
-    const { placa } = req.params;  // Placa del vehículo a actualizar
-    const { fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica } = req.body;
-     // Validar fecha del SOAT
-    if (new Date(fecha_vencimiento_soat) < new Date()) {
-      return res.status(400).json({ error: "SOAT vencido" });
-    }
-     // Obtener ID para la notificación
-    const [vehiculoExistente] = await pool.query(
-      "SELECT id_vehiculo FROM vehiculos WHERE placa = ?",
-      [placa]
-  );
+    const { placa } = req.params;
+    const { 
+      fecha_vencimiento_soat, 
+      fecha_vencimiento_tecnomecanica 
+    } = req.body;
 
-   // Actualizar registros en BD
-    await pool.query(
+    // ================================================
+    // 1. VALIDACIONES DE FECHAS
+    // ================================================
+    if (new Date(fecha_vencimiento_soat) < new Date()) {
+      return res.status(400).json({ error: "El SOAT está vencido" });
+    }
+
+    if (new Date(fecha_vencimiento_tecnomecanica) < new Date()) {
+      return res.status(400).json({ error: "La Tecnomecánica está vencida" });
+    }
+
+    // ================================================
+    // 2. ACTUALIZACIÓN EN BASE DE DATOS
+    // ================================================
+    const [result] = await pool.query(
       `UPDATE vehiculos 
-      SET fecha_vencimiento_soat = ?, 
-          fecha_vencimiento_tecnomecanica = ? 
+      SET 
+        fecha_vencimiento_soat = ?, 
+        fecha_vencimiento_tecnomecanica = ? 
       WHERE placa = ?`,
       [fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica, placa]
     );
-    // Registrar notificación de actualización
+
+    // Verificar si se afectó algún registro
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Vehículo no encontrado" });
+    }
+
+    // ================================================
+    // 3. REGISTRO DE NOTIFICACIÓN
+    // ================================================
+    const [vehiculo] = await pool.query(
+      "SELECT id_vehiculo FROM vehiculos WHERE placa = ?",
+      [placa]
+    );
+
     await crearNotificacion(
       'actualizacion',
-      `Vehículo ${placa} actualizado`,
-      vehiculoExistente[0].id_vehiculo,
+      `Vehículo ${placa} actualizado: 
+      - Nuevo SOAT: ${fecha_vencimiento_soat}
+      - Nueva Tecnomecánica: ${fecha_vencimiento_tecnomecanica}`,
+      vehiculo[0].id_vehiculo,
       'vehiculo'
     );
 
-    res.json({ success: true });
+    // ================================================
+    // 4. RESPUESTA EXITOSA
+    // ================================================
+    res.json({ 
+      success: true,
+      message: "Documentos actualizados correctamente",
+      nuevos_valores: {
+        soat: fecha_vencimiento_soat,
+        tecnomecanica: fecha_vencimiento_tecnomecanica
+      }
+    });
+
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // ================================================
+    // 5. MANEJO DE ERRORES
+    // ================================================
+    console.error("Error en actualización:", error);
+    res.status(500).json({ 
+      error: "Error interno del servidor",
+      detalle: process.env.NODE_ENV === 'development' ? error.message : null
+    });
   }
 };
 

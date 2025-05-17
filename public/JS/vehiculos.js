@@ -129,18 +129,23 @@ async function buscarParaActualizar(e) {
 
 function mostrarFormularioActualizacion(vehiculo) {
     const contenedor = document.getElementById('formulario-actualizacion');
+    
+    // Convertir fechas ISO a formato yyyy-MM-dd
+    const fechaSOAT = new Date(vehiculo.fecha_vencimiento_soat).toISOString().split('T')[0];
+    const fechaTecno = new Date(vehiculo.fecha_vencimiento_tecnomecanica).toISOString().split('T')[0];
+
     contenedor.innerHTML = `
         <form id="form-actualizar" class="needs-validation" novalidate>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label>Nueva fecha SOAT</label>
                     <input type="date" class="form-control" id="nueva-fecha-soat" 
-                           value="${vehiculo.fecha_vencimiento_soat}" required>
+                           value="${fechaSOAT}" required>
                 </div>
                 <div class="col-md-6">
                     <label>Nueva fecha Tecnomecánica</label>
                     <input type="date" class="form-control" id="nueva-fecha-tecnomecanica" 
-                           value="${vehiculo.fecha_vencimiento_tecnomecanica}" required>
+                           value="${fechaTecno}" required>
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary w-100">
@@ -160,26 +165,37 @@ async function actualizarVehiculo(event) {
     const placa = document.getElementById('placa-actualizar').value;
     const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
     const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
+    const errorDiv = document.getElementById('error-actualizar');
 
     try {
         const response = await fetch(`/api/vehiculos/${placa}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // 👈 Añade autorización
+            },
             body: JSON.stringify({
                 fecha_vencimiento_soat: nuevaFechaSOAT,
                 fecha_vencimiento_tecnomecanica: nuevaFechaTecno
             })
         });
 
-        if (response.ok) {
-            alert("¡Vehículo actualizado!");
-            document.getElementById('formulario-actualizacion').style.display = 'none';
-        } else {
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
+        const data = await response.json(); // 👈 Siempre parsea la respuesta
+
+        if (!response.ok) {
+            throw new Error(data.error || "Error al actualizar");
         }
+
+        alert("¡Vehículo actualizado!");
+        document.getElementById('formulario-actualizacion').style.display = 'none';
+        
+        // Limpiar campo de placa y errores
+        document.getElementById('placa-actualizar').value = '';
+        errorDiv.style.display = 'none';
+
     } catch (error) {
-        alert("Error al actualizar");
+        errorDiv.textContent = `Error: ${error.message}`;
+        errorDiv.style.display = 'block';
     }
 }
 
