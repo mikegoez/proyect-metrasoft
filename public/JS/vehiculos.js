@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listeners para formularios
     document.getElementById("form-crear").addEventListener("submit", crearVehiculo);
     document.getElementById("form-consultar").addEventListener("submit", consultarVehiculo);
-    document.getElementById("form-actualizar").addEventListener("submit", buscarParaActualizar);
+    document.getElementById("form-buscar-actualizar").addEventListener("submit", buscarParaActualizar);
     document.getElementById("form-eliminar").addEventListener("submit", eliminarVehiculo);
 });
 
@@ -167,19 +167,28 @@ async function actualizarVehiculo(event) {
     const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
     const errorDiv = document.getElementById('error-actualizar');
 
-    // Validar fechas en el frontend
+    // --- Validación 1: Campos requeridos ---
     if (!nuevaFechaSOAT || !nuevaFechaTecno) {
         errorDiv.textContent = "Ambas fechas son requeridas";
         errorDiv.style.display = 'block';
         return;
     }
 
+    // --- Validación 2: Token JWT ---
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("¡Sesión expirada! Por favor inicia sesión nuevamente.");
+        window.location.href = '/HTML/login.html'; // Redirigir al login
+        return;
+    }
+
     try {
+        // --- Enviar solicitud PUT ---
         const response = await fetch(`/api/vehiculos/${placa}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}` // Token incluido
             },
             body: JSON.stringify({
                 fecha_vencimiento_soat: nuevaFechaSOAT,
@@ -187,17 +196,27 @@ async function actualizarVehiculo(event) {
             })
         });
 
+        // --- Manejar respuesta del servidor ---
         if (!response.ok) {
+            // Caso especial: Token expirado/inválido (401 Unauthorized)
+            if (response.status === 401) {
+                localStorage.removeItem('token'); // Limpiar token
+                window.location.href = '/HTML/login.html';
+                return;
+            }
+            
+            // Otros errores
             const errorData = await response.json();
-            throw new Error(errorData.error || "Error al actualizar");
+            throw new Error(errorData.error || "Error en la actualización");
         }
 
-        // Éxito: Limpiar y mostrar mensaje
+        // --- Éxito: Recargar página ---
         alert("¡Fechas actualizadas correctamente!");
-        document.getElementById('placa-actualizar').value = '';
-        document.getElementById('formulario-actualizacion').style.display = 'none';
+        window.location.reload(); // Forzar recarga para ver cambios
 
     } catch (error) {
+        // --- Manejar errores de red o del servidor ---
+        console.error("Error en actualización:", error);
         errorDiv.textContent = `Error: ${error.message}`;
         errorDiv.style.display = 'block';
     }

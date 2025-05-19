@@ -96,6 +96,8 @@ exports.actualizarVehiculo = async (req, res) => {
       fecha_vencimiento_tecnomecanica 
     } = req.body;
 
+    console.log("📤 Solicitud PUT recibida:", { placa, fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica }); // ✅ Log
+
     // ================================================
     // 1. VALIDACIONES DE FECHAS
     // ================================================
