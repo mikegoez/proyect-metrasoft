@@ -6,9 +6,9 @@ process.on('SIGTERM', () => {
   });
 });
 
-process.on('uncaughtException', (err) => {
-  console.error('⚠️ Error no capturado:', err);
-  process.exit(1);
+process.on('unhandledRejection', (err) => {
+  console.error('⚠️ Promesa rechazada no manejada:', err);
+  process.exit(1); // Termina el proceso con error
 });
 
 process.on('unhandledRejection', (err) => {
@@ -103,6 +103,13 @@ rutasPublicas.forEach(ruta => {
   app.get(ruta, (req, res) => {
     res.sendFile(path.join(htmlPath, ruta.split('/HTML/')[1])); // Usar htmlPath
   });
+});
+
+// ================================================
+// 4.1 HEALTH CHECK (Nuevo código)
+// ================================================
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date() });
 });
 
 // -- Rutas protegidas --
