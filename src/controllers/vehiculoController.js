@@ -99,12 +99,22 @@ exports.actualizarVehiculo = async (req, res) => {
     // ================================================
     // 1. VALIDACIONES DE FECHAS
     // ================================================
-    if (new Date(fecha_vencimiento_soat) < new Date()) {
-      return res.status(400).json({ error: "El SOAT está vencido" });
+ 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Ignorar hora
+
+    const fechaSOAT = new Date(fecha_vencimiento_soat);
+    fechaSOAT.setHours(0, 0, 0, 0);
+
+    const fechaTecno = new Date(fecha_vencimiento_tecnomecanica);
+    fechaTecno.setHours(0, 0, 0, 0);
+
+    if (fechaSOAT < hoy) {
+        return res.status(400).json({ error: "El SOAT está vencido" });
     }
 
-    if (new Date(fecha_vencimiento_tecnomecanica) < new Date()) {
-      return res.status(400).json({ error: "La Tecnomecánica está vencida" });
+    if (fechaTecno < hoy) {
+        return res.status(400).json({ error: "La Tecnomecánica está vencida" });
     }
 
     // ================================================
@@ -118,6 +128,8 @@ exports.actualizarVehiculo = async (req, res) => {
       WHERE placa = ?`,
       [fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica, placa]
     );
+
+    console.log("Resultado de la actualización:", result);
 
     // Verificar si se afectó algún registro
     if (result.affectedRows === 0) {
@@ -192,15 +204,5 @@ exports.eliminarVehiculo = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-};
-// Contar total de vehículos registrados
-exports.contarVehiculos = async (req, res) => {
-  try {
-      // Consulta de conteo
-      const [result] = await pool.query("SELECT COUNT(id_vehiculo) AS total FROM vehiculos");
-      res.json({ total: result[0].total }); //devuelve numero 
-  } catch (error) {
-      res.status(500).json({ error: error.message });
   }
 };

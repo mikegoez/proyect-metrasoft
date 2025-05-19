@@ -187,22 +187,23 @@ async function actualizarVehiculo(event) {
             })
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-            throw new Error(data.error || "Error al actualizar");
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error al actualizar");
         }
 
-        // Forzar recarga de datos
+        // Éxito: Limpiar y mostrar mensaje
+        alert("¡Fechas actualizadas correctamente!");
         document.getElementById('placa-actualizar').value = '';
         document.getElementById('formulario-actualizacion').style.display = 'none';
-        alert("¡Actualización exitosa! Consulta de nuevo para ver los cambios.");
 
     } catch (error) {
         errorDiv.textContent = `Error: ${error.message}`;
         errorDiv.style.display = 'block';
     }
 }
+
+
 
 // Eliminar vehículo
 async function eliminarVehiculo(e) {
