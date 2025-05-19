@@ -142,30 +142,25 @@
                 </section>
 
                 <!-- Actualizar Vehículo -->
-                <section id="actualizar" class="card shadow-sm mb-4" style="display:none;">
+                 <section id="actualizar" class="card shadow-sm mb-4" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-pencil-square"></i> Actualizar Vehículo</h2>
-                        <form id="form-buscar-actualizar" class="needs-validation" novalidate>
-                            <div class="row g-3">
-                                <div class="col-md-8">
-                                    <input type="text" class="form-control" id="placa-actualizar" 
-                                           placeholder="ABC123" pattern="[A-Za-z]{3}\d{3}" required>
-                                    <div class="invalid-feedback">
-                                        Ingresa una placa válida.
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-primary w-100" type="submit">
-                                        <i class="bi bi-search"></i> Buscar
-                                    </button>
-                                </div>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <select class="form-select" id="placa-actualizar" required>
+                                    <option value="">Seleccione una placa...</option>
+                                </select>
                             </div>
-                        </form>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary w-100" onclick="cargarDatosVehiculo()">
+                                    <i class="bi bi-search"></i> Cargar
+                                </button>
+                            </div>
+                        </div>
                         <div class="alert alert-danger mt-3" id="error-actualizar" style="display: none;"></div>
                         <div id="formulario-actualizacion" class="mt-4" style="display:none;"></div>
                     </div>
                 </section>
-
                 <!-- Eliminar Vehículo -->
                 <section id="eliminar" class="card shadow-sm" style="display:none;">
                     <div class="card-body">

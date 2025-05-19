@@ -8,13 +8,28 @@ window.mostrarSeccion = function(seccion) {
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
     document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
-    document.getElementById("btn-actualizar").addEventListener("click", () => mostrarSeccion('actualizar'));
+    document.getElementById("btn-actualizar").addEventListener("click", () => {
+    mostrarSeccion('actualizar');
+    cargarPlacasActualizar(); // Cargar placas al mostrar la sección
+});
     document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
 
     // Listeners para formularios
     document.getElementById("form-crear").addEventListener("submit", crearVehiculo);
     document.getElementById("form-consultar").addEventListener("submit", consultarVehiculo);
-    document.getElementById("form-buscar-actualizar").addEventListener("submit", buscarParaActualizar);
+
+    document.getElementById('placa-actualizar').addEventListener('change', async (e) => {
+    const placa = e.target.value;
+    if (!placa) return;
+
+    try {
+        const response = await fetch(`/api/vehiculos/${placa}`);
+        const vehiculo = await response.json();
+        mostrarFormularioActualizacion(vehiculo);
+    } catch (error) {
+        console.error("Error cargando vehículo:", error);
+    }
+});
     document.getElementById("form-eliminar").addEventListener("submit", eliminarVehiculo);
 });
 
@@ -94,26 +109,42 @@ async function consultarVehiculo(e) {
     }
 }
 
-// Actualizar vehículo
-async function buscarParaActualizar(e) {
-    e.preventDefault();
-    const formulario = e.target;
+// Nueva función para cargar placas al entrar a la sección
+async function cargarPlacasActualizar() {
+    try {
+        const response = await fetch('/api/vehiculos', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const vehiculos = await response.json();
+        const dropdown = document.getElementById('placa-actualizar');
+        
+        dropdown.innerHTML = '<option value="">Seleccione una placa...</option>';
+        vehiculos.forEach(v => {
+            dropdown.innerHTML += `<option value="${v.placa}">${v.placa}</option>`;
+        });
+    } catch (error) {
+        console.error("Error cargando placas:", error);
+    }
+}
+
+// Cargar datos al seleccionar placa
+async function cargarDatosVehiculo() {
+    const placa = document.getElementById('placa-actualizar').value;
     const errorDiv = document.getElementById('error-actualizar');
 
-    if (!formulario.checkValidity()) {
-        formulario.classList.add('was-validated');
+    if (!placa) {
+        errorDiv.textContent = "Selecciona una placa válida";
+        errorDiv.style.display = 'block';
         return;
     }
 
-    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
     try {
         const response = await fetch(`/api/vehiculos/${placa}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            errorDiv.textContent = `Error: ${errorData.error}`;
+            errorDiv.textContent = "Error al cargar el vehículo";
             errorDiv.style.display = 'block';
             return;
         }
@@ -122,10 +153,11 @@ async function buscarParaActualizar(e) {
         mostrarFormularioActualizacion(vehiculo);
         errorDiv.style.display = 'none';
     } catch (error) {
-        errorDiv.textContent = "Error al buscar el vehículo";
+        errorDiv.textContent = "Error de conexión";
         errorDiv.style.display = 'block';
     }
 }
+
 
 function mostrarFormularioActualizacion(vehiculo) {
     const contenedor = document.getElementById('formulario-actualizacion');
@@ -188,7 +220,7 @@ async function actualizarVehiculo(event) {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Token incluido
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
                 fecha_vencimiento_soat: nuevaFechaSOAT,

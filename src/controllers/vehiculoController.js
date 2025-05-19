@@ -99,27 +99,6 @@ exports.actualizarVehiculo = async (req, res) => {
     console.log("📤 Solicitud PUT recibida:", { placa, fecha_vencimiento_soat, fecha_vencimiento_tecnomecanica }); // ✅ Log
 
     // ================================================
-    // 1. VALIDACIONES DE FECHAS
-    // ================================================
- 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Ignorar hora
-
-    const fechaSOAT = new Date(fecha_vencimiento_soat);
-    fechaSOAT.setHours(0, 0, 0, 0);
-
-    const fechaTecno = new Date(fecha_vencimiento_tecnomecanica);
-    fechaTecno.setHours(0, 0, 0, 0);
-
-    if (fechaSOAT < hoy) {
-        return res.status(400).json({ error: "El SOAT está vencido" });
-    }
-
-    if (fechaTecno < hoy) {
-        return res.status(400).json({ error: "La Tecnomecánica está vencida" });
-    }
-
-    // ================================================
     // 2. ACTUALIZACIÓN EN BASE DE DATOS
     // ================================================
     const [result] = await pool.query(
