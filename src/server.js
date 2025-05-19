@@ -1,14 +1,14 @@
-process.on('SIGTERM', () => {
-  console.log('⚠️ Recibida señal SIGTERM. Cerrando servidor...');
-  server.close(() => {
-    console.log('Servidor cerrado exitosamente');
-    process.exit(0);
-  });
-});
-
+// ================================================
+// MANEJO DE ERRORES GLOBALES
+// ================================================
 process.on('unhandledRejection', (err) => {
   console.error('⚠️ Promesa rechazada no manejada:', err);
-  process.exit(1); // Termina el proceso con error
+  server.close(() => process.exit(1)); // Cierra el servidor y termina el proceso
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Error no capturado:', err);
+  server.close(() => process.exit(1));
 });
 
 process.on('unhandledRejection', (err) => {
@@ -109,7 +109,10 @@ rutasPublicas.forEach(ruta => {
 // 4.1 HEALTH CHECK (Nuevo código)
 // ================================================
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date() });
+  res.status(200).json({ 
+    status: 'active', 
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // -- Rutas protegidas --
