@@ -8,6 +8,8 @@ window.mostrarSeccion = function(seccion) {
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
     document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
+    document.getElementById("btn-recargar").addEventListener("click", cargarDocumentosActualizar);
+
     document.getElementById("btn-actualizar").addEventListener("click", () => {
         mostrarSeccion('actualizar');
         cargarDocumentosActualizar();
@@ -153,20 +155,23 @@ async function cargarDocumentosActualizar() {
         const response = await fetch('/api/conductores', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
+        
+        if (!response.ok) throw new Error('Error cargando documentos');
+        
         const conductores = await response.json();
         const dropdown = document.getElementById('documento-actualizar');
         
         dropdown.innerHTML = '<option value="">Seleccione un documento...</option>';
         conductores.forEach(conductor => {
-            if (conductor.numero_documento) {
-                const option = document.createElement('option');
-                option.value = conductor.numero_documento;
-                option.textContent = conductor.numero_documento;
-                dropdown.appendChild(option);
-            }
+            const option = document.createElement('option');
+            option.value = conductor.numero_documento;
+            option.textContent = conductor.numero_documento;
+            dropdown.appendChild(option);
         });
+        
     } catch (error) {
-        mostrarNotificacion('Error cargando documentos: ' + error.message, 'danger');
+        mostrarNotificacion(`Error: ${error.message}`, 'danger');
+        console.error("Error carga documentos:", error);
     }
 }
 
