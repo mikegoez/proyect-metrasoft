@@ -21,23 +21,32 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("form-consultar").addEventListener("submit", consultarConductor);
     document.getElementById("form-eliminar").addEventListener("submit", eliminarConductor);
 
-    document.getElementById('documento-actualizar').addEventListener('change', async (e) => {
-        const documento = e.target.value;
-        if (!documento) return;
 
-        try {
-            const response = await fetch(`/api/conductores/${documento}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-            
-            if (!response.ok) throw new Error('Error cargando conductor');
-            
-            const conductor = await response.json();
-            mostrarFormularioActualizacion(conductor);
-        } catch (error) {
-            mostrarNotificacion(error.message, 'danger');
-        }
-    });
+    document.getElementById('documento-actualizar').addEventListener('change', async (e) => {
+    const documento = e.target.value.trim();
+    
+    if (!documento || documento === "") {
+        mostrarNotificacion("Selecciona un documento válido", "warning");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/conductores/${documento}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        
+        const conductor = await response.json();
+        mostrarFormularioActualizacion(conductor);
+        
+    } catch (error) {
+        mostrarNotificacion(`Error: ${error.message}`, "danger");
+        console.error("Detalle error:", error);
+    }
+});
+
+
 });
 
 // Crear conductor
@@ -162,7 +171,12 @@ async function cargarDocumentosActualizar() {
         const dropdown = document.getElementById('documento-actualizar');
         
         dropdown.innerHTML = '<option value="">Seleccione un documento...</option>';
+
         conductores.forEach(conductor => {
+            if (!conductor.numero_documento) {
+                console.warn("Conductor sin documento:", conductor);
+                return;
+            }
             const option = document.createElement('option');
             option.value = conductor.numero_documento;
             option.textContent = conductor.numero_documento;

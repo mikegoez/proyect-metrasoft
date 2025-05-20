@@ -54,11 +54,6 @@ exports.obtenerConductores = async (req, res) => {
 exports.obtenerConductor = async (req, res) => {
     try {
         const { numero_documento } = req.params;
-        
-        // Validación clave 1: Documento no proporcionado
-        if (!numero_documento || numero_documento === "undefined") {
-            return res.status(400).json({ error: "Debe proporcionar un número de documento válido" });
-        }
 
         const [conductor] = await pool.query(
             "SELECT * FROM conductores WHERE numero_documento = ?", 
