@@ -139,25 +139,26 @@
                 </section>
 
 <!-----actualizar conductor -->
+            
                 <section id="actualizar" class="card shadow-sm mb-4" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-pencil-square"></i> Actualizar Conductor</h2>
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <select class="form-select" id="documento-actualizar" required>
-                                    <option value="">Seleccione un opcion...</option>
+                                    <option value="">Seleccione un documento...</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="cargarDatosConductor()">
-                                    <i class="bi bi-search"></i> Cargar
+                                <button class="btn btn-primary w-100" onclick="cargarDocumentosActualizar()">
+                                    <i class="bi bi-arrow-clockwise"></i> Recargar
                                 </button>
                             </div>
                         </div>
-                        <div class="alert alert-danger mt-3" id="error-actualizar" style="display: none;"></div>
                         <div id="formulario-actualizacion" class="mt-4" style="display:none;"></div>
                     </div>
                 </section>
+
 <!----eliminar conductor -->
                 <section id="eliminar" class="card shadow-sm" style="display:none;">
                     <div class="card-body">
