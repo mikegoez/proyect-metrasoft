@@ -192,57 +192,6 @@ function mostrarFormularioActualizacion(vehiculo) {
     contenedor.style.display = 'block';
 }
 
-async function actualizarVehiculo(event) {
-    event.preventDefault();
-    const placa = document.getElementById('placa-actualizar').value.trim().toUpperCase();
-    const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
-    const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
-    const errorDiv = document.getElementById('error-actualizar');
-
-    // Validar token
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert("Error: No hay token de autenticación. Inicia sesión nuevamente.");
-        window.location.href = '/HTML/login.html';
-        return;
-    }
-
-    try {
-        const response = await fetch(`/api/vehiculos/${placa}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // ✅ Enviar token
-            },
-            body: JSON.stringify({
-                fecha_vencimiento_soat: nuevaFechaSOAT,
-                fecha_vencimiento_tecnomecanica: nuevaFechaTecno
-            })
-        });
-
-        // Manejar respuesta
-        if (response.status === 401) {
-            alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
-            localStorage.removeItem('token');
-            window.location.href = '/HTML/login.html';
-            return;
-        }
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Error al actualizar");
-        }
-
-        alert("¡Fechas actualizadas correctamente!");
-        window.location.reload();
-
-    } catch (error) {
-        console.error("Error en actualización:", error);
-        errorDiv.textContent = `Error: ${error.message}`;
-        errorDiv.style.display = 'block';
-    }
-}
-
 
 
 // Eliminar vehículo

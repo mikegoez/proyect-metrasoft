@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const vehiculoController = require('../controllers/vehiculoController');
 
+
 // Configuración de rutas RESTful para vehículos
 
 router.post('/', vehiculoController.crearVehiculo);
