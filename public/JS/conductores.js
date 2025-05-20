@@ -221,11 +221,21 @@ function mostrarFormularioActualizacion(conductor) {
     contenedor.style.display = 'block';
 }
 
+// Función de actualización (NUEVO - clave del cambio)
 async function actualizarConductor(e) {
     e.preventDefault();
+    const form = e.target;
+    
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+
     const documento = document.getElementById('documento-actualizar').value;
-    const nuevaFechaLicencia = document.getElementById('nueva-fecha-licencia').value;
-    const nuevoTelefono = document.getElementById('nuevo-telefono').value;
+    const nuevosDatos = {
+        fecha_vencimiento_licencia: document.getElementById('nueva-fecha-licencia').value,
+        telefono: document.getElementById('nuevo-telefono').value
+    };
 
     try {
         const response = await fetch(`/api/conductores/${documento}`, {
@@ -234,25 +244,24 @@ async function actualizarConductor(e) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify({
-                fecha_vencimiento_licencia: nuevaFechaLicencia,
-                telefono: nuevoTelefono
-            })
+            body: JSON.stringify(nuevosDatos)
         });
 
         const data = await response.json();
         
         if (response.ok) {
-            mostrarNotificacion('📅 Datos actualizados correctamente!', 'success');
+            mostrarNotificacion('✅ Conductor actualizado correctamente', 'success');
+            form.reset();
             document.getElementById('formulario-actualizacion').style.display = 'none';
         } else {
-            mostrarNotificacion(`⚠️ ${data.error}`, 'danger');
+            throw new Error(data.error || 'Error al actualizar');
         }
     } catch (error) {
-        mostrarNotificacion('🔥 Error de conexión', 'danger');
-        console.error("Error en actualización:", error);
+        mostrarNotificacion(`⚠️ ${error.message}`, 'danger');
     }
 }
+
+
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
     const notificacion = document.createElement('div');

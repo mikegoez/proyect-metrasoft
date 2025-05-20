@@ -76,48 +76,59 @@ exports.obtenerConductor = async (req, res) => {
 };
 
 // Controlador para actualizar conductor
+// Mejorar el controlador de actualización
 exports.actualizarConductor = async (req, res) => {
     try {
         const { numero_documento } = req.params;
-        
-        // Validación clave 2: Documento inválido
-        if (!numero_documento || numero_documento === "undefined") {
-            return res.status(400).json({ error: "Documento inválido para actualización" });
+        const { fecha_vencimiento_licencia, telefono } = req.body;
+
+        if (!numero_documento) {
+            return res.status(400).json({ error: "Documento requerido" });
         }
 
-        const { fecha_vencimiento_licencia, telefono } = req.body;
-        
         if (new Date(fecha_vencimiento_licencia) < new Date()) {
             return res.status(400).json({ error: "La licencia está vencida" });
         }
 
-        const [conductorExistente] = await pool.query(
-            "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
-            [numero_documento]
+        const [result] = await pool.query(
+            `UPDATE conductores SET
+                fecha_vencimiento_licencia = ?,
+                telefono = ?
+            WHERE numero_documento = ?`,
+            [fecha_vencimiento_licencia, telefono, numero_documento]
         );
 
-        if (!conductorExistente.length) {
+        if (result.affectedRows === 0) {
             return res.status(404).json({ error: "Conductor no encontrado" });
         }
 
-        await pool.query(
-            `UPDATE conductores
-            SET fecha_vencimiento_licencia = ?,
-                telefono = ? 
-            WHERE numero_documento = ?`,
-            [fecha_vencimiento_licencia, telefono, numero_documento]
+        // Obtener ID para notificación
+        const [conductor] = await pool.query(
+            "SELECT id_conductor FROM conductores WHERE numero_documento = ?",
+            [numero_documento]
         );
 
         await crearNotificacion(
             'actualizacion',
             `Conductor ${numero_documento} actualizado`,
-            conductorExistente[0].id_conductor,
+            conductor[0].id_conductor,
             'conductor'
         );
 
-        res.json({ success: true });
+        res.json({ 
+            success: true,
+            nuevos_valores: {
+                licencia: fecha_vencimiento_licencia,
+                telefono: telefono
+            }
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error en actualización:", error);
+        res.status(500).json({ 
+            error: "Error interno del servidor",
+            detalle: process.env.NODE_ENV === 'development' ? error.message : null
+        });
     }
 };
 

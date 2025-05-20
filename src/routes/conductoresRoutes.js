@@ -7,7 +7,7 @@ const conductorController = require('../controllers/conductorController');
 router.post('/', conductorController.crearConductor);
 router.get('/:numero_documento', conductorController.obtenerConductor);
 router.get('/', conductorController.obtenerConductores);
-router.put('/:numero_documento', conductorController.actualizarConductor);
+router.put("/:numero_documento", conductorController.actualizarConductor);
 router.delete('/:numero_documento', conductorController.eliminarConductor);
 
 
