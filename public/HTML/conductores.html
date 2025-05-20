@@ -43,16 +43,17 @@
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="list-group">
-                            <button class="list-group-item list-group-item-action active" onclick="mostrarSeccion('crear')">
+                            <button class="list-group-item list-group-item-action active" id="btn-crear">
                                 <i class="bi bi-person-plus"></i> Crear Conductor
                             </button>
-                            <button class="list-group-item list-group-item-action" onclick="mostrarSeccion('consultar')">
+                            <button class="list-group-item list-group-item-action active" 
+                            id="btn-consultar">
                                 <i class="bi bi-search"></i> Consultar
                             </button>
-                            <button class="list-group-item list-group-item-action" onclick="mostrarSeccion('actualizar')">
+                            <button class="list-group-item list-group-item-action" id="btn-actualizar">
                                 <i class="bi bi-pencil-square"></i> Actualizar
                             </button>
-                            <button class="list-group-item list-group-item-action" onclick="mostrarSeccion('eliminar')">
+                            <button class="list-group-item list-group-item-action" id="btn-eliminar">
                                 <i class="bi bi-trash"></i> Eliminar
                             </button>
                         </div>
@@ -115,16 +116,23 @@
                 <section id="consultar" class="card shadow-sm mb-4" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-search"></i> Consultar Conductor</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="documento-consultar" 
-                                       placeholder="Número de documento" pattern="[A-Za-z0-9]{8,20}">
+                        <form id="form-consultar" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="documento-consultar" 
+                                            placeholder="Número de documento" pattern="[A-Za-z0-9]{8,20}" required>
+                                    <div class="invalid-feedback">
+                                        Ingresa un numero de documento valido  (Ejemplo: 1234567890).
+                                    </div>
+                                </div>     
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary w-100" type="submit">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="consultarConductor()">
-                                    <i class="bi bi-search"></i> Buscar
-                                </button>
-                            </div>
+                        </form>
+                        <div class="alert alert-danger mt-3" id="error-consultar" style="display: none;"></div>
                         </div>
                         <div id="resultado-consultar" class="mt-4" style="display:none;"></div>
                     </div>
@@ -136,34 +144,41 @@
                         <h2 class="mb-4"><i class="bi bi-pencil-square"></i> Actualizar Conductor</h2>
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="documento-actualizar" 
-                                       placeholder="Número de documento" pattern="[A-Za-z0-9]{8,20}">
+                                <select class="form-select" id="documento-actualizar" required>
+                                    <option value="">Seleccione un opcion...</option>
+                                </select>
                             </div>
                             <div class="col-md-4">
-                                <button class="btn btn-primary w-100" onclick="buscarParaActualizar()">
-                                    <i class="bi bi-search"></i> Buscar
+                                <button class="btn btn-primary w-100" onclick="cargarDatosConductor()">
+                                    <i class="bi bi-search"></i> Cargar
                                 </button>
                             </div>
                         </div>
+                        <div class="alert alert-danger mt-3" id="error-actualizar" style="display: none;"></div>
                         <div id="formulario-actualizacion" class="mt-4" style="display:none;"></div>
                     </div>
                 </section>
-
 <!----eliminar conductor -->
                 <section id="eliminar" class="card shadow-sm" style="display:none;">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Conductor</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="documento-eliminar" 
-                                       placeholder="Número de documento" pattern="[A-Za-z0-9]{8,20}">
+                        <form id="form-eliminar" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" id="documento-eliminar" 
+                                            placeholder="Número de documento" pattern="[A-Za-z0-9]{8,20}" required>
+                                    </div class="invalid-feedback">
+                                        Ingresa un numero de documento.
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger w-100" type="submit">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-danger w-100" onclick="eliminarConductor()">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </div>
-                        </div>
+                        </form>
+                        <div class="alert alert-danger mt-3" id="error-eliminar" style="display: nome;"></div>
                     </div>
                 </section>
             </div>
@@ -172,13 +187,6 @@
 
 <!----scripts -->
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-    // para obtener la fecha actual en formato YYYY-MM-DD
-        const fechaActual = new Date().toISOString().split('T')[0];
-      
-    // para establecer la fecha mínima en el input
-        document.getElementById('fecha-licencia').min = fechaActual;
-    </script>
     <script src="/JS/conductores.js"></script>
 </body>
 </html>

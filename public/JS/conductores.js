@@ -1,14 +1,45 @@
-//mostrar y ocultar secciones
-function mostrarSeccion(seccion) {
-    //ocultar todas las secciones 
+// Funciones globales (ya deberían estar declaradas)
+window.mostrarSeccion = function(seccion) {
     document.querySelectorAll('section').forEach(s => s.style.display = 'none');
     document.getElementById(seccion).style.display = 'block';
-}
+};
 
-//crear conductor
-document.getElementById('form-crear').addEventListener('submit', async (e) => {
+// Mapeo de botones a secciones
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
+    document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
+    document.getElementById("btn-actualizar").addEventListener("click", () => {
+        mostrarSeccion('actualizar');
+        cargarDocumentosActualizar();
+    });
+    document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));   
+
+    document.getElementById("form-crear").addEventListener('submit', crearConductor);
+    document.getElementById("form-consultar").addEventListener("submit", consultarConductor);
+    document.getElementById("form-eliminar").addEventListener("submit", eliminarConductor);
+
+    document.getElementById('documento-actualizar').addEventListener('change', async (e) => {
+        const documento = e.target.value;
+        if (!documento) return;
+
+        try {
+            const response = await fetch(`/api/conductores/${documento}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            
+            if (!response.ok) throw new Error('Error cargando conductor');
+            
+            const conductor = await response.json();
+            mostrarFormularioActualizacion(conductor);
+        } catch (error) {
+            mostrarNotificacion(error.message, 'danger');
+        }
+    });
+});
+
+// Crear conductor
+async function crearConductor(e) {
     e.preventDefault();
-    // recopilacion de deatos del formulario
     const formData = {
         tipo_documento: e.target.tipo_documento.value,
         numero_documento: e.target.numero_documento.value,
@@ -20,144 +51,217 @@ document.getElementById('form-crear').addEventListener('submit', async (e) => {
     };
 
     try {
-        //enviar datos al backend
         const response = await fetch('/api/conductores', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify(formData)
         });
 
+        const data = await response.json();
+        
         if (response.ok) {
-            alert("¡Conductor registrado!");
-            e.target.reset();  // limpia el formulario
+            mostrarNotificacion('🚗 Conductor registrado exitosamente!', 'success');
+            e.target.reset();
         } else {
-            // lee el error del servidor
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
+            mostrarNotificacion(`❌ Error: ${data.error}`, 'danger');
         }
-    } catch (error) { // captura errores de red
-        alert("Error de conexión");
+    } catch (error) {
+        mostrarNotificacion('🔥 Error de conexión', 'danger');
     }
-});
+}
 
-//consultar conductor
-async function consultarConductor() {
-    // obtiene y limpia el numero de documento ingreado
-    const documento = document.getElementById('documento-consultar').value.trim();
-    if (!documento) return alert("Ingrese un número de documento"); //validacion basica
+// Consultar conductor
+async function consultarConductor(e) {
+    e.preventDefault();
+    const formulario = e.target;
+    const errorDiv = document.getElementById('error-consultar');
 
+    if (!formulario.checkValidity()) {
+        formulario.classList.add('was-validated');
+        return;
+    }
+
+    const documento = document.getElementById('documento-consultar').value.trim().toUpperCase();
     try {
-        //obtener datos el conductor
-        const response = await fetch(`/api/conductores/${documento}`);
-        if (!response.ok) throw new Error("Conductor no encontrado");
-        //mostrar resultados
+        const response = await fetch(`/api/conductores/${documento}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error en la consulta");
+        }
+
         const conductor = await response.json();
         const resultado = document.getElementById('resultado-consultar');
         resultado.innerHTML = `
             <div class="alert alert-success">
                 <p>Documento: ${conductor.numero_documento}</p>
                 <p>Nombre: ${conductor.nombres} ${conductor.apellidos}</p>
+                <p>Teléfono: ${conductor.telefono}</p>
                 <p>Licencia vence: ${conductor.fecha_vencimiento_licencia}</p>
             </div>
         `;
-        resultado.style.display = 'block'; // Muestra el contenedor de resultados
+        resultado.style.display = 'block';
+        errorDiv.style.display = 'none';
     } catch (error) {
-        alert(error.message);
+        mostrarNotificacion(`⚠️ ${error.message}`, 'danger');
     }
 }
 
-//actualizar conductor
-async function buscarParaActualizar() {
-    //obtiene y valida documento
-    const documento = document.getElementById('documento-actualizar').value.trim();
-    if (!documento) return alert("Ingrese un documento");
+// Eliminar conductor
+async function eliminarConductor(e) {
+    e.preventDefault();
+    const formulario = e.target;
+    const errorDiv = document.getElementById('error-eliminar');
+
+    if (!formulario.checkValidity()) {
+        formulario.classList.add('was-validated');
+        return;
+    }
+
+    const documento = document.getElementById('documento-eliminar').value.trim().toUpperCase();
+    if (!confirm(`¿Eliminar conductor ${documento} permanentemente?`)) return;
 
     try {
-        // para buscar conductor para actulizar 
-        const response = await fetch(`/api/conductores/${documento}`);
-        if (!response.ok) throw new Error("Conductor no encontrado");
-        // para mostar formulario de actualizacion
-        const conductor = await response.json();
-        mostrarFormularioActualizacion(conductor);
+        const response = await fetch(`/api/conductores/${documento}`, { 
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error al eliminar");
+        }
+
+        mostrarNotificacion('🗑️ Conductor eliminado correctamente', 'success');
+        document.getElementById('documento-eliminar').value = '';
+        errorDiv.style.display = 'none';
     } catch (error) {
-        alert(error.message);
+        mostrarNotificacion(`⚠️ ${error.message}`, 'danger');
+        errorDiv.style.display = 'block';
+    }
+}
+
+// Funciones auxiliares
+async function cargarDocumentosActualizar() {
+    try {
+        const response = await fetch('/api/conductores', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const conductores = await response.json();
+        const dropdown = document.getElementById('documento-actualizar');
+        
+        dropdown.innerHTML = '<option value="">Seleccione un documento...</option>';
+        conductores.forEach(v => {
+            dropdown.innerHTML += `<option value="${v.numero_documento}">${v.numero_documento}</option>`;
+        });
+    } catch (error) {
+        mostrarNotificacion('Error cargando documentos', 'danger');
     }
 }
 
 function mostrarFormularioActualizacion(conductor) {
-    // genera el formulario de actualización con los valores actuales
     const contenedor = document.getElementById('formulario-actualizacion');
+    const fechaLicencia = new Date(conductor.fecha_vencimiento_licencia).toISOString().split('T')[0];
+
     contenedor.innerHTML = `
-        <form onsubmit="actualizarConductor(event)">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label>Nueva fecha licencia</label>
-                    <input type="date" class="form-control" id="nueva-fecha-licencia" 
-                           value="${conductor.fecha_vencimiento_licencia}" required>
+        <form id="form-actualizar" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-6">
+                <label class="form-label">Nueva fecha licencia</label>
+                <input type="date" 
+                       class="form-control" 
+                       id="nueva-fecha-licencia" 
+                       value="${fechaLicencia}" 
+                       required>
+                <div class="invalid-feedback">
+                    Fecha de licencia obligatoria
                 </div>
-                <div class="col-md-6">
-                    <label>Nuevo teléfono</label>
-                    <input type="tel" class="form-control" id="nuevo-telefono" 
-                           value="${conductor.telefono}" pattern="[0-9]{10}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nuevo teléfono</label>
+                <input type="tel" 
+                       class="form-control" 
+                       id="nuevo-telefono" 
+                       value="${conductor.telefono}" 
+                       pattern="[0-9]{10}" 
+                       required>
+                <div class="invalid-feedback">
+                    Teléfono válido de 10 dígitos
                 </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-save"></i> Guardar cambios
-                    </button>
-                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-save"></i> Guardar cambios
+                </button>
             </div>
         </form>
     `;
-    contenedor.style.display = 'block'; //mujestra formulario
+
+    const form = document.getElementById('form-actualizar');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        actualizarConductor(e);
+    });
+    
+    contenedor.style.display = 'block';
 }
 
-async function actualizarConductor(event) {
-    event.preventDefault(); // Previene el envío tradicional del formulario
-    // Obtiene los valores actualizados
+async function actualizarConductor(e) {
+    e.preventDefault();
     const documento = document.getElementById('documento-actualizar').value;
     const nuevaFechaLicencia = document.getElementById('nueva-fecha-licencia').value;
     const nuevoTelefono = document.getElementById('nuevo-telefono').value;
 
     try {
-        //envia actualizacion al servidor
         const response = await fetch(`/api/conductores/${documento}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify({
                 fecha_vencimiento_licencia: nuevaFechaLicencia,
                 telefono: nuevoTelefono
             })
         });
 
+        const data = await response.json();
+        
         if (response.ok) {
-            alert("¡Conductor actualizado!");
+            mostrarNotificacion('📅 Datos actualizados correctamente!', 'success');
             document.getElementById('formulario-actualizacion').style.display = 'none';
-            //oculta formulario
+        } else {
+            mostrarNotificacion(`⚠️ ${data.error}`, 'danger');
         }
     } catch (error) {
-        alert("Error al actualizar");
+        mostrarNotificacion('🔥 Error de conexión', 'danger');
+        console.error("Error en actualización:", error);
     }
 }
 
-// eliminar conductor
-async function eliminarConductor() {
-    // Obtiene y valida documento
-    const documento = document.getElementById('documento-eliminar').value.trim();
-    if (!documento) return alert("Ingrese un documento");
-    // confirmacion de seguridad
-    if (!confirm(`¿Eliminar conductor ${documento} permanentemente?`)) return;
-
-    try {
-        // envia la solicitud de eliminacion
-        const response = await fetch(`/api/conductores/${documento}`, { 
-            method: 'DELETE' 
-        });
-
-        if (response.ok) {
-            alert("Conductor eliminado");
-            document.getElementById('documento-eliminar').value = ''; //limpia campo
-        }
-    } catch (error) {
-        alert("Error al eliminar");
-    }
+// Función de notificaciones (asegúrate de tenerla)
+function mostrarNotificacion(mensaje, tipo = 'success') {
+    const notificacion = document.createElement('div');
+    notificacion.className = `alert alert-${tipo} alert-dismissible fade show mtr-notification`;
+    notificacion.role = 'alert';
+    notificacion.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.prepend(notificacion);
+    
+    setTimeout(() => {
+        notificacion.classList.remove('show');
+        setTimeout(() => notificacion.remove(), 150);
+    }, 3000);
 }

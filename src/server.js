@@ -137,10 +137,12 @@ app.get('/HTML/*', (req, res, next) => {
 // -- API Routes --
 const authRoutes = require('./routes/authRoutes');
 const vehiculosRoutes = require('./routes/vehiculosRoutes');
+const conductoresRoutes = require('./routes/conductoresRoutes');
 // ... otras rutas de API
 
 app.use("/api/auth", authRoutes);
-app.use("/api/vehiculos", vehiculosRoutes); 
+app.use("/api/vehiculos", vehiculosRoutes);
+app.use("/api/conductores", conductoresRoutes);
 // ... otros usos de rutas de API
 
 // ================================================
