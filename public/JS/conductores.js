@@ -21,12 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("form-consultar").addEventListener("submit", consultarConductor);
     document.getElementById("form-eliminar").addEventListener("submit", eliminarConductor);
 
-
     document.getElementById('documento-actualizar').addEventListener('change', async (e) => {
-    const documento = e.target.value.trim();
+    const documento = e.target.value;
     
-    if (!documento || documento === "") {
+    // Validación estricta
+    if (!documento || documento === "" || documento === "Seleccione un documento...") {
         mostrarNotificacion("Selecciona un documento válido", "warning");
+        document.getElementById('formulario-actualizacion').style.display = 'none'; // Ocultar formulario si está visible
         return;
     }
 
@@ -35,14 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        if (!response.ok) throw new Error(`Error ${response.status}`);
         
         const conductor = await response.json();
         mostrarFormularioActualizacion(conductor);
         
     } catch (error) {
         mostrarNotificacion(`Error: ${error.message}`, "danger");
-        console.error("Detalle error:", error);
+        console.error("Detalle técnico:", error);
     }
 });
 
@@ -179,7 +180,7 @@ async function cargarDocumentosActualizar() {
             }
             const option = document.createElement('option');
             option.value = conductor.numero_documento;
-            option.textContent = conductor.numero_documento;
+            option.textContent = `${conductor.numero_documento} - ${conductor.nombres} ${conductor.apellidos}`;
             dropdown.appendChild(option);
         });
         

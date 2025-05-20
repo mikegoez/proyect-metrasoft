@@ -55,6 +55,10 @@ exports.obtenerConductor = async (req, res) => {
     try {
         const { numero_documento } = req.params;
 
+        if (!numero_documento || !/^\d+$/.test(numero_documento)) {
+            return res.status(400).json({ error: "Formato de documento inválido" });
+        }
+
         const [conductor] = await pool.query(
             "SELECT * FROM conductores WHERE numero_documento = ?", 
             [numero_documento]
