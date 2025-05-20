@@ -9,28 +9,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear'));
     document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar'));
     document.getElementById("btn-actualizar").addEventListener("click", () => {
-    mostrarSeccion('actualizar');
-    cargarPlacasActualizar(); // Cargar placas al mostrar la sección
-});
+        mostrarSeccion('actualizar');
+        cargarPlacasActualizar();
+    });
     document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
 
     // Listeners para formularios
     document.getElementById("form-crear").addEventListener("submit", crearVehiculo);
     document.getElementById("form-consultar").addEventListener("submit", consultarVehiculo);
+    document.getElementById("form-eliminar").addEventListener("submit", eliminarVehiculo);
 
     document.getElementById('placa-actualizar').addEventListener('change', async (e) => {
-    const placa = e.target.value;
-    if (!placa) return;
+        const placa = e.target.value;
+        if (!placa) return;
 
-    try {
-        const response = await fetch(`/api/vehiculos/${placa}`);
-        const vehiculo = await response.json();
-        mostrarFormularioActualizacion(vehiculo);
-    } catch (error) {
-        console.error("Error cargando vehículo:", error);
-    }
-});
-    document.getElementById("form-eliminar").addEventListener("submit", eliminarVehiculo);
+        try {
+            const response = await fetch(`/api/vehiculos/${placa}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const vehiculo = await response.json();
+            mostrarFormularioActualizacion(vehiculo);
+        } catch (error) {
+            mostrarNotificacion('Error cargando vehículo', 'danger');
+        }
+    });
 });
 
 // Crear vehículo
@@ -51,19 +53,22 @@ async function crearVehiculo(e) {
     try {
         const response = await fetch('/api/vehiculos', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify(formData)
         });
 
         if (response.ok) {
-            alert("¡Vehículo creado!");
+            mostrarNotificacion('🚗 Vehículo creado exitosamente!', 'success');
             e.target.reset();
         } else {
             const error = await response.json();
-            alert(`Error: ${error.error}`);
+            mostrarNotificacion(`❌ Error: ${error.error}`, 'danger');
         }
     } catch (error) {
-        alert("Error de conexión");
+        mostrarNotificacion('🔥 Error de conexión', 'danger');
     }
 }
 
@@ -86,8 +91,7 @@ async function consultarVehiculo(e) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            errorDiv.textContent = `Error: ${errorData.error}`;
-            errorDiv.style.display = 'block';
+            mostrarNotificacion(`⚠️ ${errorData.error}`, 'danger');
             return;
         }
 
@@ -104,95 +108,43 @@ async function consultarVehiculo(e) {
         resultado.style.display = 'block';
         errorDiv.style.display = 'none';
     } catch (error) {
-        errorDiv.textContent = "Error de conexión con el servidor";
-        errorDiv.style.display = 'block';
+        mostrarNotificacion('🌐 Error de conexión con el servidor', 'danger');
     }
 }
 
-// Nueva función para cargar placas al entrar a la sección
-async function cargarPlacasActualizar() {
-    try {
-        const response = await fetch('/api/vehiculos', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        const vehiculos = await response.json();
-        const dropdown = document.getElementById('placa-actualizar');
-        
-        dropdown.innerHTML = '<option value="">Seleccione una placa...</option>';
-        vehiculos.forEach(v => {
-            dropdown.innerHTML += `<option value="${v.placa}">${v.placa}</option>`;
-        });
-    } catch (error) {
-        console.error("Error cargando placas:", error);
-    }
-}
-
-// Cargar datos al seleccionar placa
-async function cargarDatosVehiculo() {
+// Actualizar vehículo
+async function actualizarVehiculo(e) {
+    e.preventDefault();
     const placa = document.getElementById('placa-actualizar').value;
-    const errorDiv = document.getElementById('error-actualizar');
-
-    if (!placa) {
-        errorDiv.textContent = "Selecciona una placa válida";
-        errorDiv.style.display = 'block';
-        return;
-    }
+    const nuevaFechaSOAT = document.getElementById('nueva-fecha-soat').value;
+    const nuevaFechaTecno = document.getElementById('nueva-fecha-tecnomecanica').value;
 
     try {
         const response = await fetch(`/api/vehiculos/${placa}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                fecha_vencimiento_soat: nuevaFechaSOAT,
+                fecha_vencimiento_tecnomecanica: nuevaFechaTecno
+            })
         });
 
-        if (!response.ok) {
-            errorDiv.textContent = "Error al cargar el vehículo";
-            errorDiv.style.display = 'block';
-            return;
+        const data = await response.json();
+        
+        if (response.ok) {
+            mostrarNotificacion('📅 Fechas actualizadas correctamente!', 'success');
+            document.getElementById('formulario-actualizacion').style.display = 'none';
+        } else {
+            mostrarNotificacion(`⚠️ ${data.error}`, 'danger');
         }
-
-        const vehiculo = await response.json();
-        mostrarFormularioActualizacion(vehiculo);
-        errorDiv.style.display = 'none';
     } catch (error) {
-        errorDiv.textContent = "Error de conexión";
-        errorDiv.style.display = 'block';
+        mostrarNotificacion('🔥 Error de conexión', 'danger');
+        console.error("Error en actualización:", error);
     }
 }
-
-
-function mostrarFormularioActualizacion(vehiculo) {
-    const contenedor = document.getElementById('formulario-actualizacion');
-    
-    // Convertir fechas ISO a formato yyyy-MM-dd
-    const fechaSOAT = new Date(vehiculo.fecha_vencimiento_soat).toISOString().split('T')[0];
-    const fechaTecno = new Date(vehiculo.fecha_vencimiento_tecnomecanica).toISOString().split('T')[0];
-
-    contenedor.innerHTML = `
-        <form id="form-actualizar" class="needs-validation" novalidate>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label>Nueva fecha SOAT</label>
-                    <input type="date" class="form-control" id="nueva-fecha-soat" 
-                           value="${fechaSOAT}" required>
-                </div>
-                <div class="col-md-6">
-                    <label>Nueva fecha Tecnomecánica</label>
-                    <input type="date" class="form-control" id="nueva-fecha-tecnomecanica" 
-                           value="${fechaTecno}" required>
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-save"></i> Guardar cambios
-                    </button>
-                </div>
-            </div>
-        </form>
-    `;
-
-    document.getElementById('form-actualizar').addEventListener('submit', actualizarVehiculo);
-    contenedor.style.display = 'block';
-}
-
-
 
 // Eliminar vehículo
 async function eliminarVehiculo(e) {
@@ -219,11 +171,87 @@ async function eliminarVehiculo(e) {
             throw new Error(errorData.error || "Error al eliminar");
         }
 
-        alert("Vehículo eliminado");
+        mostrarNotificacion('🗑️ Vehículo eliminado correctamente', 'success');
         document.getElementById('placa-eliminar').value = '';
         errorDiv.style.display = 'none';
     } catch (error) {
-        errorDiv.textContent = `Error: ${error.message}`;
+        mostrarNotificacion(`⚠️ ${error.message}`, 'danger');
         errorDiv.style.display = 'block';
     }
+}
+
+// Funciones auxiliares
+async function cargarPlacasActualizar() {
+    try {
+        const response = await fetch('/api/vehiculos', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const vehiculos = await response.json();
+        const dropdown = document.getElementById('placa-actualizar');
+        
+        dropdown.innerHTML = '<option value="">Seleccione una placa...</option>';
+        vehiculos.forEach(v => {
+            dropdown.innerHTML += `<option value="${v.placa}">${v.placa}</option>`;
+        });
+    } catch (error) {
+        mostrarNotificacion('Error cargando placas', 'danger');
+    }
+}
+
+function mostrarFormularioActualizacion(vehiculo) {
+    const contenedor = document.getElementById('formulario-actualizacion');
+    const fechaSOAT = new Date(vehiculo.fecha_vencimiento_soat).toISOString().split('T')[0];
+    const fechaTecno = new Date(vehiculo.fecha_vencimiento_tecnomecanica).toISOString().split('T')[0];
+
+    contenedor.innerHTML = `
+        <form id="form-actualizar" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-6">
+                <label class="form-label">Nueva fecha SOAT</label>
+                <input type="date" class="form-control" id="nueva-fecha-soat" 
+                       value="${fechaSOAT}" required>
+                <div class="invalid-feedback">Fecha SOAT obligatoria</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nueva fecha Tecnomecánica</label>
+                <input type="date" class="form-control" id="nueva-fecha-tecnomecanica" 
+                       value="${fechaTecno}" required>
+                <div class="invalid-feedback">Fecha Tecnomecánica obligatoria</div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-save"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    `;
+
+    const form = document.getElementById('form-actualizar');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return;
+        }
+        actualizarVehiculo(e);
+    });
+    
+    contenedor.style.display = 'block';
+}
+
+function mostrarNotificacion(mensaje, tipo = 'success') {
+    const notificacion = document.createElement('div');
+    notificacion.className = `alert alert-${tipo} alert-dismissible fade show mtr-notification`;
+    notificacion.role = 'alert';
+    notificacion.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.prepend(notificacion);
+    
+    setTimeout(() => {
+        notificacion.classList.remove('show');
+        setTimeout(() => notificacion.remove(), 150);
+    }, 3000);
 }
