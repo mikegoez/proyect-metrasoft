@@ -1,6 +1,6 @@
-// Funciones globales (ya deberían estar declaradas)
+// Funciones globales
 window.mostrarSeccion = function(seccion) {
-    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
     document.getElementById(seccion).style.display = 'block';
 };
 
@@ -12,40 +12,31 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarSeccion('actualizar');
         cargarDocumentosActualizar();
     });
-    document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));   
+    document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));
 
-    document.getElementById("form-crear").addEventListener('submit', crearConductor);
+    // Listeners para formularios
+    document.getElementById("form-crear").addEventListener("submit", crearConductor);
     document.getElementById("form-consultar").addEventListener("submit", consultarConductor);
     document.getElementById("form-eliminar").addEventListener("submit", eliminarConductor);
 
     document.getElementById('documento-actualizar').addEventListener('change', async (e) => {
-    const documento = e.target.value;
-    
-    // Validar que el documento no esté vacío
-    if (!documento || documento === "undefined") {
-        mostrarNotificacion('Seleccione un documento válido', 'warning');
-        return;
-    }
+        const documento = e.target.value;
+        if (!documento) return;
 
-    try {
-        const response = await fetch(`/api/conductores/${documento}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al cargar conductor');
+        try {
+            const response = await fetch(`/api/conductores/${documento}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            
+            if (!response.ok) throw new Error('Error cargando conductor');
+            
+            const conductor = await response.json();
+            mostrarFormularioActualizacion(conductor);
+        } catch (error) {
+            mostrarNotificacion(error.message, 'danger');
         }
-        
-        const conductor = await response.json();
-        mostrarFormularioActualizacion(conductor);
-    } catch (error) {
-        mostrarNotificacion(error.message, 'danger');
-        console.error("Detalle del error:", error);
-    }
     });
 });
-
 
 // Crear conductor
 async function crearConductor(e) {
@@ -166,8 +157,6 @@ async function cargarDocumentosActualizar() {
         const dropdown = document.getElementById('documento-actualizar');
         
         dropdown.innerHTML = '<option value="">Seleccione un documento...</option>';
-
-                // Validar y agregar opciones
         conductores.forEach(conductor => {
             if (conductor.numero_documento) {
                 const option = document.createElement('option');
@@ -180,10 +169,6 @@ async function cargarDocumentosActualizar() {
         mostrarNotificacion('Error cargando documentos: ' + error.message, 'danger');
     }
 }
-
-
-
-  
 
 function mostrarFormularioActualizacion(conductor) {
     const contenedor = document.getElementById('formulario-actualizacion');
@@ -269,7 +254,6 @@ async function actualizarConductor(e) {
     }
 }
 
-// Función de notificaciones (asegúrate de tenerla)
 function mostrarNotificacion(mensaje, tipo = 'success') {
     const notificacion = document.createElement('div');
     notificacion.className = `alert alert-${tipo} alert-dismissible fade show mtr-notification`;
