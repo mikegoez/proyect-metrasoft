@@ -132,7 +132,96 @@ async function eliminarConductor(e) {
     }
 }
 
+// conductores.js - Agregar después de las otras funciones
 
+async function cargarDocumentosActualizar() {
+    try {
+        const response = await fetch('/api/conductores', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const conductores = await response.json();
+        
+        const select = document.getElementById('documento-actualizar');
+        select.innerHTML = '<option value="">Seleccione un documento...</option>';
+        
+        conductores.forEach(conductor => {
+            const option = document.createElement('option');
+            option.value = conductor.id_conductor; // Usar numero_documento en lugar de id si prefieres
+            option.textContent = `${conductor.nombres} ${conductor.apellidos} - ${conductor.numero_documento}`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        mostrarNotificacion('Error cargando conductores', 'danger');
+    }
+}
+
+async function cargarDatosActualizar() {
+    const select = document.getElementById('documento-actualizar');
+    const idConductor = select.value;
+    
+    if (!idConductor) {
+        document.getElementById('formulario-actualizacion').style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/conductores/${idConductor}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const conductor = await response.json();
+        
+        const formulario = `
+            <form id="form-actualizar" class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Nueva fecha de vencimiento</label>
+                    <input type="date" class="form-control" id="fecha-actualizar" 
+                           value="${conductor.fecha_vencimiento_licencia}" required>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-save"></i> Actualizar
+                    </button>
+                </div>
+            </form>
+        `;
+        
+        const contenedor = document.getElementById('formulario-actualizacion');
+        contenedor.innerHTML = formulario;
+        contenedor.style.display = 'block';
+        
+        document.getElementById('form-actualizar').addEventListener('submit', actualizarConductor);
+    } catch (error) {
+        mostrarNotificacion('Error cargando datos', 'danger');
+    }
+}
+
+async function actualizarConductor(e) {
+    e.preventDefault();
+    const idConductor = document.getElementById('documento-actualizar').value;
+    const nuevaFecha = document.getElementById('fecha-actualizar').value;
+
+    try {
+        const response = await fetch(`/api/conductores/${idConductor}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ fecha_vencimiento_licencia: nuevaFecha })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            mostrarNotificacion('✅ Licencia actualizada', 'success');
+            document.getElementById('formulario-actualizacion').style.display = 'none';
+        } else {
+            mostrarNotificacion(`❌ Error: ${data.error}`, 'danger');
+        }
+    } catch (error) {
+        mostrarNotificacion('🔥 Error de conexión', 'danger');
+    }
+}
 
 // Función de notificaciones (asegúrate de tenerla)
 function mostrarNotificacion(mensaje, tipo = 'success') {

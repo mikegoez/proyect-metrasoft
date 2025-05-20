@@ -1,48 +1,54 @@
-const pool = require("../config/db");
+const pool = require("../config/db"); // Importa el pool de conexiones a la base de datos
+// Función auxiliar para crear notificaciones
 const crearNotificacion = async (tipo, mensaje, entidad_id, entidad_tipo) => {
     await pool.query(
         `INSERT INTO notificaciones 
         (tipo, mensaje, entidad_id, entidad_tipo)
         VALUES (?, ?, ?, ?)`,
-        [tipo, mensaje, entidad_id.toString(), entidad_tipo]
+        [tipo, mensaje, entidad_id.toString(), entidad_tipo] // Convierte el ID a string para compatibilidad
     );
 };
 
-// Controlador para crear conductores
+//Controlador para crear conductores
 exports.crearConductor = async (req, res) => {
     try {
-        const { tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia } = req.body;
+         // Extraer datos del cuerpo de la solicitud
+      const { tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia } = req.body;
 
+        // Validar fecha de vencimiento de la licencia
         if (new Date(fecha_vencimiento_licencia) < new Date()) {
-            return res.status(400).json({ error: "La licencia está vencida" });
+          return res.status(400).json({ error: "La licencia esta vencida" });
         }
+     // Insertar nuevo conductor en la base de datos
+    const [result] = await pool.query(
+        `INSERT INTO conductores
+        (tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia]
+     );
+     // Crear notificación de creación
+     await crearNotificacion(
+        'creacion',
+        `Conductor ${numero_documento} registrado`,
+        result.insertId, // ID del nuevo conductor
+        'conductor'
+    );
+    
 
-        const [result] = await pool.query(
-            `INSERT INTO conductores
-            (tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [tipo_documento, numero_documento, nombres, apellidos, telefono, direccion, fecha_vencimiento_licencia]
-        );
-
-        await crearNotificacion(
-            'creacion',
-            `Conductor ${numero_documento} registrado`,
-            result.insertId,
-            'conductor'
-        );
-
-        res.status(201).json({ success: true });
+     res.status(201).json({ success: true });
     } catch (error) {
+        // Manejar error de duplicidad de documento
         if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ error: "Documento ya registrado" });
+          return res.status(400).json({ error: "Placa ya registrada" });
         }
         res.status(500).json({ error: error.message });
     }
 };
 
-// Controlador para obtener lista de conductores
+// Controlador para obtener lista simplificada de conductores
 exports.obtenerConductores = async (req, res) => {
     try {
+        // Consulta para obtener datos básicos de todos los conductores
         const [conductores] = await pool.query("SELECT id_conductor, nombres, apellidos FROM conductores");
         res.json(conductores);
     } catch (error) {
@@ -50,13 +56,14 @@ exports.obtenerConductores = async (req, res) => {
     }
 };
 
-// Controlador para obtener un conductor
+// Controlador para obtener detalles completos de un conductor
 exports.obtenerConductor = async (req, res) => {
     try {
         const { numero_documento } = req.params;
-
-        if (!numero_documento || !/^\d+$/.test(numero_documento)) {
-            return res.status(400).json({ error: "Formato de documento inválido" });
+        
+        // Validar que el documento no esté vacío
+        if (!numero_documento || numero_documento === "undefined") {
+            return res.status(400).json({ error: "Documento no proporcionado" });
         }
 
         const [conductor] = await pool.query(
@@ -73,93 +80,63 @@ exports.obtenerConductor = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-// Controlador para actualizar conductor
-// Mejorar el controlador de actualización
+// Controlador para actualizar información del conductor
 exports.actualizarConductor = async (req, res) => {
     try {
-        const { numero_documento } = req.params;
-        const { fecha_vencimiento_licencia, telefono } = req.body;
-
-        if (!numero_documento) {
-            return res.status(400).json({ error: "Documento requerido" });
+        const { numero_documento} = req.params;
+        const { fecha_vencimiento_licencia} = req.body;
+        // Validar fecha de licencia
+        if (new Date( fecha_vencimiento_licencia) < new Date()) {
+            return res.status(400).json({ error: "Licencia vencida"});
         }
-
-        if (new Date(fecha_vencimiento_licencia) < new Date()) {
-            return res.status(400).json({ error: "La licencia está vencida" });
-        }
-
-        const [result] = await pool.query(
-            `UPDATE conductores SET
-                fecha_vencimiento_licencia = ?,
-                telefono = ?
-            WHERE numero_documento = ?`,
-            [fecha_vencimiento_licencia, telefono, numero_documento]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Conductor no encontrado" });
-        }
-
-        // Obtener ID para notificación
-        const [conductor] = await pool.query(
-            "SELECT id_conductor FROM conductores WHERE numero_documento = ?",
+        // Obtener ID del conductor para la notificación
+        const [conductorExistente] = await pool.query(
+            "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
             [numero_documento]
         );
-
+         // Actualizar datos del conductor
+        await pool.query(
+            `UPDATE conductores
+            SET fecha_vencimiento_licencia = ? 
+            WHERE numero_documento = ?`,
+            [fecha_vencimiento_licencia, numero_documento]
+        );
+        // Crear notificación de actualización
         await crearNotificacion(
             'actualizacion',
             `Conductor ${numero_documento} actualizado`,
-            conductor[0].id_conductor,
+            conductorExistente[0].id_conductor,
             'conductor'
         );
 
-        res.json({ 
-            success: true,
-            nuevos_valores: {
-                licencia: fecha_vencimiento_licencia,
-                telefono: telefono
-            }
-        });
-
-    } catch (error) {
-        console.error("Error en actualización:", error);
-        res.status(500).json({ 
-            error: "Error interno del servidor",
-            detalle: process.env.NODE_ENV === 'development' ? error.message : null
-        });
+        res.json({ success: true });
+    }   catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };
 
-// Controlador para eliminar conductor
+
+// Controlador para eliminar un conductor
 exports.eliminarConductor = async (req, res) => {
     try {
-        const { numero_documento } = req.params;
-        
-        // Validación adicional para eliminación
-        if (!numero_documento || numero_documento === "undefined") {
-            return res.status(400).json({ error: "Documento inválido para eliminación" });
-        }
 
+        const { numero_documento } = req.params;
+        // Obtener ID del conductor para la notificación
         const [conductor] = await pool.query(
             "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
             [numero_documento]
         );
-
-        if (!conductor.length) {
-            return res.status(404).json({ error: "Conductor no encontrado" });
-        }
-
+        // Crear notificación de eliminación antes de borrar
         await crearNotificacion(
             'eliminacion',
             `Conductor ${numero_documento} eliminado`,
             conductor[0].id_conductor,
             'conductor'
         );
-
+        // Eliminar conductor de la base de datos
         await pool.query("DELETE FROM conductores WHERE numero_documento = ?", [numero_documento]);
         res.json({ success: true });
-    } catch (error) {
+    }   catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
