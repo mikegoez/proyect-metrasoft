@@ -51,10 +51,25 @@ exports.obtenerConductores = async (req, res) => {
 };
 
 // Controlador para obtener un conductor
-exports.obtenerConductores = async (req, res) => {
+exports.obtenerConductor = async (req, res) => {
     try {
-        const [conductores] = await pool.query("SELECT id_conductor, numero_documento, nombres, apellidos FROM conductores"); // ✅ Añade numero_documento
-        res.json(conductores);
+        const { numero_documento } = req.params;
+        
+        // Validación clave 1: Documento no proporcionado
+        if (!numero_documento || numero_documento === "undefined") {
+            return res.status(400).json({ error: "Debe proporcionar un número de documento válido" });
+        }
+
+        const [conductor] = await pool.query(
+            "SELECT * FROM conductores WHERE numero_documento = ?", 
+            [numero_documento]
+        );
+        
+        if (!conductor.length) {
+            return res.status(404).json({ error: "Conductor no encontrado" });
+        }
+        
+        res.json(conductor[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
