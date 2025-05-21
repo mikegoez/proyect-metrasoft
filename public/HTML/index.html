@@ -118,36 +118,45 @@
     </div>
     <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script>
-    // ================== FUNCIÓN DE LOGOUT SIMPLIFICADA ==================
-    async function logout() {
-        try {
-            await fetch('/api/auth/logout', { 
-                method: 'POST', 
-                credentials: 'include' 
-            });
-            window.location.href = '/HTML/login.html';
-        } catch (error) {
-            console.error('Error en logout:', error);
-        }
-    }
+  // ================== FUNCIÓN DE LOGOUT ==================
+ async function logout() {
+      try {
+          await fetch('/api/auth/logout', { 
+              method: 'POST', 
+              credentials: 'include' 
+          });
+          window.location.href = '/HTML/login.html';
+      } catch (error) {
+          console.error('Error en logout:', error);
+      }
+  }
 
-    // ================== VERIFICACIÓN DE SESIÓN (SIMPLIFICADA) ==================
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const response = await fetch('/api/auth/verify', { 
-                credentials: 'include' 
-            });
-            
-            if (!response.ok) {
-                window.location.href = '/HTML/login.html';
-            } else {
-                const userData = await response.json();
-                document.getElementById('user-email').textContent = userData.user.email;
-            }
-        } catch (error) {
-            window.location.href = '/HTML/login.html';
-        }
-    });
+  // ================== VERIFICACIÓN DE SESIÓN + EVENTOS ==================
+  document.addEventListener('DOMContentLoaded', async () => {
+      try {
+          const response = await fetch('/api/auth/verify', { 
+              credentials: 'include' 
+          });
+
+          if (!response.ok) {
+              window.location.href = '/HTML/login.html';
+          } else {
+              const userData = await response.json();
+              document.getElementById('user-email').textContent = userData.user.email;
+          }
+      } catch (error) {
+          window.location.href = '/HTML/login.html';
+      }
+
+      // Evento para mostrar modal al hacer clic en "Cerrar sesión"
+      document.getElementById('logout').addEventListener('click', () => {
+          const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+          logoutModal.show();
+      });
+
+      // Evento para confirmar cierre de sesión
+      document.getElementById('confirmLogout').addEventListener('click', logout);
+  });
 </script>
     
 </body>
