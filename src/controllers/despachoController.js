@@ -71,23 +71,6 @@ exports.crearDespacho = async (req, res) => {
     }
 };
 
-
-// Controlador para obtener detalles de un despacho
-exports.obtenerDespacho = async (req, res) => {
-    try {
-        const { codigo } = req.params;
-        const [despacho] = await pool.query(
-            "SELECT * FROM despachos WHERE codigo_despacho = ?",
-            [codigo]
-        );
-        
-        if (!despacho.length) return res.status(404).json({ error: "Despacho no encontrado" });
-        res.json(despacho[0]); // Devolver primer resultado
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 // Obtener lista de todos los despachos (para dropdown)
 exports.listarDespachos = async (req, res) => {
     try {
