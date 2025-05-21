@@ -1,5 +1,12 @@
 // Cargar notificaciones al ingresar al módulo
 document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('jwt');
+    console.log('Token JWT cargado:', token);
+
+    if (!token) {
+        alert('No hay token en localStorage');
+    }
+
     cargarNotificaciones();
 
     // Asignar evento al selector de filtro
