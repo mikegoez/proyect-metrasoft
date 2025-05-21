@@ -5,23 +5,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vehiculosResponse = await fetch('/api/vehiculos');
         if (!vehiculosResponse.ok) throw new Error("Error cargando vehículos");
         const vehiculos = await vehiculosResponse.json();
-        //llenar dropdown de vehiculos 
         const vehiculoSelect = document.getElementById('vehiculo');
-        vehiculoSelect.innerHTML = vehiculos.map(v => 
+        vehiculoSelect.innerHTML = vehiculos.map(v =>
             `<option value="${v.id_vehiculo}">${v.placa}</option>`
         ).join('');
 
-        //manejar cambio de vehiculo seleccionado
         vehiculoSelect.addEventListener('change', async (e) => {
             const vehiculoId = e.target.value;
             if (!vehiculoId) return;
 
             try {
-                //obtener detalles del vehiculo
                 const response = await fetch(`/api/vehiculos/by-id/${vehiculoId}`);
                 if (!response.ok) throw new Error("Vehículo no encontrado");
                 const vehiculo = await response.json();
-                //actualizar campos relacionados 
                 document.getElementById('tipo-carga-display').value = vehiculo.tipo_carga;
                 document.getElementById('tipo-carga').value = vehiculo.tipo_carga;
                 document.getElementById('capacidad-kg-display').value = vehiculo.capacidad_kg;
@@ -35,15 +31,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // cargar lkista de conductores
         const conductoresResponse = await fetch('/api/conductores');
         if (!conductoresResponse.ok) throw new Error("Error cargando conductores");
         const conductores = await conductoresResponse.json();
-        //llenar dropdown de conductores
         const conductorSelect = document.getElementById('conductor');
-        conductorSelect.innerHTML = conductores.map(c => 
+        conductorSelect.innerHTML = conductores.map(c =>
             `<option value="${c.id_conductor}">${c.nombres} ${c.apellidos}</option>`
         ).join('');
+
+        // Listeners para navegación de secciones
+        document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear-despacho'));
+        document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar-despacho'));
+        document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar-despacho'));
+        document.getElementById("btn-buscar-despacho").addEventListener("click", buscarDespacho);
+        document.getElementById("btn-eliminar-despacho").addEventListener("click", confirmarEliminacion);
 
     } catch (error) {
         console.error("Error inicial:", error);
@@ -51,37 +52,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Función para mostrar secciones
 function mostrarSeccion(seccion) {
     document.querySelectorAll('section').forEach(s => s.style.display = 'none');
     document.getElementById(seccion).style.display = 'block';
 }
 
-// Función para generar PDF
 function generarPDF(despacho) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
-    // logo PDF
     const logoURL = '../assets/metrasofftlogo.png';
     doc.addImage(logoURL, 'PNG', 11, 11, 31, 16);
-
-    // configuracion fuentes y estilo
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(33, 37, 41);
-    // titulo del pdf
     doc.text("comprobante de despacho", 15, 40);
-
-    //subtitulos con estilo
     doc.setFontSize(12);
     doc.setTextColor(108, 117, 125);
-    doc.text("Detalles del despacho:", 15,50);
-
-    //Datos del despacho
+    doc.text("Detalles del despacho:", 15, 50);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0,);
+    doc.setTextColor(0, 0, 0);
 
     const detalles = [
         { label: "Codigo", value: despacho.codigo_despacho },
@@ -89,35 +78,28 @@ function generarPDF(despacho) {
         { label: "Conductor", value: `${despacho.nombres} ${despacho.apellidos}` },
         { label: "Tipo de carga", value: despacho.tipo_carga },
         { label: "Destino", value: despacho.destino },
-        { label: "Fecha y hora", value: `${despacho.fecha} ${despacho.hora}` },  
+        { label: "Fecha y hora", value: `${despacho.fecha} ${despacho.hora}` },
     ];
 
-    // posicion inicial para detalles
     let yPos = 60;
-
-    detalles.forEach((dato) => {
+    detalles.forEach(d => {
         doc.setFont("helvetica", "bold");
-        doc.text(`${dato.label}:`, 15, yPos);
+        doc.text(`${d.label}:`, 15, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(dato.value, 55, yPos);
+        doc.text(d.value, 55, yPos);
         yPos += 10;
     });
 
-    //linea decorativa
     doc.setDrawColor(200, 200, 200);
     doc.line(15, yPos + 5, 195, yPos + 5);
-    
     doc.save(`despacho_${despacho.codigo_despacho}.pdf`);
 }
 
-// Evento submit del formulario
 document.getElementById('form-crear-despacho').addEventListener('submit', async (e) => {
     e.preventDefault();
     const loading = document.getElementById('loading');
-    
     try {
-        loading.style.display = 'block';  // Muestra spinner de carga
-        // Recopila datos del formulario
+        loading.style.display = 'block';
         const formData = {
             vehiculo_id: document.getElementById('vehiculo').value,
             conductor_id: document.getElementById('conductor').value,
@@ -129,11 +111,10 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
             hora: document.getElementById('hora').value
         };
 
-        // Validar campos
         if (!formData.vehiculo_id || !formData.conductor_id || !formData.destino) {
             throw new Error("Todos los campos son requeridos");
         }
-        //envia datos al servidor 
+
         const response = await fetch('/api/despachos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -144,17 +125,11 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
             const errorData = await response.json();
             throw new Error(errorData.error || "Error del servidor");
         }
-        // Procesa la respuesta exitosa
+
         const despachoCreado = await response.json();
-        
-        // Actualizar campo de código
         document.getElementById('codigo-despacho').value = despachoCreado.codigo_despacho;
-        
-        // Ocultar spinner y mostrar alerta
         loading.style.display = 'none';
         alert("Despacho creado: " + despachoCreado.codigo_despacho);
-        
-        // Generar PDF automáticamente
         generarPDF(despachoCreado);
         e.target.reset();
 
@@ -164,18 +139,14 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
     }
 });
 
-// CONSULTAR DESPACHO
 async function buscarDespacho() {
     const codigo = document.getElementById('codigo-consulta').value.trim();
     if (!codigo) return alert("Ingrese un código de despacho");
-
     try {
         const response = await fetch(`/api/despachos/${codigo}`);
         if (!response.ok) throw new Error("Despacho no encontrado");
-        
         const despacho = await response.json();
         const resultado = document.getElementById('resultado-despacho');
-        
         resultado.innerHTML = `
             <div class="alert alert-success">
                 <p><strong>Código:</strong> ${despacho.codigo_despacho}</p>
@@ -186,30 +157,22 @@ async function buscarDespacho() {
             </div>
         `;
         resultado.style.display = 'block';
-
     } catch (error) {
         alert(error.message);
     }
 }
 
-
-// ELIMINAR DESPACHO
 async function confirmarEliminacion() {
     const codigo = document.getElementById('codigo-eliminar').value.trim();
     if (!codigo) return alert("Ingrese un código de despacho");
-    //confirmacion de seguridad
     if (!confirm(`¿Eliminar el despacho ${codigo} permanentemente?`)) return;
-
     try {
-        // envia la solicitud de eliminacion
-        const response = await fetch(`/api/despachos/${codigo}`, { 
-            method: 'DELETE' 
+        const response = await fetch(`/api/despachos/${codigo}`, {
+            method: 'DELETE'
         });
-        
         if (!response.ok) throw new Error("Error al eliminar");
         alert("Despacho eliminado correctamente");
         document.getElementById('resultado-eliminar').style.display = 'none';
-
     } catch (error) {
         alert(error.message);
     }

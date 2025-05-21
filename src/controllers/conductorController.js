@@ -80,7 +80,7 @@ exports.obtenerConductor = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-// ===== Controlador PUT (adaptado de vehículos) =====
+// ===== Controlador =====
 exports.actualizarConductor = async (req, res) => {
     try {
         const { numero_documento } = req.params;
@@ -146,7 +146,11 @@ exports.eliminarConductor = async (req, res) => {
         // Eliminar conductor de la base de datos
         await pool.query("DELETE FROM conductores WHERE numero_documento = ?", [numero_documento]);
         res.json({ success: true });
-    }   catch (error) {
+
+    } catch (error) {
+        if (error.code === 'ER_ROW_IS_REFERENCED') {
+            return res.status(400).json({ error: "Este registro está vinculado a un despacho y no puede eliminarse." });
+        }
         res.status(500).json({ error: error.message });
     }
 };

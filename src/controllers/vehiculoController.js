@@ -184,6 +184,9 @@ exports.eliminarVehiculo = async (req, res) => {
     
     res.json({ success: true });
   } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED') {
+        return res.status(400).json({ error: "Este registro está vinculado a un despacho y no puede eliminarse." });
+    }
     res.status(500).json({ error: error.message });
   }
 };
