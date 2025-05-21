@@ -4,19 +4,39 @@ document.addEventListener('DOMContentLoaded', cargarNotificaciones);
 async function cargarNotificaciones() {
     const container = document.getElementById('notificaciones-container');
     const tipo = document.getElementById('filtro-tipo').value;
-    // construir url segun filtro 
     const url = tipo ? `/api/notificaciones?tipo=${tipo}` : '/api/notificaciones';
 
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+        container.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-shield-lock"></i> No estás autenticado. Por favor, inicia sesión.
+            </div>
+        `;
+        return;
+    }
+
+    console.log('Token JWT:', token); // Para depurar
+
     try {
-         // obtener token de autenticación
-        const token = localStorage.getItem('jwt');
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        if (response.status === 401) {
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Sesión expirada o token inválido. Inicia sesión nuevamente.
+                </div>
+            `;
+            localStorage.removeItem('jwt');
+            setTimeout(() => window.location.href = '/login.html', 3000);
+            return;
+        }
+
         if (!response.ok) throw new Error('Error al cargar');
+
         const notificaciones = await response.json();
-        // generar HTML dinámico para notificaciones
         container.innerHTML = notificaciones.map(notif => `
             <div class="alert alert-${getAlertType(notif.tipo)} ${notif.estado === 'pendiente' ? 'alert-unread' : ''}">
                 <div class="d-flex justify-content-between align-items-start">
@@ -49,9 +69,9 @@ async function cargarNotificaciones() {
                     </div>
                 </div>
             </div>
-        `).join('');  // Convierte el array en un string HTML
-
+        `).join('');
     } catch (error) {
+        console.error('Error al cargar notificaciones:', error);
         container.innerHTML = `
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle"></i> Error al cargar notificaciones
@@ -59,6 +79,7 @@ async function cargarNotificaciones() {
         `;
     }
 }
+
 
 // Determina el tipo de alerta según el tipo de notificación
 function getAlertType(tipo) {
