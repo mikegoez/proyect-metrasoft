@@ -80,38 +80,48 @@ exports.obtenerConductor = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-// Controlador para actualizar información del conductor
+// ===== Controlador PUT (adaptado de vehículos) =====
 exports.actualizarConductor = async (req, res) => {
     try {
-        const { numero_documento} = req.params;
-        const { fecha_vencimiento_licencia} = req.body;
-        // Validar fecha de licencia
-        if (new Date( fecha_vencimiento_licencia) < new Date()) {
-            return res.status(400).json({ error: "Licencia vencida"});
+        const { numero_documento } = req.params;
+        const { fecha_vencimiento_licencia } = req.body;
+
+        // Validación de fecha
+        if (new Date(fecha_vencimiento_licencia) < new Date()) {
+            return res.status(400).json({ error: "Licencia vencida" });
         }
-        // Obtener ID del conductor para la notificación
-        const [conductorExistente] = await pool.query(
-            "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
-            [numero_documento]
-        );
-         // Actualizar datos del conductor
-        await pool.query(
-            `UPDATE conductores
+
+        // Actualización directa por documento
+        const [result] = await pool.query(
+            `UPDATE conductores 
             SET fecha_vencimiento_licencia = ? 
             WHERE numero_documento = ?`,
             [fecha_vencimiento_licencia, numero_documento]
         );
-        // Crear notificación de actualización
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Conductor no encontrado" });
+        }
+
+        // Notificación
+        const [conductor] = await pool.query(
+            "SELECT id_conductor FROM conductores WHERE numero_documento = ?",
+            [numero_documento]
+        );
+        
         await crearNotificacion(
             'actualizacion',
             `Conductor ${numero_documento} actualizado`,
-            conductorExistente[0].id_conductor,
+            conductor[0].id_conductor,
             'conductor'
         );
 
         res.json({ success: true });
-    }   catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (error) {
+        res.status(500).json({ 
+            error: "Error interno del servidor",
+            detalle: process.env.NODE_ENV === 'development' ? error.message : null
+        });
     }
 };
 

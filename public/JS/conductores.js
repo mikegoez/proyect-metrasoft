@@ -15,10 +15,17 @@ document.addEventListener("DOMContentLoaded", () => {
         cargarDocumentosActualizar();
     });
     
+    document.getElementById("btn-cargar-conductor").addEventListener("click", () => {
+    const documento = document.getElementById('documento-actualizar').value;
+    if (documento) cargarDatosActualizar(documento);
+});
+    
     document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar'));   
+
     document.getElementById("form-crear").addEventListener('submit', crearConductor);
     document.getElementById("form-consultar").addEventListener("submit", consultarConductor);
     document.getElementById("form-eliminar").addEventListener("submit", eliminarConductor);
+
 
 });
 
@@ -132,50 +139,54 @@ async function eliminarConductor(e) {
     }
 }
 
-// conductores.js - Agregar después de las otras funciones
-
-async function cargarDocumentosActualizar() {
+// ===== Cargar documentos =====
+async function cargarDatosActualizar(numeroDocumento) {
     try {
-        const response = await fetch('/api/conductores', {
+        const response = await fetch(`/api/conductores/${numeroDocumento}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        const conductores = await response.json();
         
+        if (!response.ok) {
+            document.getElementById('error-actualizar').style.display = 'block';
+            document.getElementById('error-actualizar').textContent = 'Conductor no encontrado';
+            return;
+        }
+
         const select = document.getElementById('documento-actualizar');
         select.innerHTML = '<option value="">Seleccione un documento...</option>';
         
         conductores.forEach(conductor => {
             const option = document.createElement('option');
-            option.value = conductor.id_conductor; // Usar numero_documento en lugar de id si prefieres
-            option.textContent = `${conductor.nombres} ${conductor.apellidos} - ${conductor.numero_documento}`;
+            option.value = conductor.numero_documento; // Usar documento como identificador
+            option.textContent = `${conductor.nombres} ${conductor.apellidos} (${conductor.numero_documento})`;
             select.appendChild(option);
         });
+        
     } catch (error) {
         mostrarNotificacion('Error cargando conductores', 'danger');
     }
 }
 
+// ===== Mostrar formulario =====
 async function cargarDatosActualizar() {
-    const select = document.getElementById('documento-actualizar');
-    const idConductor = select.value;
-    
-    if (!idConductor) {
-        document.getElementById('formulario-actualizacion').style.display = 'none';
-        return;
-    }
+    const numeroDocumento = document.getElementById('documento-actualizar').value;
+    if (!numeroDocumento) return;
 
     try {
-        const response = await fetch(`/api/conductores/${idConductor}`, {
+        const response = await fetch(`/api/conductores/${numeroDocumento}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         const conductor = await response.json();
         
-        const formulario = `
+        const contenedor = document.getElementById('formulario-actualizacion');
+        contenedor.innerHTML = `
             <form id="form-actualizar" class="row g-3">
                 <div class="col-md-12">
                     <label class="form-label">Nueva fecha de vencimiento</label>
-                    <input type="date" class="form-control" id="fecha-actualizar" 
-                           value="${conductor.fecha_vencimiento_licencia}" required>
+                    <input type="date" class="form-control" 
+                           id="fecha-actualizar" 
+                           value="${conductor.fecha_vencimiento_licencia}" 
+                           required>
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary w-100">
@@ -184,24 +195,21 @@ async function cargarDatosActualizar() {
                 </div>
             </form>
         `;
-        
-        const contenedor = document.getElementById('formulario-actualizacion');
-        contenedor.innerHTML = formulario;
         contenedor.style.display = 'block';
-        
         document.getElementById('form-actualizar').addEventListener('submit', actualizarConductor);
     } catch (error) {
         mostrarNotificacion('Error cargando datos', 'danger');
     }
 }
 
+// ===== Enviar actualización (como actualizarVehiculo) =====
 async function actualizarConductor(e) {
     e.preventDefault();
-    const idConductor = document.getElementById('documento-actualizar').value;
+    const numeroDocumento = document.getElementById('documento-actualizar').value;
     const nuevaFecha = document.getElementById('fecha-actualizar').value;
 
     try {
-        const response = await fetch(`/api/conductores/${idConductor}`, {
+        const response = await fetch(`/api/conductores/${numeroDocumento}`, {
             method: 'PUT',
             headers: { 
                 'Content-Type': 'application/json',
@@ -210,16 +218,16 @@ async function actualizarConductor(e) {
             body: JSON.stringify({ fecha_vencimiento_licencia: nuevaFecha })
         });
 
-        const data = await response.json();
-        
-        if (response.ok) {
-            mostrarNotificacion('✅ Licencia actualizada', 'success');
-            document.getElementById('formulario-actualizacion').style.display = 'none';
-        } else {
-            mostrarNotificacion(`❌ Error: ${data.error}`, 'danger');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error en la actualización");
         }
+
+        mostrarNotificacion('✅ Licencia actualizada', 'success');
+        document.getElementById('formulario-actualizacion').style.display = 'none';
+        cargarDocumentosActualizar(); // Recargar lista
     } catch (error) {
-        mostrarNotificacion('🔥 Error de conexión', 'danger');
+        mostrarNotificacion(`❌ ${error.message}`, 'danger');
     }
 }
 
