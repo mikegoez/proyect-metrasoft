@@ -1,42 +1,55 @@
-
 // Carga datos iniciales al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // cargar lista de vehículos disponibles
         const vehiculosResponse = await fetch('/api/vehiculos');
+        if (!vehiculosResponse.ok) throw new Error("Error cargando vehículos");
         const vehiculos = await vehiculosResponse.json();
         const vehiculoSelect = document.getElementById('vehiculo');
-        vehiculoSelect.innerHTML = vehiculos.map(v => 
-            `<option value="\${v.id_vehiculo}">\${v.placa}</option>`).join('');
+        vehiculoSelect.innerHTML = vehiculos.map(v =>
+            `<option value="${v.id_vehiculo}">${v.placa}</option>`
+        ).join('');
 
         vehiculoSelect.addEventListener('change', async (e) => {
             const vehiculoId = e.target.value;
             if (!vehiculoId) return;
-            const response = await fetch(`/api/vehiculos/by-id/\${vehiculoId}`);
-            const vehiculo = await response.json();
-            document.getElementById('tipo-carga-display').value = vehiculo.tipo_carga;
-            document.getElementById('tipo-carga').value = vehiculo.tipo_carga;
-            document.getElementById('capacidad-kg-display').value = vehiculo.capacidad_kg;
-            document.getElementById('capacidad-kg').value = vehiculo.capacidad_kg;
-            document.getElementById('capacidad-puestos-display').value = vehiculo.capacidad_puestos;
-            document.getElementById('capacidad-puestos').value = vehiculo.capacidad_puestos;
+
+            try {
+                const response = await fetch(`/api/vehiculos/by-id/${vehiculoId}`);
+                if (!response.ok) throw new Error("Vehículo no encontrado");
+                const vehiculo = await response.json();
+                document.getElementById('tipo-carga-display').value = vehiculo.tipo_carga;
+                document.getElementById('tipo-carga').value = vehiculo.tipo_carga;
+                document.getElementById('capacidad-kg-display').value = vehiculo.capacidad_kg;
+                document.getElementById('capacidad-kg').value = vehiculo.capacidad_kg;
+                document.getElementById('capacidad-puestos-display').value = vehiculo.capacidad_puestos;
+                document.getElementById('capacidad-puestos').value = vehiculo.capacidad_puestos;
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al cargar datos del vehículo");
+            }
         });
 
         const conductoresResponse = await fetch('/api/conductores');
+        if (!conductoresResponse.ok) throw new Error("Error cargando conductores");
         const conductores = await conductoresResponse.json();
         const conductorSelect = document.getElementById('conductor');
-        conductorSelect.innerHTML = conductores.map(c => 
-            `<option value="\${c.id_conductor}">\${c.nombres} \${c.apellidos}</option>`).join('');
+        conductorSelect.innerHTML = conductores.map(c =>
+            `<option value="${c.id_conductor}">${c.nombres} ${c.apellidos}</option>`
+        ).join('');
 
-        document.getElementById("btn-crear").addEventListener("click", () => {
-            mostrarSeccion('crear-despacho');
-        });
+        // Listeners para navegación de secciones
+        document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear-despacho'));
+   
 
         document.getElementById("btn-eliminar").addEventListener("click", () => {
             mostrarSeccion('eliminar-despacho');
-            cargarDespachosParaEliminar();
+            cargarDespachosParaEliminar(); //carga el listado
         });
-
+    
         document.getElementById("btn-eliminar-despacho").addEventListener("click", confirmarEliminacion);
+
     } catch (error) {
         console.error("Error inicial:", error);
         alert("Error al cargar datos iniciales");
@@ -102,11 +115,20 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
             hora: document.getElementById('hora').value
         };
 
+        if (!formData.vehiculo_id || !formData.conductor_id || !formData.destino) {
+            throw new Error("Todos los campos son requeridos");
+        }
+
         const response = await fetch('/api/despachos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error del servidor");
+        }
 
         const despachoCreado = await response.json();
         document.getElementById('codigo-despacho').value = despachoCreado.codigo_despacho;
@@ -114,6 +136,7 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
         alert("Despacho creado: " + despachoCreado.codigo_despacho);
         generarPDF(despachoCreado);
         e.target.reset();
+
     } catch (error) {
         loading.style.display = 'none';
         alert("Error: " + error.message);
@@ -123,12 +146,16 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
 async function cargarDespachosParaEliminar() {
     try {
         const response = await fetch('/api/despachos');
+        if (!response.ok) throw new Error("Error al obtener despachos");
         const despachos = await response.json();
         const selector = document.getElementById('despacho-eliminar');
+
         selector.innerHTML = '<option value="">Seleccione un despacho...</option>';
         despachos.forEach(d => {
-            selector.innerHTML += `<option value="${d.codigo_despacho}">${d.codigo_despacho} - ${d.destino} (${d.fecha})</option>`;
+            const texto = `${d.codigo_despacho} - ${d.destino} (${d.fecha})`;
+            selector.innerHTML += `<option value="${d.codigo_despacho}">${texto}</option>`;
         });
+
     } catch (error) {
         console.error("Error al cargar despachos:", error.message);
     }
@@ -137,13 +164,21 @@ async function cargarDespachosParaEliminar() {
 async function confirmarEliminacion() {
     const codigo = document.getElementById('despacho-eliminar').value;
     if (!codigo) return alert("Seleccione un despacho para eliminar");
+
     if (!confirm(`¿Eliminar el despacho ${codigo} permanentemente?`)) return;
+
     try {
-        const response = await fetch(`/api/despachos/${codigo}`, { method: 'DELETE' });
+        const response = await fetch(`/api/despachos/${codigo}`, {
+            method: 'DELETE'
+        });
         if (!response.ok) throw new Error("Error al eliminar");
+
         alert("Despacho eliminado correctamente");
-        await cargarDespachosParaEliminar();
+        document.getElementById('resultado-eliminar').style.display = 'none';
+        await cargarDespachosParaEliminar(); // Recarga el listado
+
     } catch (error) {
         alert(error.message);
     }
 }
+
