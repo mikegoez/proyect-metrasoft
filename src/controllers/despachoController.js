@@ -87,6 +87,21 @@ exports.obtenerDespacho = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Obtener lista de todos los despachos (para dropdown)
+exports.listarDespachos = async (req, res) => {
+    try {
+        const [despachos] = await pool.query(`
+            SELECT codigo_despacho, destino, fecha 
+            FROM despachos
+            ORDER BY fecha DESC
+        `);
+        res.json(despachos);
+    } catch (error) {
+        res.status(500).json({ error: "No se pudo obtener la lista de despachos" });
+    }
+};
+
 // Controlador para eliminar despacho
 exports.eliminarDespacho = async (req, res) => {
     try {

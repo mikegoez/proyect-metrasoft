@@ -44,9 +44,6 @@
                             <button class="list-group-item list-group-item-action active" id="btn-crear">
                                 <i class="bi bi-clipboard-check"></i> Crear Despacho
                             </button>
-                            <button class="list-group-item list-group-item-action" id="btn-consultar">
-                                <i class="bi bi-search"></i> Consultar
-                            </button>
                             <button class="list-group-item list-group-item-action" id="btn-eliminar">
                                 <i class="bi bi-trash"></i> Eliminar
                             </button>
@@ -116,30 +113,15 @@
                         </div>
                     </div>
                 </section>
-                <!-- sección: consultar despacho -->
-                <section id="consultar-despacho" class="card shadow-sm mb-4" style="display:none;">
-                    <div class="card-body">
-                        <h2 class="mb-4"><i class="bi bi-search"></i> Consultar Despacho</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="codigo-consulta" placeholder="Código del despacho">
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" id="btn-buscar-despacho">
-                                    <i class="bi bi-search"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
-                        <div id="resultado-despacho" class="mt-4" style="display:none;"></div>
-                    </div>
-                </section>
-                <!-- sección: eliminar despacho -->
-                <section id="eliminar-despacho" class="card shadow-sm" style="display:none;">
+ <!-- sección: eliminar despacho -->
+                <section id="eliminar-despacho" class="card shadow-sm mb-4">
                     <div class="card-body">
                         <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Despacho</h2>
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="codigo-eliminar" placeholder="Código del despacho">
+                                <select class="form-select" id="despacho-eliminar">
+                                    <option value="">Seleccione un despacho...</option>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <button class="btn btn-danger w-100" id="btn-eliminar-despacho">

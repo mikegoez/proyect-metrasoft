@@ -41,9 +41,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Listeners para navegación de secciones
         document.getElementById("btn-crear").addEventListener("click", () => mostrarSeccion('crear-despacho'));
-        document.getElementById("btn-consultar").addEventListener("click", () => mostrarSeccion('consultar-despacho'));
-        document.getElementById("btn-eliminar").addEventListener("click", () => mostrarSeccion('eliminar-despacho'));
-        document.getElementById("btn-buscar-despacho").addEventListener("click", buscarDespacho);
+   
+
+        document.getElementById("btn-eliminar").addEventListener("click", () => {
+            mostrarSeccion('eliminar-despacho');
+            cargarDespachosParaEliminar(); //carga el listado
+        });
+    
         document.getElementById("btn-eliminar-despacho").addEventListener("click", confirmarEliminacion);
 
     } catch (error) {
@@ -139,41 +143,42 @@ document.getElementById('form-crear-despacho').addEventListener('submit', async 
     }
 });
 
-async function buscarDespacho() {
-    const codigo = document.getElementById('codigo-consulta').value.trim();
-    if (!codigo) return alert("Ingrese un código de despacho");
+async function cargarDespachosParaEliminar() {
     try {
-        const response = await fetch(`/api/despachos/${codigo}`);
-        if (!response.ok) throw new Error("Despacho no encontrado");
-        const despacho = await response.json();
-        const resultado = document.getElementById('resultado-despacho');
-        resultado.innerHTML = `
-            <div class="alert alert-success">
-                <p><strong>Código:</strong> ${despacho.codigo_despacho}</p>
-                <p><strong>Vehículo:</strong> ${despacho.vehiculo_id}</p>
-                <p><strong>Conductor:</strong> ${despacho.conductor_id}</p>
-                <p><strong>Destino:</strong> ${despacho.destino}</p>
-                <p><strong>Fecha:</strong> ${despacho.fecha} ${despacho.hora}</p>
-            </div>
-        `;
-        resultado.style.display = 'block';
+        const response = await fetch('/api/despachos');
+        if (!response.ok) throw new Error("Error al obtener despachos");
+        const despachos = await response.json();
+        const selector = document.getElementById('despacho-eliminar');
+
+        selector.innerHTML = '<option value="">Seleccione un despacho...</option>';
+        despachos.forEach(d => {
+            const texto = `${d.codigo_despacho} - ${d.destino} (${d.fecha})`;
+            selector.innerHTML += `<option value="${d.codigo_despacho}">${texto}</option>`;
+        });
+
     } catch (error) {
-        alert(error.message);
+        console.error("Error al cargar despachos:", error.message);
     }
 }
 
 async function confirmarEliminacion() {
-    const codigo = document.getElementById('codigo-eliminar').value.trim();
-    if (!codigo) return alert("Ingrese un código de despacho");
+    const codigo = document.getElementById('despacho-eliminar').value;
+    if (!codigo) return alert("Seleccione un despacho para eliminar");
+
     if (!confirm(`¿Eliminar el despacho ${codigo} permanentemente?`)) return;
+
     try {
         const response = await fetch(`/api/despachos/${codigo}`, {
             method: 'DELETE'
         });
         if (!response.ok) throw new Error("Error al eliminar");
+
         alert("Despacho eliminado correctamente");
         document.getElementById('resultado-eliminar').style.display = 'none';
+        await cargarDespachosParaEliminar(); // Recarga el listado
+
     } catch (error) {
         alert(error.message);
     }
 }
+

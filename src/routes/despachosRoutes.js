@@ -4,6 +4,7 @@ const despachoController = require('../controllers/despachoController');
 
 router.post('/', despachoController.crearDespacho);
 router.get('/:codigo', despachoController.obtenerDespacho);
+router.get('/', despachoController.listarDespachos);
 router.delete('/:codigo', despachoController.eliminarDespacho);
 // Exportar configuración de rutas
 module.exports = router;
