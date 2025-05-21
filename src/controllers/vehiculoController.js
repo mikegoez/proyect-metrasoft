@@ -168,25 +168,43 @@ exports.actualizarVehiculo = async (req, res) => {
 // Eliminar vehículo del sistema
 exports.eliminarVehiculo = async (req, res) => {
   try {
-    const { placa } = req.params; // placa a eliminar
+    const { placa } = req.params;
 
-    // Obtener ID para la notificación
+    // Buscar ID del vehículo
     const [vehiculo] = await pool.query("SELECT id_vehiculo FROM vehiculos WHERE placa = ?", [placa]);
+    if (!vehiculo.length) {
+      return res.status(404).json({ error: "Vehículo no encontrado" });
+    }
+    const idVehiculo = vehiculo[0].id_vehiculo;
+
+    // Verificar si hay despachos recientes (últimos 7 días)
+    const [despachos] = await pool.query(`
+      SELECT * FROM despachos 
+      WHERE vehiculo_id = ? 
+        AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    `, [idVehiculo]);
+
+    if (despachos.length > 0) {
+      return res.status(400).json({ 
+        error: "Este vehículo tiene despachos recientes y no puede eliminarse aún." 
+      });
+    }
+
     // Crear notificación antes de eliminar
     await crearNotificacion(
       'eliminacion',
       `Vehículo ${placa} eliminado`,
-      vehiculo[0].id_vehiculo,
+      idVehiculo,
       'vehiculo'
     );
-    // Ejecutar eliminación
+
+    // Eliminar vehículo
     await pool.query("DELETE FROM vehiculos WHERE placa = ?", [placa]);
     
     res.json({ success: true });
+
   } catch (error) {
-    if (error.code === 'ER_ROW_IS_REFERENCED') {
-        return res.status(400).json({ error: "Este registro está vinculado a un despacho y no puede eliminarse." });
-    }
     res.status(500).json({ error: error.message });
   }
 };
+

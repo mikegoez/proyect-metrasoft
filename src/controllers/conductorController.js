@@ -128,29 +128,46 @@ exports.actualizarConductor = async (req, res) => {
 
 // Controlador para eliminar un conductor
 exports.eliminarConductor = async (req, res) => {
-    try {
+  try {
+    const { numero_documento } = req.params;
 
-        const { numero_documento } = req.params;
-        // Obtener ID del conductor para la notificación
-        const [conductor] = await pool.query(
-            "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
-            [numero_documento]
-        );
-        // Crear notificación de eliminación antes de borrar
-        await crearNotificacion(
-            'eliminacion',
-            `Conductor ${numero_documento} eliminado`,
-            conductor[0].id_conductor,
-            'conductor'
-        );
-        // Eliminar conductor de la base de datos
-        await pool.query("DELETE FROM conductores WHERE numero_documento = ?", [numero_documento]);
-        res.json({ success: true });
-
-    } catch (error) {
-        if (error.code === 'ER_ROW_IS_REFERENCED') {
-            return res.status(400).json({ error: "Este registro está vinculado a un despacho y no puede eliminarse." });
-        }
-        res.status(500).json({ error: error.message });
+    // Buscar ID del conductor
+    const [conductor] = await pool.query(
+      "SELECT id_conductor FROM conductores WHERE numero_documento = ?", 
+      [numero_documento]
+    );
+    if (!conductor.length) {
+      return res.status(404).json({ error: "Conductor no encontrado" });
     }
+    const idConductor = conductor[0].id_conductor;
+
+    // Verificar si hay despachos recientes (últimos 7 días)
+    const [despachos] = await pool.query(`
+      SELECT * FROM despachos 
+      WHERE conductor_id = ? 
+        AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    `, [idConductor]);
+
+    if (despachos.length > 0) {
+      return res.status(400).json({ 
+        error: "Este conductor tiene despachos recientes y no puede eliminarse aún." 
+      });
+    }
+
+    // Crear notificación antes de eliminar
+    await crearNotificacion(
+      'eliminacion',
+      `Conductor ${numero_documento} eliminado`,
+      idConductor,
+      'conductor'
+    );
+
+    // Eliminar conductor
+    await pool.query("DELETE FROM conductores WHERE numero_documento = ?", [numero_documento]);
+    
+    res.json({ success: true });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
