@@ -75,7 +75,7 @@ async function cargarDatosActualizar(numeroDocumento) {
                     <label class="form-label">Nueva fecha de vencimiento</label>
                     <input type="date" class="form-control" 
                            id="fecha-actualizar" 
-                           value="${conductor.fecha_vencimiento_licencia}" 
+                           value="${conductor.fecha_vencimiento_licencia.split('T')[0]}"
                            required>
                 </div>
                 <div class="col-12">
