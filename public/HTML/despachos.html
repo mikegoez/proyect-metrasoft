@@ -4,140 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrasofft - Despachos</title>
-    <!-- bootstrap -->
     <link rel="stylesheet" href="/assets/icons/bootstrap-icons.css">
     <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-    <!-- estilos personalizados -->
     <link rel="stylesheet" href="/CSS/global.css">
     <link rel="stylesheet" href="/CSS/components.css">
 </head>
 <body class="bg-light">
-    <!-- barra de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mtr-navbar">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <img src="/assets/metrasofftlogo.png" alt="Logo" class="mtr-navbar-logo">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Manual</a>
-                    </li>
-                </ul>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mtr-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+            <img src="/assets/metrasofftlogo.png" alt="Logo" class="mtr-navbar-logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Manual</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-3 mb-3 mtr-sidebar">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action active" id="btn-crear">
+                            <i class="bi bi-clipboard-check"></i> Crear Despacho
+                        </button>
+                        <button class="list-group-item list-group-item-action" id="btn-eliminar">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-    <!-- contenedor principal -->
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <!-- sidebar -->
-            <div class="col-lg-3 mb-3 mtr-sidebar">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="list-group">
-                            <button class="list-group-item list-group-item-action active" id="btn-crear">
-                                <i class="bi bi-clipboard-check"></i> Crear Despacho
+        <div class="col-lg-9">
+            <section id="crear-despacho" class="card shadow-sm mb-4" style="display:none;">
+                <div class="card-body">
+                    <h2 class="mb-4"><i class="bi bi-clipboard-check"></i> Crear Nuevo Despacho</h2>
+                    <input type="hidden" id="tipo-carga">
+                    <input type="hidden" id="capacidad-kg">
+                    <input type="hidden" id="capacidad-puestos">
+                    <form id="form-crear-despacho" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-upc-scan"></i> Código</label>
+                            <input type="text" class="form-control bg-light" id="codigo-despacho" readonly placeholder="se genera automaticamente">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-bus-front"></i> Vehículo</label>
+                            <select class="form-select" id="vehiculo" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-person-plus"></i> Conductor</label>
+                            <select class="form-select" id="conductor" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-box-seam"></i> Tipo de Carga</label>
+                            <input type="text" class="form-control bg-light" id="tipo-carga-display" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-speedometer"></i> Capacidad KG</label>
+                            <input type="number" class="form-control bg-light" id="capacidad-kg-display" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-people"></i> Capacidad Puestos</label>
+                            <input type="number" class="form-control bg-light" id="capacidad-puestos-display" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label"><i class="bi bi-geo-alt"></i> Destino</label>
+                            <input type="text" class="form-control" id="destino" placeholder="Ej: Bogotá" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-calendar"></i> Fecha</label>
+                            <input type="date" class="form-control" id="fecha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="bi bi-clock"></i> Hora</label>
+                            <input type="time" class="form-control" id="hora" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save"></i> Crear Despacho
                             </button>
-                            <button class="list-group-item list-group-item-action" id="btn-eliminar">
+                        </div>
+                    </form>
+                    <div id="loading" class="text-center mt-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="text-muted mt-2">Procesando...</p>
+                    </div>
+                </div>
+            </section>
+            <section id="eliminar-despacho" class="card shadow-sm mb-4" style="display:none;">
+                <div class="card-body">
+                    <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Despacho</h2>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <select class="form-select" id="despacho-eliminar">
+                                <option value="">Seleccione un despacho...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger w-100" id="btn-eliminar-despacho">
                                 <i class="bi bi-trash"></i> Eliminar
                             </button>
                         </div>
                     </div>
+                    <div id="resultado-eliminar" class="mt-4" style="display:none;"></div>
                 </div>
-            </div>
-            <!-- contenido principal -->
-            <div class="col-lg-9">
-                <!-- sección: crear despacho -->
-                <section id="crear-despacho" class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h2 class="mb-4"><i class="bi bi-clipboard-check"></i> Crear Nuevo Despacho</h2>
-                        <input type="hidden" id="tipo-carga" name="tipo_carga">
-                        <input type="hidden" id="capacidad-kg" name="capacidad_kg">
-                        <input type="hidden" id="capacidad-puestos" name="capacidad_puestos">
-                        <form id="form-crear-despacho" class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-upc-scan"></i> Código</label>
-                                <input type="text" class="form-control bg-light" id="codigo-despacho" readonly placeholder="se genera automaticamente">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-bus-front"></i> Vehículo</label>
-                                <select class="form-select" id="vehiculo" required>
-                                    <option value="">Cargando vehículos...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-person-plus"></i> Conductor</label>
-                                <select class="form-select" id="conductor" required>
-                                    <option value="">Cargando conductores...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-box-seam"></i> Tipo de Carga</label>
-                                <input type="text" class="form-control bg-light" id="tipo-carga-display" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-speedometer"></i> Capacidad KG</label>
-                                <input type="number" class="form-control bg-light" id="capacidad-kg-display" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-people"></i> Capacidad Puestos</label>
-                                <input type="number" class="form-control bg-light" id="capacidad-puestos-display" readonly>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label"><i class="bi bi-geo-alt"></i> Destino</label>
-                                <input type="text" class="form-control" id="destino" placeholder="Ej: Bogotá" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-calendar"></i> Fecha</label>
-                                <input type="date" class="form-control" id="fecha" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label"><i class="bi bi-clock"></i> Hora</label>
-                                <input type="time" class="form-control" id="hora" required>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-save"></i> Crear Despacho
-                                </button>
-                            </div>
-                        </form>
-                        <div id="loading" class="text-center mt-4" style="display: none;">
-                            <div class="spinner-border text-primary" role="status"></div>
-                            <p class="text-muted mt-2">Procesando...</p>
-                        </div>
-                    </div>
-                </section>
- <!-- sección: eliminar despacho -->
-                <section id="eliminar-despacho" class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h2 class="mb-4"><i class="bi bi-trash"></i> Eliminar Despacho</h2>
-                        <div class="row g-3">
-                            <div class="col-md-8">
-                                <select class="form-select" id="despacho-eliminar">
-                                    <option value="">Seleccione un despacho...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-danger w-100" id="btn-eliminar-despacho">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </div>
-                        </div>
-                        <div id="resultado-eliminar" class="mt-4" style="display:none;"></div>
-                    </div>
-                </section>
-            </div>
+            </section>
         </div>
     </div>
-    <!-- scripts -->
-    <script src="/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/jspdf.umd.min.js"></script>
-    <script src="/JS/despachos.js"></script>
+</div>
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/jspdf.umd.min.js"></script>
+<script src="/JS/despachos.js"></script>
 </body>
 </html>
