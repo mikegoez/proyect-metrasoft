@@ -139,6 +139,7 @@ const authRoutes = require('./routes/authRoutes');
 const vehiculosRoutes = require('./routes/vehiculosRoutes');
 const conductoresRoutes = require('./routes/conductoresRoutes');
 const despachosRoutes = require('./routes/despachosRoutes');
+const notificacionesRouter = require('./routes/notificacionesRoutes');
 
 // ... otras rutas de API
 
@@ -146,6 +147,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vehiculos", vehiculosRoutes);
 app.use("/api/conductores", conductoresRoutes);
 app.use("/api/despachos", despachosRoutes);
+app.use("/api/notificaciones",notificacionesRouter);
 
 
 // ================================================
