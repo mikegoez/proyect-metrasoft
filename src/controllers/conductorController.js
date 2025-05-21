@@ -49,7 +49,7 @@ exports.crearConductor = async (req, res) => {
 exports.obtenerConductores = async (req, res) => {
     try {
         // Consulta para obtener datos básicos de todos los conductores
-        const [conductores] = await pool.query("SELECT id_conductor, nombres, apellidos FROM conductores");
+        const [conductores] = await pool.query("SELECT id_conductor, nombres, apellidos, numero_documento FROM conductores");
         res.json(conductores);
     } catch (error) {
         res.status(500).json({ error: error.message });
