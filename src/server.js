@@ -138,12 +138,13 @@ app.get('/HTML/*', (req, res, next) => {
 const authRoutes = require('./routes/authRoutes');
 const vehiculosRoutes = require('./routes/vehiculosRoutes');
 const conductoresRoutes = require('./routes/conductoresRoutes');
+const despachosRoutes = require('./routes/despachosRoutes');
 // ... otras rutas de API
 
 app.use("/api/auth", authRoutes);
 app.use("/api/vehiculos", vehiculosRoutes);
 app.use("/api/conductores", conductoresRoutes);
-// ... otros usos de rutas de API
+app.use("/api/despachos", despachosRoutes);
 
 // ================================================
 // 5. MANEJO DE ERRORES
