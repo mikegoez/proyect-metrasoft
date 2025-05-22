@@ -55,12 +55,17 @@
     transform: translateX(5px);
   }
 
-  @media (max-width: 991.98px) {
+@media (max-width: 991.98px) {
   .navbar-collapse {
     background-color: #ffffff;
     padding: 1rem;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    top: 80px; /* Altura de tu navbar */
+    left: 0;
+    right: 0;
+    z-index: 1050; /* Mayor que el sidebar */
   }
 
   .navbar-collapse .nav-link,
@@ -77,5 +82,11 @@
     background-color: #f0f0f0;
     color: #000 !important;
     border-radius: 5px;
+  }
+
+  /* Evitar que el sidebar tape el menú */
+  .mtr-sidebar {
+    z-index: 1;
+    position: relative;
   }
 }
