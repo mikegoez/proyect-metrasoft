@@ -17,21 +17,21 @@
     background-color: #e8e3e3 !important;
   }
 
-  @media (max-width: 991.98px) {
+@media (max-width: 991.98px) {
   .navbar-collapse {
-    background-color: white;
-    border-radius: 8px;
-    padding: 10px;
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
   }
 
-  .navbar-collapse .nav-link {
-    color: #000 !important; /* Asegura que se vean en fondo blanco */
-    margin-left: 0;
-    padding: 10px;
-  }
-
+  .navbar-collapse .nav-link,
   .navbar-collapse .btn {
-    color: #000 !important;
+    color: #212529 !important;
+    display: block;
+    padding: 0.5rem 1rem;
+    text-align: left;
   }
 }
+
