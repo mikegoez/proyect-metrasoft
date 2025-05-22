@@ -12,3 +12,13 @@
   border: 2px solid var(--mtr-secondary) !important;
   border-radius: 15px !important;
 }
+
+.mtr-sidebar .card {
+    height: calc(100vh - 200px) !important; 
+    overflow-y: auto;
+}
+
+#actualizar, #eliminar {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
