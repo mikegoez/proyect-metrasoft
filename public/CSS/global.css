@@ -17,28 +17,4 @@
     background-color: #e8e3e3 !important;
   }
 
-  @media (max-width: 991.98px) {
-  .navbar-collapse {
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .navbar-collapse .nav-link,
-  .navbar-collapse .btn {
-    color: #212529 !important;
-    display: block;
-    padding: 10px 15px;
-    text-align: left;
-    font-weight: 500;
-  }
-
-  .navbar-collapse .nav-link:hover,
-  .navbar-collapse .btn:hover {
-    background-color: #f0f0f0;
-    color: #000 !important;
-    border-radius: 5px;
-  }
-}
 
