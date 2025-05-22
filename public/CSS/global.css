@@ -17,27 +17,5 @@
     background-color: #e8e3e3 !important;
   }
 
-@media (max-width: 991.98px) {
-  .navbar-collapse {
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-  }
-
-  .navbar-collapse .nav-link,
-  .navbar-collapse .btn {
-    color: #212529 !important;
-    display: block;
-    padding: 0.5rem 1rem;
-    text-align: left;
-  }
-
-  /* ⚠️ Sobrescribe el blanco que impone .mtr-navbar .nav-link */
-  .navbar-collapse .nav-link:hover::after {
-    background-color: #212529 !important;
-  }
-}
 
 
