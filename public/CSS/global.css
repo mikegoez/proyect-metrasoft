@@ -16,3 +16,22 @@
     font-family: 'Arial', sans-serif;
     background-color: #e8e3e3 !important;
   }
+
+  @media (max-width: 991.98px) {
+  .navbar-collapse {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+  }
+
+  .navbar-collapse .nav-link {
+    color: #000 !important; /* Asegura que se vean en fondo blanco */
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  .navbar-collapse .btn {
+    color: #000 !important;
+  }
+}
